@@ -14,4 +14,6 @@ public class ApplicationDbContext : IdentityDbContext
 public DbSet<ProjetoDW.Models.UtilizadoresR> UtilizadoresR { get; set; } = default!;
 
 public DbSet<ProjetoDW.Models.UtilizadoresD> UtilizadoresD { get; set; } = default!;
+
+public DbSet<ProjetoDW.Models.Cartas> Cartas { get; set; } = default!;
 }
