@@ -3,11 +3,44 @@
 @{
     ViewData["Title"] = "Index";
 }
+<style>
+    .perfil-container {
+        position: relative;
+        width: 120px; /* ou o tamanho que quiseres */
+        height: 120px;
+    }
+
+    .foto-perfil {
+        width: 68%;
+        height: 68%;
+        border-radius: 50%;
+        object-fit: cover;
+        position: absolute;
+        top: 15%;
+        left: 15%;
+        z-index: 1;
+    }
+
+    .moldura-frame {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        pointer-events: none; /* deixa clicar na imagem de baixo */
+    }
+
+</style>
 
 <h1>UtilizadoresD</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
+    <div class="perfil-container">
+        <img src="./Designer.png" alt="Foto de Perfil" class="foto-perfil">
+        <img src="./user_frame.png" alt="Moldura" class="moldura-frame">
+    </div>
 </p>
 <div class="container">
 <table class="table">
