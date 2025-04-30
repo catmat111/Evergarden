@@ -22,6 +22,29 @@ body {
   margin-bottom: 60px;
   
 }
-.container{
+
+.container-border{
+  display: flex;
+  margin: auto;
+  height: 100vh;
+  width: 75vw;
+  align-items: stretch;
+  justify-content: stretch;
+  border: 30px solid transparent; /* ← Reduzido de 30px para 10px */
+  border-radius: 0px;
+  border-image: url("../Wallpaper_001.png") 25 round;
+  padding: 0;
+  box-sizing: border-box;
+  z-index:2;
+}
+
+.container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  margin: auto;
+  text-align: center;
   background-color: #f2e7c3;
+  z-index:0;
+  
 }
