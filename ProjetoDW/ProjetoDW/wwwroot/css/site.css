@@ -18,33 +18,26 @@ html {
 }
 
 body {
-  background-image: url("../recursos/imagens_geral/castanho_escuro.png");
+  background-image: url("../recursos/imagens_geral/transferir.jpg");
   margin-bottom: 60px;
-  
+
 }
 
-.container-border{
-  display: flex;
-  margin: auto;
-  height: 100vh;
-  width: 75vw;
-  align-items: stretch;
-  justify-content: stretch;
-  border: 30px solid transparent; /* ← Reduzido de 30px para 10px */
-  border-radius: 0px;
-  border-image: url("../recursos/imagens_geral/castanho_claro.png") 25 round;
-  padding: 0;
-  box-sizing: border-box;
-  z-index:2;
-}
 
 .container {
   position: relative;
-  height: 100%;
-  width: 100%;
-  margin: auto;
+  height: 50vh;
+  width: 50vw;
   text-align: center;
-  background-color: #f2e7c3;
+  border-radius: 10px;
+  background-image: url("../recursos/imagens_geral/papelbackground.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
   z-index:0;
-  
+  border: 20px solid transparent; /* ← Reduzido de 30px para 10px */
+  border-image: url("../recursos/imagens_geral/borda_dourada.png") 700 round;
+  border-image-outset: 30px;
+  background-clip: padding-box;
+
 }
