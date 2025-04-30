@@ -18,7 +18,7 @@ html {
 }
 
 body {
-  background-image: url("../duela.png");
+  background-image: url("../recursos/imagens_geral/castanho_escuro.png");
   margin-bottom: 60px;
   
 }
@@ -32,7 +32,7 @@ body {
   justify-content: stretch;
   border: 30px solid transparent; /* ← Reduzido de 30px para 10px */
   border-radius: 0px;
-  border-image: url("../Wallpaper_001.png") 25 round;
+  border-image: url("../recursos/imagens_geral/castanho_claro.png") 25 round;
   padding: 0;
   box-sizing: border-box;
   z-index:2;
