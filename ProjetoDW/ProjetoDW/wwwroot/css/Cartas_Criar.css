@@ -1,0 +1,117 @@
+﻿.form-carta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.coluna-esquerda,
+.coluna-direita {
+    width: 100%;
+}
+
+.form-group.titulo {
+    margin-bottom: 10px;
+}
+
+.form-group.titulo input {
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-group.titulo input,
+.form-group.descricao textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fdfdfd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-group.titulo input::placeholder,
+.form-group.descricao textarea::placeholder,
+.form-group.UtilizadoresDFk input::placeholder{
+    color: #888;
+    font-style: italic;
+}
+
+.form-group.titulo input:focus,
+.form-group.descricao textarea:focus,
+.form-group.DataEnvio input:focus,
+.form-group.UtilizadoresDFk input:focus {
+    border-color: #d4af37;
+    outline: none;
+    box-shadow: 0 0 5px #d4af37aa;
+}
+
+textarea.auto-expand {
+    min-height: 150px;
+    overflow: hidden;
+    resize: none;
+    height: auto;
+}
+
+@media (min-width: 992px) {
+    .form-carta {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .coluna-esquerda,
+    .coluna-direita {
+        width: 48%;
+    }
+
+    .form-group.full-width {
+        width: 100%;
+        text-align: center;
+        margin-top: 20px;
+    }
+}
+
+.full-width {
+    width: 100%;
+}
+
+form input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d4af37;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    margin-right: 8px;
+    vertical-align: middle;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+form input[type="checkbox"]:checked {
+    background-color: #d4af37;
+    border-color: #bfa235;
+}
+
+form input[type="checkbox"]:checked::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+form label {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1rem;
+    color: #444;
+    cursor: pointer;
+    user-select: none;
+}

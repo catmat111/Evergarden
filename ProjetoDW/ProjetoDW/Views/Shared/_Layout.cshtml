@@ -12,6 +12,7 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light custom-navbar">
         <div class="container-fluid">
+            <img src="favicon.ico" width="45px"/>
             <a id="home" class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Evergarden</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -20,19 +21,16 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="UtilizadoresR" asp-action="Index">UtilizadoresR</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="UtilizadoresD" asp-action="Index">UtilizadoresD</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Index">Cartas</a>
+                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Create">Criar Cartas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Index">Ver Cartas</a>
                     </li>
                 </ul>
                 <partial name="_LoginPartial"/>

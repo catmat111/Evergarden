@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -54,16 +55,22 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Titulo,Descricao,Topico,DataEnvio,DataCriacao,UtilizadoresEFk,UtilizadoresDFk")] Cartas cartas)
+        public async Task<IActionResult> Create([Bind("Id,Titulo,Descricao,Topico,DataEnvio,UtilizadoresEFk,UtilizadoresDFk")] Cartas cartas)
         {
             if (ModelState.IsValid)
             {
+                
+                // Preencher automaticamente a DataCriacao com a data atual
+                cartas.DataCriacao = DateTime.Now;
+
+                // Adicionar a carta ao contexto e salvar no banco de dados
                 _context.Add(cartas);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(cartas);
         }
+
 
         // GET: Cartas/Edit/5
         public async Task<IActionResult> Edit(int? id)

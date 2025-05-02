@@ -213,6 +213,45 @@ namespace ProjetoDW.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ProjetoDW.Models.Cartas", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataEnvio")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Topico")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UtilizadoresDFk")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UtilizadoresEFk")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UtilizadoresDFk");
+
+                    b.HasIndex("UtilizadoresEFk");
+
+                    b.ToTable("Cartas");
+                });
+
             modelBuilder.Entity("ProjetoDW.Models.UtilizadoresD", b =>
                 {
                     b.Property<int>("Id")
@@ -342,6 +381,25 @@ namespace ProjetoDW.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjetoDW.Models.Cartas", b =>
+                {
+                    b.HasOne("ProjetoDW.Models.UtilizadoresD", "UtilizadoresD")
+                        .WithMany()
+                        .HasForeignKey("UtilizadoresDFk")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDW.Models.UtilizadoresR", "UtilizadoresR")
+                        .WithMany()
+                        .HasForeignKey("UtilizadoresEFk")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UtilizadoresD");
+
+                    b.Navigation("UtilizadoresR");
                 });
 #pragma warning restore 612, 618
         }

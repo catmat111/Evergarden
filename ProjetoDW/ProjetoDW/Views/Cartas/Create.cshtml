@@ -3,58 +3,88 @@
 @{
     ViewData["Title"] = "Create";
 }
+<head>
+    <link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
+</head>
 
-<h1>Create</h1>
+<h1>Escrever Carta</h1>
 
-<h4>Cartas</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Titulo" class="control-label"></label>
-                <input asp-for="Titulo" class="form-control" />
+    <form asp-action="Create" class="form-carta">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="coluna-esquerda">
+            <div class="form-group titulo">
+                <input asp-for="Titulo" class="form-control" placeholder="Titulo da Carta" />
                 <span asp-validation-for="Titulo" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Descricao" class="control-label"></label>
-                <input asp-for="Descricao" class="form-control" />
+            <div class="form-group descricao">
+                <textarea asp-for="Descricao" class="form-control auto-expand" placeholder="Clique para escrever a carta aqui..."></textarea>
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
+        </div>
+
+        <div class="coluna-direita">
             <div class="form-group">
-                <label asp-for="Topico" class="control-label"></label>
-                <input asp-for="Topico" class="form-control" />
-                <span asp-validation-for="Topico" class="text-danger"></span>
+                <div class="form-group UtilizadoresDFk">
+                    
+                    <input asp-for="UtilizadoresDFk" class="form-control" placeholder="Destinatário"/>
+                    <span asp-validation-for="UtilizadoresDFk" class="text-danger"></span>
+                </div>
+                <form>
+                    <input type="checkbox" id="aniversario" name="aniversario" value="aniversario">
+                    <label for="aniversario">Aniversário</label><br>
+                    <!-- DataEnvio visível só quando "aniversario" está checked -->
+                    <div class="form-group DataEnvio" id="dataEnvioContainer" style="display: none;">
+                        <label asp-for="DataEnvio" class="control-label"></label>
+                        <input asp-for="DataEnvio" class="form-control" id="dataEnvioInput"/>
+                        <span asp-validation-for="DataEnvio" class="text-danger"></span>
+                    </div>
+                    <input type="checkbox" id="casamento" name="casamento" value="casamento">
+                    <label for="casamento">Casamento</label><br>
+                    <input type="checkbox" id="feliz" name="feliz" value="feliz">
+                    <label for="feliz">Momento feliz</label>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="DataEnvio" class="control-label"></label>
-                <input asp-for="DataEnvio" class="form-control" />
-                <span asp-validation-for="DataEnvio" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DataCriacao" class="control-label"></label>
-                <input asp-for="DataCriacao" class="form-control" />
-                <span asp-validation-for="DataCriacao" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UtilizadoresEFk" class="control-label"></label>
-                <input asp-for="UtilizadoresEFk" class="form-control" />
-                <span asp-validation-for="UtilizadoresEFk" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UtilizadoresDFk" class="control-label"></label>
-                <input asp-for="UtilizadoresDFk" class="form-control" />
-                <span asp-validation-for="UtilizadoresDFk" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+            
+        </div>
+
+        <div class="form-group Create full-width">
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </form>
 </div>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
+<script>
+    // Expande automaticamente textarea
+    document.addEventListener('input', function (e) {
+        if (e.target.tagName.toLowerCase() === 'textarea' && e.target.classList.contains('auto-expand')) {
+            e.target.style.height = 'auto';
+            e.target.style.height = (e.target.scrollHeight) + 'px';
+        }
+    });
+
+    // Mostra ou oculta DataEnvio conforme checkbox
+    function toggleDataEnvio() {
+        const checkAniversario = document.getElementById("aniversario");
+        const dataEnvioContainer = document.getElementById("dataEnvioContainer");
+        const dataEnvioInput = document.getElementById("dataEnvioInput");
+
+        if (checkAniversario.checked) {
+            dataEnvioContainer.style.display = "block";
+        } else {
+            dataEnvioContainer.style.display = "none";
+            dataEnvioInput.value = ""; // limpa valor
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleDataEnvio(); // inicializa corretamente
+        document.getElementById("aniversario").addEventListener("change", toggleDataEnvio);
+    });
+</script>
