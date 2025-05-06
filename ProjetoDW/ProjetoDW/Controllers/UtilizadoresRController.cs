@@ -46,7 +46,8 @@ namespace ProjetoDW.Controllers
         // GET: UtilizadoresR/Create
         public IActionResult Create()
         {
-            return View();
+            var utilizador = new UtilizadoresR();
+            return View(utilizador);
         }
 
         // POST: UtilizadoresR/Create
@@ -56,6 +57,29 @@ namespace ProjetoDW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] UtilizadoresR utilizadoresR)
         {
+            // Verifica se foi submetido algum ficheiro
+            if (utilizadoresR.Imagem != null && utilizadoresR.Imagem.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+
+                // Cria a pasta se não existir
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // Cria nome único para o ficheiro
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(utilizadoresR.Imagem.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Guarda o ficheiro no servidor
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await utilizadoresR.Imagem.CopyToAsync(stream);
+                }
+
+                // Guarda o caminho relativo na base de dados
+                utilizadoresR.ImagemPath = "/uploads/" + fileName;
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(utilizadoresR);
@@ -64,6 +88,7 @@ namespace ProjetoDW.Controllers
             }
             return View(utilizadoresR);
         }
+
 
         // GET: UtilizadoresR/Edit/5
         public async Task<IActionResult> Edit(int? id)

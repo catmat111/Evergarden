@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
 namespace ProjetoDW.Models;
 
 public class UtilizadoresR
@@ -10,7 +10,9 @@ public class UtilizadoresR
     
     public string Password { get; set; }
     
-    public string Imagem { get; set; }
+    [NotMapped]
+    public IFormFile Imagem { get; set; }
+    public string ImagemPath { get; set; } // guardado na BD
     
     [Display(Name = "Telemóvel")]
     public string Telemovel { get; set; }
