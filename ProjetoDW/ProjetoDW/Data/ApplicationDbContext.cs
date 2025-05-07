@@ -16,4 +16,6 @@ public DbSet<ProjetoDW.Models.UtilizadoresR> UtilizadoresR { get; set; } = defau
 public DbSet<ProjetoDW.Models.UtilizadoresD> UtilizadoresD { get; set; } = default!;
 
 public DbSet<ProjetoDW.Models.Cartas> Cartas { get; set; } = default!;
+
+public DbSet<ProjetoDW.Models.Categorias> Categorias { get; set; } = default!;
 }
