@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProjetoDW.Models;
 
@@ -7,14 +8,25 @@ namespace ProjetoDW.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private UserManager<IdentityUser> _userManager { get; }
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, UserManager<IdentityUser> userManager)
     {
         _logger = logger;
+        _userManager = userManager;
+        
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            var roles = await _userManager.GetRolesAsync(currentUser);
+            var i = "";
+        }
+            
+
         return View();
     }
 

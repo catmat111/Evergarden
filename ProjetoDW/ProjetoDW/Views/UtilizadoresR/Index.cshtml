@@ -1,4 +1,4 @@
-@model IEnumerable<ProjetoDW.Models.UtilizadoresR>
+@model IEnumerable<ProjetoDW.Models.Utilizadores>
 
 @{
     ViewData["Title"] = "Index";
@@ -16,9 +16,6 @@
                 @Html.DisplayNameFor(model => model.Nome)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Password)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Imagem)
             </th>
             <th>
@@ -29,9 +26,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.NIF)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Idade)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DataNascimento)
@@ -46,9 +40,6 @@
                 @Html.DisplayFor(modelItem => item.Nome)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.Imagem)
             </td>
             <td>
@@ -59,9 +50,6 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.NIF)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Idade)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.DataNascimento)

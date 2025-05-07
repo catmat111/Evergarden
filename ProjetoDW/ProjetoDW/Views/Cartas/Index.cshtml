@@ -4,11 +4,12 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Bem vindo</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div>
+    <img src="recursos/imagens_geral/lupa.png" width="20px"/>
+    <input type="text"/>
+</div>
 <table class="table">
     <thead>
         <tr>
@@ -28,10 +29,10 @@
                 @Html.DisplayNameFor(model => model.DataCriacao)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UtilizadoresEFk)
+                @Html.DisplayNameFor(model => model.UtilizadorRemetenteFk)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UtilizadoresDFk)
+                @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
             </th>
             <th></th>
         </tr>
@@ -55,10 +56,10 @@
                 @Html.DisplayFor(modelItem => item.DataCriacao)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UtilizadoresEFk)
+                @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UtilizadoresDFk)
+                @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using ProjetoDW.Models;
 using ProjetoDW.Data;
@@ -37,40 +40,19 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
             _signInManager = signInManager;
         }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
+        [BindProperty] public InputModel Input { get; set; }
 
         public string ReturnUrl { get; set; }
 
         public class InputModel
         {
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Email")]
-            public string Email { get; set; }
+            public Utilizadores Utilizadores { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
             public string Password { get; set; }
-
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-
-            [Required]
-            public string Nome { get; set; }
-
-            public string Telemovel { get; set; }
-
-            public int NIF { get; set; }
-
-            public int Idade { get; set; }
-
-            [DataType(DataType.Date)]
-            public DateTime DataNascimento { get; set; }
+            
+            [Display(Name = "Tipo de Utilizador")]
+            [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
+            public int TipoUtilizador { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -82,36 +64,68 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
+            if (Input.TipoUtilizador == 0)
+            {
+                ModelState.AddModelError("TipoUtilizador", "Tem de escolher um tipo de utilizador");
+            }
+            
             if (ModelState.IsValid)
             {
                 // Cria o utilizador IdentityUser (se necessário para autenticação)
-                var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+                var user = new IdentityUser { UserName = Input.Utilizadores.Email, Email = Input.Utilizadores.Email };
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Cria o UtilizadorR e regista na base de dados
-                    var utilizadorR = new UtilizadoresR
+                    if (Input.TipoUtilizador == 1)
                     {
-                        Nome = Input.Nome,
-                        Email = Input.Email,
-                        Password = Input.Password, // NÃO recomendado guardar a password em texto simples
-                        Telemovel = Input.Telemovel,
-                        NIF = Input.NIF,
-                        Idade = Input.Idade,
-                        DataNascimento = Input.DataNascimento
+                        IdentityUserRole<string> identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "REMET" };
+                        _context.UserRoles.Add(identityUserRole);
+                    }
+                    else if (Input.TipoUtilizador == 2)
+                    {
+                        IdentityUserRole<string> identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "DEST" };
+                        _context.UserRoles.Add(identityUserRole);
+                    }
+                    
+                    
+                    // Cria o UtilizadorR e regista na base de dados
+                    var utilizadorR = new Utilizadores
+                    {
+                        Nome = Input.Utilizadores.Nome,
+                        Email = Input.Utilizadores.Email,
+                        Telemovel = Input.Utilizadores.Telemovel,
+                        NIF = Input.Utilizadores.NIF,
+                        ImagemPath = "",
+                        DataNascimento = Input.Utilizadores.DataNascimento
                     };
 
-                    _context.UtilizadoresR.Add(utilizadorR);
+                    _context.Utilizadores.Add(utilizadorR);
                     await _context.SaveChangesAsync();
 
-                    // Podes usar o SignIn se precisares de autenticar o utilizador
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
 
-                    // Redireciona para a página de sucesso ou para a página inicial
-                    return LocalRedirect(returnUrl);
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Utilizadores.Email, returnUrl = returnUrl });
+                    }
+                    else
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
                 }
 
                 // Se falhar, adiciona erros ao ModelState
@@ -131,6 +145,7 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
+
             return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }

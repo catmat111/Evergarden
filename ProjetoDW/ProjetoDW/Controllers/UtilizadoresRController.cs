@@ -22,7 +22,7 @@ namespace ProjetoDW.Controllers
         // GET: UtilizadoresR
         public async Task<IActionResult> Index()
         {
-            return View(await _context.UtilizadoresR.ToListAsync());
+            return View(await _context.Utilizadores.ToListAsync());
         }
 
         // GET: UtilizadoresR/Details/5
@@ -33,7 +33,7 @@ namespace ProjetoDW.Controllers
                 return NotFound();
             }
 
-            var utilizadoresR = await _context.UtilizadoresR
+            var utilizadoresR = await _context.Utilizadores
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (utilizadoresR == null)
             {
@@ -46,7 +46,7 @@ namespace ProjetoDW.Controllers
         // GET: UtilizadoresR/Create
         public IActionResult Create()
         {
-            var utilizador = new UtilizadoresR();
+            var utilizador = new Utilizadores();
             return View(utilizador);
         }
 
@@ -55,10 +55,10 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] UtilizadoresR utilizadoresR)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] Utilizadores utilizadores)
         {
             // Verifica se foi submetido algum ficheiro
-            if (utilizadoresR.Imagem != null && utilizadoresR.Imagem.Length > 0)
+            if (utilizadores.Imagem != null && utilizadores.Imagem.Length > 0)
             {
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
 
@@ -67,26 +67,26 @@ namespace ProjetoDW.Controllers
                     Directory.CreateDirectory(uploadsFolder);
 
                 // Cria nome único para o ficheiro
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(utilizadoresR.Imagem.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(utilizadores.Imagem.FileName);
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
                 // Guarda o ficheiro no servidor
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await utilizadoresR.Imagem.CopyToAsync(stream);
+                    await utilizadores.Imagem.CopyToAsync(stream);
                 }
 
                 // Guarda o caminho relativo na base de dados
-                utilizadoresR.ImagemPath = "/uploads/" + fileName;
+                utilizadores.ImagemPath = "/uploads/" + fileName;
             }
 
             if (ModelState.IsValid)
             {
-                _context.Add(utilizadoresR);
+                _context.Add(utilizadores);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(utilizadoresR);
+            return View(utilizadores);
         }
 
 
@@ -98,7 +98,7 @@ namespace ProjetoDW.Controllers
                 return NotFound();
             }
 
-            var utilizadoresR = await _context.UtilizadoresR.FindAsync(id);
+            var utilizadoresR = await _context.Utilizadores.FindAsync(id);
             if (utilizadoresR == null)
             {
                 return NotFound();
@@ -111,9 +111,9 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] UtilizadoresR utilizadoresR)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] Utilizadores utilizadores)
         {
-            if (id != utilizadoresR.Id)
+            if (id != utilizadores.Id)
             {
                 return NotFound();
             }
@@ -122,12 +122,12 @@ namespace ProjetoDW.Controllers
             {
                 try
                 {
-                    _context.Update(utilizadoresR);
+                    _context.Update(utilizadores);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UtilizadoresRExists(utilizadoresR.Id))
+                    if (!UtilizadoresRExists(utilizadores.Id))
                     {
                         return NotFound();
                     }
@@ -138,7 +138,7 @@ namespace ProjetoDW.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(utilizadoresR);
+            return View(utilizadores);
         }
 
         // GET: UtilizadoresR/Delete/5
@@ -149,7 +149,7 @@ namespace ProjetoDW.Controllers
                 return NotFound();
             }
 
-            var utilizadoresR = await _context.UtilizadoresR
+            var utilizadoresR = await _context.Utilizadores
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (utilizadoresR == null)
             {
@@ -164,10 +164,10 @@ namespace ProjetoDW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var utilizadoresR = await _context.UtilizadoresR.FindAsync(id);
+            var utilizadoresR = await _context.Utilizadores.FindAsync(id);
             if (utilizadoresR != null)
             {
-                _context.UtilizadoresR.Remove(utilizadoresR);
+                _context.Utilizadores.Remove(utilizadoresR);
             }
 
             await _context.SaveChangesAsync();
@@ -176,7 +176,7 @@ namespace ProjetoDW.Controllers
 
         private bool UtilizadoresRExists(int id)
         {
-            return _context.UtilizadoresR.Any(e => e.Id == id);
+            return _context.Utilizadores.Any(e => e.Id == id);
         }
     }
 }

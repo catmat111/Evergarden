@@ -1,4 +1,4 @@
-@model ProjetoDW.Models.UtilizadoresR
+@model ProjetoDW.Models.Utilizadores
 
 @{
     ViewData["Title"] = "Delete";
@@ -16,12 +16,6 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Password)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Password)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Imagem)
@@ -46,12 +40,6 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.NIF)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Idade)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Idade)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DataNascimento)

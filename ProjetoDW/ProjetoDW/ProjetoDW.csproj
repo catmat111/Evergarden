@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-ProjetoDW-2aeb946c-47f9-4557-b62e-1fecd56dd05f</UserSecretsId>
     </PropertyGroup>
@@ -24,6 +24,19 @@
 
     <ItemGroup>
       <Folder Include="Areas\Identity\Pages\Account\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\UtilizadoresD\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\UtilizadoresD\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\UtilizadoresD\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\UtilizadoresD\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\UtilizadoresD\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Categorias\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Categorias\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Categorias\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Categorias\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Categorias\Index.cshtml" />
     </ItemGroup>
 
 </Project>

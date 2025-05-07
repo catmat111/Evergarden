@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoDW.Data;
 
@@ -10,12 +11,29 @@ using ProjetoDW.Data;
 namespace ProjetoDW.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250507091728_refactorBd")]
+    partial class refactorBd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
+
+            modelBuilder.Entity("CartasCategorias", b =>
+                {
+                    b.Property<int>("CartasId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CategoriasId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CartasId", "CategoriasId");
+
+                    b.HasIndex("CategoriasId");
+
+                    b.ToTable("CartasCategorias");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -237,62 +255,55 @@ namespace ProjetoDW.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UtilizadoresDFk")
+                    b.Property<int>("UtilizadorDestinatarioFk")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UtilizadoresEFk")
+                    b.Property<int>("UtilizadorRemetenteFk")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UtilizadoresDFk");
+                    b.HasIndex("UtilizadorDestinatarioFk");
 
-                    b.HasIndex("UtilizadoresEFk");
+                    b.HasIndex("UtilizadorRemetenteFk");
 
                     b.ToTable("Cartas");
                 });
 
-            modelBuilder.Entity("ProjetoDW.Models.UtilizadoresD", b =>
+            modelBuilder.Entity("ProjetoDW.Models.Categorias", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DataNascimento")
+                    b.Property<DateTime>("DataCriacao")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
+                    b.Property<DateTime>("DataEnvio")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("Idade")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Imagem")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("NIF")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Password")
+                    b.Property<bool>("Tipo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Topico")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Telemovel")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("UtilizadoresFk")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UtilizadoresD");
+                    b.HasIndex("UtilizadoresFk");
+
+                    b.ToTable("Categorias");
                 });
 
-            modelBuilder.Entity("ProjetoDW.Models.UtilizadoresR", b =>
+            modelBuilder.Entity("ProjetoDW.Models.Utilizadores", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -304,9 +315,6 @@ namespace ProjetoDW.Data.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("Idade")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ImagemPath")
                         .IsRequired()
@@ -319,17 +327,28 @@ namespace ProjetoDW.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Telemovel")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UtilizadoresR");
+                    b.ToTable("Utilizadores");
+                });
+
+            modelBuilder.Entity("CartasCategorias", b =>
+                {
+                    b.HasOne("ProjetoDW.Models.Cartas", null)
+                        .WithMany()
+                        .HasForeignKey("CartasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDW.Models.Categorias", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -385,21 +404,32 @@ namespace ProjetoDW.Data.Migrations
 
             modelBuilder.Entity("ProjetoDW.Models.Cartas", b =>
                 {
-                    b.HasOne("ProjetoDW.Models.UtilizadoresD", "UtilizadoresD")
+                    b.HasOne("ProjetoDW.Models.Utilizadores", "UtilizadorDestinatario")
                         .WithMany()
-                        .HasForeignKey("UtilizadoresDFk")
+                        .HasForeignKey("UtilizadorDestinatarioFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProjetoDW.Models.UtilizadoresR", "UtilizadoresR")
+                    b.HasOne("ProjetoDW.Models.Utilizadores", "UtilizadorRemetente")
                         .WithMany()
-                        .HasForeignKey("UtilizadoresEFk")
+                        .HasForeignKey("UtilizadorRemetenteFk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UtilizadoresD");
+                    b.Navigation("UtilizadorDestinatario");
 
-                    b.Navigation("UtilizadoresR");
+                    b.Navigation("UtilizadorRemetente");
+                });
+
+            modelBuilder.Entity("ProjetoDW.Models.Categorias", b =>
+                {
+                    b.HasOne("ProjetoDW.Models.Utilizadores", "UtilizadorCriador")
+                        .WithMany()
+                        .HasForeignKey("UtilizadoresFk")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UtilizadorCriador");
                 });
 #pragma warning restore 612, 618
         }

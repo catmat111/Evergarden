@@ -24,14 +24,16 @@ public class Cartas
     public DateTime DataCriacao { get; set; }
 
     [Display(Name = "Remetente")]
-    public int UtilizadoresEFk { get; set; }
+    public int UtilizadorRemetenteFk { get; set; }
 
-    [ForeignKey(nameof(UtilizadoresEFk))]
-    public UtilizadoresR? UtilizadoresR { get; set; }
+    [ForeignKey(nameof(UtilizadorRemetenteFk))]
+    public Utilizadores? UtilizadorRemetente { get; set; }
 
     [Display(Name = "Destinatário")]
-    public int UtilizadoresDFk { get; set; }
+    public int UtilizadorDestinatarioFk { get; set; }
 
-    [ForeignKey(nameof(UtilizadoresDFk))]
-    public UtilizadoresD? UtilizadoresD { get; set; }
+    [ForeignKey(nameof(UtilizadorDestinatarioFk))]
+    public Utilizadores? UtilizadorDestinatario { get; set; }
+    
+    public List<Categorias> Categorias { get; set; } = new List<Categorias>();
 }
