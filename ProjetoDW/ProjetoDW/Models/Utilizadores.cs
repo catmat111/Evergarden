@@ -29,5 +29,12 @@ public class Utilizadores
     [Display(Name = "Data de Nascimento")]
     public DateTime DataNascimento { get; set; }
     
+    public int? RemetenteId { get; set; }
     
+    [ForeignKey("RemetenteId")]
+    public Utilizadores Remetente { get; set; }
+
+    public List<Utilizadores> UtilizadoresDestinatarios { get; set; } = new();
+
+
 }

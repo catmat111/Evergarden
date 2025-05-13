@@ -63,11 +63,7 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-
-            if (Input.TipoUtilizador == 0)
-            {
-                ModelState.AddModelError("TipoUtilizador", "Tem de escolher um tipo de utilizador");
-            }
+            
             
             if (ModelState.IsValid)
             {
@@ -79,17 +75,11 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    if (Input.TipoUtilizador == 1)
-                    {
-                        IdentityUserRole<string> identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "REMET" };
-                        _context.UserRoles.Add(identityUserRole);
-                    }
-                    else if (Input.TipoUtilizador == 2)
-                    {
-                        IdentityUserRole<string> identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "DEST" };
-                        _context.UserRoles.Add(identityUserRole);
-                    }
-                    
+                    // Atribui sempre o papel de Remetente (RoleId = "REMET")
+                    var identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "REMET" };
+                    _context.UserRoles.Add(identityUserRole);
+
+                    Input.Utilizadores.IdentityUserId= user.Id;
                     
                     // Cria o UtilizadorR e regista na base de dados
                     var utilizadorR = new Utilizadores

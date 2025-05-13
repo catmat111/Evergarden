@@ -24,15 +24,6 @@
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Input.TipoUtilizador"></label>
-                <select asp-for="Input.TipoUtilizador" class="form-control" aria-required="true">
-                    <option selected disabled="">Escolha uma role</option>
-                    <option value="1">Remetente</option>
-                    <option value="2">Destinatário</option>
-                </select>
-                <span asp-validation-for="Input.TipoUtilizador" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="Input.Utilizadores.Imagem"></label>
                 <input asp-for="Input.Utilizadores.Imagem" class="form-control" type="file" accept="image/*" />
 
