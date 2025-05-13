@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using ProjetoDW.Data;
 using ProjetoDW.Models;
 
@@ -13,16 +15,20 @@ namespace ProjetoDW.Controllers
     public class CategoriasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public CategoriasController(ApplicationDbContext context)
+        public CategoriasController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
+
 
         // GET: Categorias
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorias.ToListAsync());
+            var applicationDbContext = _context.Categorias.Include(c => c.UtilizadorCriador);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Categorias/Details/5
@@ -34,6 +40,7 @@ namespace ProjetoDW.Controllers
             }
 
             var categorias = await _context.Categorias
+                .Include(c => c.UtilizadorCriador)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (categorias == null)
             {
@@ -46,6 +53,7 @@ namespace ProjetoDW.Controllers
         // GET: Categorias/Create
         public IActionResult Create()
         {
+            ViewData["UtilizadoresFk"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -54,14 +62,25 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Tipo,Nome,Topico,DataEnvio,DataCriacao,UtilizadoresEFk,UtilizadoresDFk")] Categorias categorias)
+        public async Task<IActionResult> Create([Bind("Id,Tipo,Nome,UtilizadoresFk")] Categorias categorias)
         {
             if (ModelState.IsValid)
             {
+                var identityUserId = _userManager.GetUserId(User);
+
+                if (identityUserId == null)
+                {
+                    ModelState.AddModelError(string.Empty, "O utilizador não está autenticado. Faça login para continuar.");
+                    return View(categorias); // volta à view com o erro visível
+                }
+
+                categorias.UtilizadoresFk = identityUserId; // associa o utilizador criador
+
                 _context.Add(categorias);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["UtilizadoresFk"] = new SelectList(_context.Users, "Id", "Id", categorias.UtilizadoresFk);
             return View(categorias);
         }
 
@@ -78,6 +97,7 @@ namespace ProjetoDW.Controllers
             {
                 return NotFound();
             }
+            ViewData["UtilizadoresFk"] = new SelectList(_context.Users, "Id", "Id", categorias.UtilizadoresFk);
             return View(categorias);
         }
 
@@ -86,7 +106,7 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Tipo,Nome,Topico,DataEnvio,DataCriacao,UtilizadoresEFk,UtilizadoresDFk")] Categorias categorias)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Tipo,Nome,UtilizadoresFk")] Categorias categorias)
         {
             if (id != categorias.Id)
             {
@@ -113,6 +133,7 @@ namespace ProjetoDW.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["UtilizadoresFk"] = new SelectList(_context.Users, "Id", "Id", categorias.UtilizadoresFk);
             return View(categorias);
         }
 
@@ -125,6 +146,7 @@ namespace ProjetoDW.Controllers
             }
 
             var categorias = await _context.Categorias
+                .Include(c => c.UtilizadorCriador)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (categorias == null)
             {

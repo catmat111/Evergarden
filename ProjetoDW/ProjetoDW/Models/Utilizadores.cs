@@ -1,11 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
+
 namespace ProjetoDW.Models;
 
 public class Utilizadores
 {
     public int Id { get; set; }
-    
+    public string IdentityUserId { get; set; }
+
+    [ForeignKey("IdentityUserId")]
+    public IdentityUser IdentityUser { get; set; }
+
     public string Nome { get; set; }
     
     [NotMapped]
