@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoDW.Data;
 
@@ -10,9 +11,11 @@ using ProjetoDW.Data;
 namespace ProjetoDW.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513114311_IdentityUser_main")]
+    partial class IdentityUser_main
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
@@ -307,6 +310,7 @@ namespace ProjetoDW.Data.Migrations
                     b.Property<bool>("Terminado")
                         .HasColumnType("INTEGER");
 
+                    b.HasKey("Id");
 
                     b.ToTable("Tarefa");
                 });
@@ -323,6 +327,9 @@ namespace ProjetoDW.Data.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IdentityUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ImagemPath")
                         .HasColumnType("TEXT");
 
@@ -336,6 +343,8 @@ namespace ProjetoDW.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IdentityUserId");
 
                     b.ToTable("Utilizadores");
                 });
@@ -436,6 +445,14 @@ namespace ProjetoDW.Data.Migrations
                     b.Navigation("UtilizadorCriador");
                 });
 
+            modelBuilder.Entity("ProjetoDW.Models.Utilizadores", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "IdentityUser")
+                        .WithMany()
+                        .HasForeignKey("IdentityUserId");
+
+                    b.Navigation("IdentityUser");
+                });
 #pragma warning restore 612, 618
         }
     }
