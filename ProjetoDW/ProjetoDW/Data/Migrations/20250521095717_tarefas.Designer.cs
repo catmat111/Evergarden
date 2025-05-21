@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoDW.Data;
 
@@ -10,9 +11,11 @@ using ProjetoDW.Data;
 namespace ProjetoDW.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521095717_tarefas")]
+    partial class tarefas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
@@ -307,6 +310,12 @@ namespace ProjetoDW.Data.Migrations
                     b.Property<bool>("Terminado")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("UtilizadorId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UtilizadorId");
 
                     b.ToTable("Tarefa");
                 });
@@ -436,6 +445,14 @@ namespace ProjetoDW.Data.Migrations
                     b.Navigation("UtilizadorCriador");
                 });
 
+            modelBuilder.Entity("ProjetoDW.Models.Tarefa", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Utilizador")
+                        .WithMany()
+                        .HasForeignKey("UtilizadorId");
+
+                    b.Navigation("Utilizador");
+                });
 #pragma warning restore 612, 618
         }
     }
