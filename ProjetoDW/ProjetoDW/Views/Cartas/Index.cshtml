@@ -3,70 +3,108 @@
 @{
     ViewData["Title"] = "Index";
 }
+<link rel="stylesheet" href="~/css/Cartas_Index.css" asp-append-version="true" />
+<div class="row">
+    <div class="coluna-esquerda">
+        <div>
+            <img src="recursos/imagens_geral/lupa.png" width="20px"/>
+            <input type="text"/>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Titulo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DataCriacao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Titulo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Descricao)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Topico)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DataEnvio)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DataCriacao)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="coluna-direita">
+        @{
+            var tarefas = ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa> ?? new List<ProjetoDW.Models.Tarefa>();
+        }
 
-<h1>Bem vindo</h1>
+        <h2>To-Do List</h2>
 
-<div>
-    <img src="recursos/imagens_geral/lupa.png" width="20px"/>
-    <input type="text"/>
+        <form asp-controller="Tarefa" asp-action="Create" method="post">
+            <input type="text" name="nome" placeholder="Nova tarefa" class="form-control" required />
+            <button type="submit" class="btn btn-success mt-2">Adicionar</button>
+        </form>
+
+        <ul>
+            @foreach (var tarefa in tarefas)
+            {
+                <li>
+                    <input type="checkbox" @(tarefa.Terminado ? "checked" : "") disabled />
+                    @tarefa.Nome
+                </li>
+            }
+        </ul>
+
+    </div>
+
+
+
 </div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Titulo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descricao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Topico)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DataEnvio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DataCriacao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UtilizadorRemetenteFk)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Titulo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descricao)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Topico)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataEnvio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataCriacao)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<script>
+    function adicionarTarefa() {
+        const input = document.getElementById("novaTarefa");
+        const texto = input.value.trim();
+
+        if (texto !== "") {
+            const lista = document.getElementById("listaTarefas");
+
+            const item = document.createElement("li");
+            item.innerHTML = `
+                <label>
+                    <input type="checkbox" />
+                    ${texto}
+                </label>
+            `;
+
+            lista.appendChild(item);
+            input.value = "";
+        }
+    }
+</script>
