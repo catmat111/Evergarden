@@ -1,0 +1,55 @@
+@model IEnumerable<ProjetoDW.Models.Tarefa>
+
+@{
+    ViewData["Title"] = "To-Do List";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Coluna Esquerda: Formulário -->
+        <div class="col-md-4">
+            <h3>Adicionar Tarefa</h3>
+            <form id="addForm">
+                <div class="mb-3">
+                    <input type="text" name="nome" id="nomeInput" class="form-control" placeholder="Nova tarefa..." required />
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+            </form>
+        </div>
+
+        <!-- Coluna Direita: Lista de Tarefas -->
+        <div class="col-md-8">
+            <h3>As Minhas Tarefas</h3>
+            <div id="tarefasContainer">
+                @await Html.PartialAsync("_TarefasPartial", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('addForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const nome = document.getElementById('nomeInput').value;
+            if (!nome) return;
+
+            const formData = new FormData();
+            formData.append('nome', nome);
+
+            const response = await fetch('@Url.Action("CreateAjax", "Tarefa")', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const html = await response.text();
+                document.getElementById('tarefasContainer').innerHTML = html;
+                document.getElementById('nomeInput').value = '';
+            } else {
+                alert("Erro ao adicionar tarefa.");
+            }
+        });
+    </script>
+}

@@ -8,23 +8,41 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDW.Data;
 using ProjetoDW.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProjetoDW.Controllers
 {
     public class CartasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public CartasController(ApplicationDbContext context)
+        public CartasController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
+
 
         // GET: Cartas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Cartas.ToListAsync());
+            var userId = _userManager.GetUserId(User);
+            var tarefas = await _context.Tarefa
+                .Where(t => t.UtilizadorId == userId)
+                .ToListAsync();
+
+            ViewBag.Tarefas = tarefas;
+
+            var cartas = await _context.Cartas
+                .Include(c => c.UtilizadorRemetente)
+                .Include(c => c.UtilizadorDestinatario)
+                .ToListAsync();
+
+            return View(cartas);
         }
+
+
 
         // GET: Cartas/Details/5
         public async Task<IActionResult> Details(int? id)

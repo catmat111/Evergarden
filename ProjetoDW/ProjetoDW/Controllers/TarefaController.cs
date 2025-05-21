@@ -24,6 +24,7 @@ namespace ProjetoDW.Controllers
         }
 
         // GET: Tarefa
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
@@ -32,33 +33,30 @@ namespace ProjetoDW.Controllers
                 .Where(t => t.UtilizadorId == userId)
                 .ToListAsync();
 
-            ViewBag.Tarefas = tarefas;
-
-            return View();
+            return View(tarefas); // <-- agora passa o modelo corretamente
         }
+
 
         // POST: Tarefa/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string nome)
+        public async Task<IActionResult> Create(Tarefa tarefa)
         {
-            if (!string.IsNullOrWhiteSpace(nome))
+            var userId = _userManager.GetUserId(User); // Certifica-te que _userManager está injetado
+
+            if (!string.IsNullOrEmpty(tarefa.Nome) && !string.IsNullOrEmpty(userId))
             {
-                var userId = _userManager.GetUserId(User);
+                tarefa.UtilizadorId = userId;
+                tarefa.Terminado = false;
 
-                var tarefa = new Tarefa
-                {
-                    Nome = nome,
-                    Terminado = false,
-                    UtilizadorId = userId
-                };
-
-                _context.Tarefa.Add(tarefa);
+                _context.Add(tarefa);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Cartas");
         }
+
+
 
         // GET: Tarefa/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -75,23 +73,19 @@ namespace ProjetoDW.Controllers
         // POST: Tarefa/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Terminado")] Tarefa tarefa)
+        public async Task<IActionResult> Toggle(int id)
         {
-            if (id != tarefa.Id) return NotFound();
+            var tarefa = await _context.Tarefa.FindAsync(id);
+            if (tarefa != null)
+            {
+                tarefa.Terminado = !tarefa.Terminado;
+                await _context.SaveChangesAsync();
+            }
 
-            var userId = _userManager.GetUserId(User);
-            var tarefaExistente = await _context.Tarefa.FirstOrDefaultAsync(t => t.Id == id && t.UtilizadorId == userId);
-
-            if (tarefaExistente == null)
-                return Unauthorized();
-
-            tarefaExistente.Nome = tarefa.Nome;
-            tarefaExistente.Terminado = tarefa.Terminado;
-
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Cartas");
         }
+
+
 
         // GET: Tarefa/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -107,25 +101,42 @@ namespace ProjetoDW.Controllers
         }
 
         // POST: Tarefa/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var userId = _userManager.GetUserId(User);
-            var tarefa = await _context.Tarefa.FirstOrDefaultAsync(t => t.Id == id && t.UtilizadorId == userId);
+            var tarefa = await _context.Tarefa.FindAsync(id);
+            if (tarefa != null)
+            {
+                _context.Tarefa.Remove(tarefa);
+                await _context.SaveChangesAsync();
+            }
 
-            if (tarefa == null)
-                return Unauthorized();
-
-            _context.Tarefa.Remove(tarefa);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Cartas");
         }
+
 
         private bool TarefaExists(int id)
         {
             return _context.Tarefa.Any(e => e.Id == id);
         }
+        [HttpPost]
+        public async Task<IActionResult> Adicionar(string nome)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var tarefa = new Tarefa
+            {
+                Nome = nome,
+                Terminado = false,
+                UtilizadorId = userId
+            };
+
+            _context.Add(tarefa);
+            await _context.SaveChangesAsync();
+
+            return Json(new { sucesso = true, tarefa = new { nome = tarefa.Nome, terminado = tarefa.Terminado } });
+        }
+        
     }
 }

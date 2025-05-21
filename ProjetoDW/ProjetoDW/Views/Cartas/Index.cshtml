@@ -60,51 +60,62 @@
         </table>
     </div>
     <div class="coluna-direita">
-        @{
-            var tarefas = ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa> ?? new List<ProjetoDW.Models.Tarefa>();
-        }
-
         <h2>To-Do List</h2>
 
         <form asp-controller="Tarefa" asp-action="Create" method="post">
-            <input type="text" name="nome" placeholder="Nova tarefa" class="form-control" required />
+            <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required />
             <button type="submit" class="btn btn-success mt-2">Adicionar</button>
         </form>
 
         <ul>
-            @foreach (var tarefa in tarefas)
+            @foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
             {
                 <li>
-                    <input type="checkbox" @(tarefa.Terminado ? "checked" : "") disabled />
-                    @tarefa.Nome
+                    <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@tarefa.Id" />
+                        <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "") />
+                        @tarefa.Nome
+                    </form>
+                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@tarefa.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">X</button>
+                    </form>
                 </li>
             }
         </ul>
 
     </div>
-
-
-
 </div>
+    <script>
+        function adicionarTarefa() {
+            const input = document.getElementById("novaTarefa");
+            const nome = input.value.trim();
 
-<script>
-    function adicionarTarefa() {
-        const input = document.getElementById("novaTarefa");
-        const texto = input.value.trim();
+            if (nome === "") return;
 
-        if (texto !== "") {
-            const lista = document.getElementById("listaTarefas");
-
-            const item = document.createElement("li");
-            item.innerHTML = `
-                <label>
-                    <input type="checkbox" />
-                    ${texto}
-                </label>
-            `;
-
-            lista.appendChild(item);
-            input.value = "";
+            fetch('/Tarefa/Adicionar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ nome })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        const lista = document.getElementById("listaTarefas");
+                        const item = document.createElement("li");
+                        item.className = "list-group-item d-flex justify-content-between align-items-center";
+                        item.innerHTML = `
+                    <span>${data.tarefa.nome}</span>
+                    <input type="checkbox" disabled />
+                `;
+                        lista.appendChild(item);
+                        input.value = "";
+                    }
+                });
         }
-    }
-</script>
+    </script>
+
+
