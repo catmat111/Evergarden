@@ -3,9 +3,14 @@
 @{
     ViewData["Title"] = "Create";
 }
-    <link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
+
+<div class="cima">
+    <a asp-action="Index" class="btn btn-back"></a>
+    <h1>Escrever Carta</h1>
+</div>
     
-<h1>Escrever Carta</h1>
+
 
 <hr />
 <div class="row">
@@ -26,10 +31,12 @@
         <div class="coluna-direita">
             <div class="form-group">
                 <div class="form-group UtilizadoresDFk">
-                    
-                    <input asp-for="UtilizadorDestinatario" class="form-control" placeholder="Destinatário"/>
-                    <span asp-validation-for="UtilizadorDestinatario" class="text-danger"></span>
+                    <select asp-for="UtilizadorDestinatarioFk" class="form-control " asp-items="ViewBag.UtilizadoresDFk">
+                        <option value="">-- Seleciona o destinatário --</option>
+                    </select>
+                    <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
+
                 <form>
                     <input type="checkbox" id="aniversario" name="aniversario" value="aniversario">
                     <label for="aniversario">Aniversário</label><br>
@@ -54,9 +61,7 @@
     </form>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 <script>
     // Expande automaticamente textarea

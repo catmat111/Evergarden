@@ -33,7 +33,7 @@
 
 .form-group.titulo input::placeholder,
 .form-group.descricao textarea::placeholder,
-.form-group.UtilizadoresDFk input::placeholder{
+.form-group.UtilizadoresDFk select::placeholder{
     color: #888;
     font-style: italic;
 }
@@ -41,7 +41,7 @@
 .form-group.titulo input:focus,
 .form-group.descricao textarea:focus,
 .form-group.DataEnvio input:focus,
-.form-group.UtilizadoresDFk input:focus {
+.form-group.UtilizadoresDFk select:focus {
     border-color: #d4af37;
     outline: none;
     box-shadow: 0 0 5px #d4af37aa;
@@ -114,4 +114,39 @@ form label {
     color: #444;
     cursor: pointer;
     user-select: none;
+}
+
+.btn.btn-primary{
+    background-color: #d4af37;
+    border-color: #d4af37;
+    color: #fff;
+    margin: 5px;
+    
+}
+
+.btn.btn-primary:hover{
+    background-color: #d4af37;
+    border-color: #bfa235;
+    box-shadow: 0 0 5px rgba(255, 223, 0, 0.8);
+
+}
+.btn.btn-back {
+    background-image: url("../recursos/imagens_geral/left-arrow.png");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 30px 30px;
+    padding-left: 60px; /* espaço para o ícone */
+    cursor: pointer;
+}
+
+.btn.btn-back:hover {
+    background-size: 40px 40px;
+}
+
+
+
+.cima{
+    display: flex;
+    flex-wrap: wrap;
+    
 }

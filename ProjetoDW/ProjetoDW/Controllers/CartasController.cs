@@ -47,7 +47,9 @@ namespace ProjetoDW.Controllers
         // GET: Cartas/Create
         public IActionResult Create()
         {
+            ViewData["UtilizadorDestinatarioFk"] = new SelectList(_context.Utilizadores, "Id", "Nome");
             return View();
+            
         }
 
         // POST: Cartas/Create
@@ -71,7 +73,7 @@ namespace ProjetoDW.Controllers
             return View(cartas);
         }
 
-
+      
         // GET: Cartas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
