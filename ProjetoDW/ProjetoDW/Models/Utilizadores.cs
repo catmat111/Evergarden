@@ -8,26 +8,32 @@ public class Utilizadores
 {
     public int Id { get; set; }
     
-    public string IdentityUserId { get; set; }
-
-    [ForeignKey("IdentityUserId")]
-    public IdentityUser IdentityUser { get; set; }
     
+
+    
+    public string? IdentityUser { get; set; }
+    
+    public string IdentityUserID { get; set; }
+    
+    [Required]
     public string Nome { get; set; }
     
     [NotMapped]
-    public IFormFile Imagem { get; set; }
+    public IFormFile? Imagem { get; set; }
+    
+    [Display(Name = "Imagem")]
     public string ImagemPath { get; set; } // guardado na BD
     
+    [Required]
     [Display(Name = "Telemóvel")]
     public string Telemovel { get; set; }
     
+    [Required]
     public string Email { get; set; }
     
-    public int NIF { get; set; }
-    
+    [Required]
     [Display(Name = "Data de Nascimento")]
-    public DateTime DataNascimento { get; set; }
+    public DateOnly DataNascimento { get; set; }
     
     public int? RemetenteId { get; set; }
     

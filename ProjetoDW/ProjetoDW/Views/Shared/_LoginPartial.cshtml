@@ -1,26 +1,40 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using ProjetoDW.Data
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
+@inject ApplicationDbContext _context
 @inject UserManager<IdentityUser> UserManager
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
+        var userId = UserManager.GetUserId(User);
+        var utilizador = _context.Utilizadores.FirstOrDefault(u => u.IdentityUserID == userId);
+        var utilizadorNome = utilizador?.Nome ?? User.Identity.Name;
+
+        
+        if (utilizador != null && !string.IsNullOrEmpty(utilizador.ImagemPath))
+        {
+            <li>
+                <img src="../recursos/@utilizador.ImagemPath" style="width: 40px; height: 40px; border-radius: 50%;" />
+            </li>
+        }
+
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Olá @utilizadorNome!</a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                <button type="submit" class="nav-link btn btn-link text-dark">Sair</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Criar Conta Remetente</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Entrar</a>
         </li>
     }
 </ul>
