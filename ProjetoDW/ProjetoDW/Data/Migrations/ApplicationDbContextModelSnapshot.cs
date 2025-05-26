@@ -29,7 +29,7 @@ namespace ProjetoDW.Data.Migrations
 
                     b.HasIndex("CategoriasId");
 
-                    b.ToTable("CartasCategorias");
+                    b.ToTable("CartasCategorias", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -261,7 +261,7 @@ namespace ProjetoDW.Data.Migrations
 
                     b.HasIndex("UtilizadorRemetenteFk");
 
-                    b.ToTable("Cartas");
+                    b.ToTable("Cartas", (string)null);
                 });
 
             modelBuilder.Entity("ProjetoDW.Models.Categorias", b =>
@@ -292,7 +292,7 @@ namespace ProjetoDW.Data.Migrations
 
                     b.HasIndex("UtilizadoresFk");
 
-                    b.ToTable("Categorias");
+                    b.ToTable("Categorias", (string)null);
                 });
 
             modelBuilder.Entity("ProjetoDW.Models.Tarefa", b =>
@@ -307,14 +307,9 @@ namespace ProjetoDW.Data.Migrations
                     b.Property<bool>("Terminado")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("UtilizadorId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UtilizadorId");
-
-                    b.ToTable("Tarefa");
+                    b.ToTable("Tarefa", (string)null);
                 });
 
             modelBuilder.Entity("ProjetoDW.Models.Utilizadores", b =>
@@ -354,7 +349,7 @@ namespace ProjetoDW.Data.Migrations
 
                     b.HasIndex("RemetenteId");
 
-                    b.ToTable("Utilizadores");
+                    b.ToTable("Utilizadores", (string)null);
                 });
 
             modelBuilder.Entity("CartasCategorias", b =>
@@ -451,15 +446,6 @@ namespace ProjetoDW.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("UtilizadorCriador");
-                });
-
-            modelBuilder.Entity("ProjetoDW.Models.Tarefa", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Utilizador")
-                        .WithMany()
-                        .HasForeignKey("UtilizadorId");
-
-                    b.Navigation("Utilizador");
                 });
 
             modelBuilder.Entity("ProjetoDW.Models.Utilizadores", b =>
