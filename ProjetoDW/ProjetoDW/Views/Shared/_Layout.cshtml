@@ -21,16 +21,19 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="UtilizadoresR" asp-action="Index">UtilizadoresR</a>
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Cartas" asp-action="Create">Create</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="UtilizadoresD" asp-action="Index">UtilizadoresD</a>
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Cartas" asp-action="Delete">Delete</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Create">Criar Cartas</a>
+                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Details">Details</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Index">Ver Cartas</a>
+                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Edit">Edit</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Cartas" asp-action="Index">Index</a>
                     </li>
                 </ul>
                 <partial name="_LoginPartial"/>

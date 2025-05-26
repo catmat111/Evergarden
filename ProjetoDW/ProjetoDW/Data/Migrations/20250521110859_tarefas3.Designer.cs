@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoDW.Data;
 
@@ -10,9 +11,11 @@ using ProjetoDW.Data;
 namespace ProjetoDW.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521110859_tarefas3")]
+    partial class tarefas3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
@@ -341,17 +344,12 @@ namespace ProjetoDW.Data.Migrations
                     b.Property<string>("Nome")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("RemetenteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Telemovel")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("IdentityUserId");
-
-                    b.HasIndex("RemetenteId");
 
                     b.ToTable("Utilizadores");
                 });
@@ -467,18 +465,7 @@ namespace ProjetoDW.Data.Migrations
                         .WithMany()
                         .HasForeignKey("IdentityUserId");
 
-                    b.HasOne("ProjetoDW.Models.Utilizadores", "Remetente")
-                        .WithMany("UtilizadoresDestinatarios")
-                        .HasForeignKey("RemetenteId");
-
                     b.Navigation("IdentityUser");
-
-                    b.Navigation("Remetente");
-                });
-
-            modelBuilder.Entity("ProjetoDW.Models.Utilizadores", b =>
-                {
-                    b.Navigation("UtilizadoresDestinatarios");
                 });
 #pragma warning restore 612, 618
         }
