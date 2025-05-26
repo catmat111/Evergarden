@@ -1,0 +1,117 @@
+﻿.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+}
+
+.coluna-esquerda {
+    flex: 1;
+    min-width: 60%; 
+}
+
+.coluna-direita {
+    flex: 1;
+    min-width: 35%; 
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+}
+
+input[type="text"] {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-left: 5px;
+}
+
+
+.coluna-direita {
+    background-color: #fffbea;
+    padding: 20px;
+    border-left: 3px solid #f4d35e;
+    height: 50vh;
+    width: 30%;
+    overflow-y: auto;
+    font-family: 'Segoe UI', sans-serif;
+    
+}
+
+.coluna-direita h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #f4d35e;
+}
+
+.coluna-direita form {
+    margin-bottom: 15px;
+}
+
+.coluna-direita input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #f4d35e;
+    border-radius: 6px;
+    background-color: #fffde7;
+}
+
+.coluna-direita input[type="text"]:focus{
+    border-color: #d4af37;
+    outline: none;
+    box-shadow: 0 0 5px #d4af37aa;
+}
+
+.coluna-direita ul {
+    list-style: none;
+    padding: 0;
+}
+
+.coluna-direita li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fffde7;
+    border: 1px solid #8b7500;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.coluna-direita li:hover {
+    background-color: #fff3c4;
+}
+
+.coluna-direita input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+    accent-color: #f4d35e;
+}
+
+.coluna-direita button {
+    margin-left: 10px;
+    background-color: #f4d35e;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.coluna-direita button:hover {
+    background-color: #f4d35e;
+}
+
+/* Tarefa riscada */
+.coluna-direita li.terminada {
+    text-decoration: line-through;
+    color: #999;
+}

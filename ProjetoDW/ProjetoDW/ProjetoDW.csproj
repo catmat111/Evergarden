@@ -37,6 +37,20 @@
       <_ContentIncludedByDefault Remove="Views\Categorias\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Categorias\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Categorias\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Tarefa\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Tarefa\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Tarefa\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Tarefa\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Tarefa\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Tarefa\_TarefasPartial.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Views\Shared\Tarefa\Create.cshtml" />
+      <AdditionalFiles Include="Views\Shared\Tarefa\Delete.cshtml" />
+      <AdditionalFiles Include="Views\Shared\Tarefa\Details.cshtml" />
+      <AdditionalFiles Include="Views\Shared\Tarefa\Edit.cshtml" />
+      <AdditionalFiles Include="Views\Shared\Tarefa\Index.cshtml" />
     </ItemGroup>
 
 </Project>
