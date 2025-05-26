@@ -6,10 +6,12 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using ProjetoDW.Models;
 using ProjetoDW.Data;
@@ -49,7 +51,7 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
             public Utilizadores Utilizadores { get; set; }
 
             public string Password { get; set; }
-            
+
             [Display(Name = "Tipo de Utilizador")]
             [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
             public int TipoUtilizador { get; set; }
@@ -64,11 +66,7 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
-            if (Input.TipoUtilizador == 0)
-            {
-                ModelState.AddModelError("TipoUtilizador", "Tem de escolher um tipo de utilizador");
-            }
-            
+
             if (ModelState.IsValid)
             {
                 // Cria o utilizador IdentityUser (se necessário para autenticação)
@@ -79,53 +77,72 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    if (Input.TipoUtilizador == 1)
+// Define a role dinamicamente (ajustável conforme a tua lógica)
+                    await _userManager.AddToRoleAsync(user, "REMETENTE");
+
+
+// Preparar imagem
+                    string nomeImagem = "default.png";
+                    IFormFile teste = Input.Utilizadores.Imagem;
+                    if (Input.Utilizadores.Imagem != null)
                     {
-                        IdentityUserRole<string> identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "REMET" };
-                        _context.UserRoles.Add(identityUserRole);
+                        var imagem = Input.Utilizadores.Imagem;
+                        if (imagem.ContentType == "image/jpeg" || imagem.ContentType == "image/png")
+                        {
+                            var guid = Guid.NewGuid().ToString();
+                            var extensao = Path.GetExtension(imagem.FileName).ToLowerInvariant();
+                            nomeImagem = guid + extensao;
+
+                            var pathPasta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/recursos/imagens_user");
+                            if (!Directory.Exists(pathPasta))
+                                Directory.CreateDirectory(pathPasta);
+
+                            var caminhoFinal = Path.Combine(pathPasta, nomeImagem);
+                            using (var stream = new FileStream(caminhoFinal, FileMode.Create))
+                            {
+                                await imagem.CopyToAsync(stream);
+                            }
+
+                            nomeImagem = "imagens_user/" + nomeImagem;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("Imagem", "Apenas ficheiros .jpg e .png são permitidos.");
+                            return Page();
+                        }
                     }
-                    else if (Input.TipoUtilizador == 2)
-                    {
-                        IdentityUserRole<string> identityUserRole = new IdentityUserRole<string> { UserId = user.Id, RoleId = "DEST" };
-                        _context.UserRoles.Add(identityUserRole);
-                    }
-                    
-                    
-                    // Cria o UtilizadorR e regista na base de dados
+
+// Criar o utilizador de negócio
                     var utilizadorR = new Utilizadores
                     {
                         Nome = Input.Utilizadores.Nome,
                         Email = Input.Utilizadores.Email,
                         Telemovel = Input.Utilizadores.Telemovel,
-                        NIF = Input.Utilizadores.NIF,
-                        ImagemPath = "",
-                        DataNascimento = Input.Utilizadores.DataNascimento
+                        ImagemPath = nomeImagem,
+                        DataNascimento = Input.Utilizadores.DataNascimento,
+                        IdentityUserID = user.Id
                     };
 
+// Se for destinatário, assume o remetente atualmente autenticado como criador
+                    if (Input.TipoUtilizador == 2)
+                    {
+                        var remetenteIdentityUser = await _userManager.GetUserAsync(User);
+                        var remetente =
+                            _context.Utilizadores.FirstOrDefault(u => u.IdentityUserID == remetenteIdentityUser.Id);
+                        if (remetente != null)
+                        {
+                            utilizadorR.RemetenteId = remetente.Id;
+                        }
+                    }
+
                     _context.Utilizadores.Add(utilizadorR);
+                    
+
                     await _context.SaveChangesAsync();
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                    return RedirectToAction("ContaCriada", "Utilizadores");
 
-                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Utilizadores.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
                 }
 
                 // Se falhar, adiciona erros ao ModelState

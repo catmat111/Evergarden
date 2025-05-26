@@ -5,18 +5,18 @@
     ViewData["Title"] = "Register";
 }
 
-<h1>Create</h1>
+<h1>Criar Conta</h1>
 
-<h4>UtilizadoresR</h4>
+<h4>Remetente</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Input.Utilizadores.Nome"></label>
-                <input asp-for="Input.Utilizadores.Nome" class="form-control" aria-required="true" placeholder="Nome"/>
-                <span asp-validation-for="Input.Utilizadores.Nome" class="text-danger"></span>
+                <label asp-for="Input.Utilizadores.Email"></label>
+                <input asp-for="Input.Utilizadores.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com"/>
+                <span asp-validation-for="Input.Utilizadores.Email" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Password"></label>
@@ -24,40 +24,28 @@
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Input.TipoUtilizador"></label>
-                <select asp-for="Input.TipoUtilizador" class="form-control" aria-required="true">
-                    <option selected disabled="">Escolha uma role</option>
-                    <option value="1">Remetente</option>
-                    <option value="2">Destinatário</option>
-                </select>
-                <span asp-validation-for="Input.TipoUtilizador" class="text-danger"></span>
+                <label asp-for="Input.Utilizadores.Nome"></label>
+                <input asp-for="Input.Utilizadores.Nome" class="form-control" aria-required="true" placeholder="Nome"/>
+                <span asp-validation-for="Input.Utilizadores.Nome" class="text-danger"></span>
+            </div>
+            
+          <div class="form-group">
+              <label asp-for="Input.Utilizadores.Telemovel"></label>
+              <input asp-for="Input.Utilizadores.Telemovel" class="form-control" placeholder="Telemóvel"/>
+              <span asp-validation-for="Input.Utilizadores.Telemovel" class="text-danger"></span>
+          </div>
+          
+            <div class="form-group">
+                <label asp-for="Input.Utilizadores.DataNascimento"></label>
+                <input asp-for="Input.Utilizadores.DataNascimento" class="form-control" type="date" placeholder="Data de Nascimento"/>
+                <span asp-validation-for="Input.Utilizadores.DataNascimento" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Utilizadores.Imagem"></label>
                 <input asp-for="Input.Utilizadores.Imagem" class="form-control" type="file" accept="image/*" />
 
                 <span asp-validation-for="Input.Utilizadores.Imagem" class="text-danger"></span>
-          </div>
-          <div class="form-group">
-              <label asp-for="Input.Utilizadores.Telemovel"></label>
-              <input asp-for="Input.Utilizadores.Telemovel" class="form-control" placeholder="Telemóvel"/>
-              <span asp-validation-for="Input.Utilizadores.Telemovel" class="text-danger"></span>
-          </div>
-          <div class="form-group">
-              <label asp-for="Input.Utilizadores.Email"></label>
-              <input asp-for="Input.Utilizadores.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com"/>
-              <span asp-validation-for="Input.Utilizadores.Email" class="text-danger"></span>
-          </div>
-          <div class="form-group">
-              <label asp-for="Input.Utilizadores.NIF"></label>
-              <input asp-for="Input.Utilizadores.NIF" class="form-control" placeholder="NIF"/>
-              <span asp-validation-for="Input.Utilizadores.NIF" class="text-danger"></span>
-          </div>
-          <div class="form-group">
-              <label asp-for="Input.Utilizadores.DataNascimento"></label>
-              <input asp-for="Input.Utilizadores.DataNascimento" class="form-control" type="date" placeholder="Data de Nascimento"/>
-              <span asp-validation-for="Input.Utilizadores.DataNascimento" class="text-danger"></span>
-          </div>
+            </div>
           <div class="form-group">
               <input type="submit" value="Create" class="btn btn-primary" />
           </div>

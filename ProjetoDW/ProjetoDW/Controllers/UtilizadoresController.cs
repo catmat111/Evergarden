@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +13,38 @@ using ProjetoDW.Models;
 
 namespace ProjetoDW.Controllers
 {
-    public class UtilizadoresRController : Controller
+    public class UtilizadoresController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public UtilizadoresRController(ApplicationDbContext context)
+        public UtilizadoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: UtilizadoresR
+        [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Utilizadores.ToListAsync());
+            var identityUser = await _userManager.GetUserAsync(User);
+
+            var remetente = await _context.Utilizadores
+                .Include(u => u.UtilizadoresDestinatarios)
+                .FirstOrDefaultAsync(u => u.IdentityUserID == identityUser.Id);
+
+            if (remetente == null)
+            {
+                return NotFound("Remetente não encontrado.");
+            }
+
+            var meusDestinatarios = remetente.UtilizadoresDestinatarios;
+
+            return View(meusDestinatarios);
         }
+
+
 
         // GET: UtilizadoresR/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -44,50 +65,87 @@ namespace ProjetoDW.Controllers
         }
 
         // GET: UtilizadoresR/Create
+        // GET: UtilizadoresR/Create
+// GET: UtilizadoresR/Create
+        [Authorize(Roles = "Remetente")]
         public IActionResult Create()
         {
-            var utilizador = new Utilizadores();
-            return View(utilizador);
+            return View();
         }
+
+
+
+
+
+
 
         // POST: UtilizadoresR/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+// POST: UtilizadoresR/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] Utilizadores utilizadores)
+        [Authorize(Roles = "Remetente")]
+        public async Task<IActionResult> Create(Utilizadores model, string password)
         {
-            // Verifica se foi submetido algum ficheiro
-            if (utilizadores.Imagem != null && utilizadores.Imagem.Length > 0)
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (remetente == null)
+                return View("ErroRemetente");
+
+            var newUser = new IdentityUser
             {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                UserName = model.Email,
+                Email = model.Email
+            };
 
-                // Cria a pasta se não existir
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
+            var result = await _userManager.CreateAsync(newUser, password);
 
-                // Cria nome único para o ficheiro
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(utilizadores.Imagem.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return View(model);
+            }
 
-                // Guarda o ficheiro no servidor
+            await _userManager.AddToRoleAsync(newUser, "DESTINATARIO");
+            model.ImagemPath = "default.png";
+            // === GUARDAR IMAGEM ===
+            if (model.Imagem != null && model.Imagem.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Imagem.FileName);
+                var filePath = Path.Combine("wwwroot/recursos/imagens_user", fileName);
+
+                // Criar pasta se não existir
+                var folder = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await utilizadores.Imagem.CopyToAsync(stream);
+                    await model.Imagem.CopyToAsync(stream);
                 }
 
-                // Guarda o caminho relativo na base de dados
-                utilizadores.ImagemPath = "/uploads/" + fileName;
+                model.ImagemPath = "imagens_user/" + fileName; // Caminho para guardar na BD
             }
 
-            if (ModelState.IsValid)
-            {
-                _context.Add(utilizadores);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(utilizadores);
+            model.IdentityUserID = newUser.Id;
+            model.RemetenteId = remetente.Id;
+
+            _context.Utilizadores.Add(model);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+
+
+
+
+
 
 
         // GET: UtilizadoresR/Edit/5
@@ -111,7 +169,7 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Password,Imagem,Telemovel,Email,NIF,Idade,DataNascimento")] Utilizadores utilizadores)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Password,Imagem,Telemovel,Email,Idade,DataNascimento")] Utilizadores utilizadores)
         {
             if (id != utilizadores.Id)
             {
@@ -136,7 +194,7 @@ namespace ProjetoDW.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return View("DestinatarioCriado","UtilizadoresR");
             }
             return View(utilizadores);
         }
@@ -157,6 +215,12 @@ namespace ProjetoDW.Controllers
             }
 
             return View(utilizadoresR);
+        }
+        
+        
+        public IActionResult ContaCriada()
+        {
+            return View();
         }
 
         // POST: UtilizadoresR/Delete/5
