@@ -19,9 +19,9 @@
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Imagem" class="control-label"></label>
-                <input asp-for="Imagem" class="form-control" />
-                <span asp-validation-for="Imagem" class="text-danger"></span>
+                <label asp-for="ImagemPath" class="control-label"></label>
+                <input type="file" asp-for="ImagemPath" class="form-control" />
+                <span asp-validation-for="ImagemPath" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Telemovel" class="control-label"></label>
@@ -32,11 +32,6 @@
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NIF" class="control-label"></label>
-                <input asp-for="NIF" class="form-control" />
-                <span asp-validation-for="NIF" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="DataNascimento" class="control-label"></label>

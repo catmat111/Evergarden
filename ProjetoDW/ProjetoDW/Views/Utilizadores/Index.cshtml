@@ -1,0 +1,33 @@
+@model List<ProjetoDW.Models.Utilizadores>
+
+<h2>Meus Destinatários</h2>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Imagem</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Telemóvel</th>
+        <th>Data de Nascimento</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var destinatario in Model)
+    {
+        <tr>
+            <td>
+                <img src="recursos/@destinatario.ImagemPath" style="width: 40px; height: 40px; border-radius: 50%;"/>
+            </td>
+            <td>@destinatario.Nome</td>
+            <td>@destinatario.Email</td>
+            <td>@destinatario.Telemovel</td>
+            <td>@destinatario.DataNascimento</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@destinatario.Id">Detalhes</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
