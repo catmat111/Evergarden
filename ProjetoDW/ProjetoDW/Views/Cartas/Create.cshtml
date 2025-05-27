@@ -3,6 +3,7 @@
 @model ProjetoDW.Models.Cartas
 
 @{
+    
     ViewData["Title"] = "Create";
 }
 <link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
@@ -40,20 +41,7 @@
                     <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
 
-                <form>
-                    <input type="checkbox" id="aniversario" name="aniversario" value="aniversario">
-                    <label for="aniversario">Aniversário</label><br>
-                    <!-- DataEnvio visível só quando "aniversario" está checked -->
-                    <div class="form-group DataEnvio" id="dataEnvioContainer" style="display: none;">
-                        <label asp-for="DataEnvio" class="control-label"></label>
-                        <input asp-for="DataEnvio" class="form-control" id="dataEnvioInput"/>
-                        <span asp-validation-for="DataEnvio" class="text-danger"></span>
-                    </div>
-                    <input type="checkbox" id="casamento" name="casamento" value="casamento">
-                    <label for="casamento">Casamento</label><br>
-                    <input type="checkbox" id="feliz" name="feliz" value="feliz">
-                    <label for="feliz">Momento feliz</label>
-                </form>
+                
             </div>
             
         </div>
@@ -66,31 +54,4 @@
 
 
 
-<script>
-    // Expande automaticamente textarea
-    document.addEventListener('input', function (e) {
-        if (e.target.tagName.toLowerCase() === 'textarea' && e.target.classList.contains('auto-expand')) {
-            e.target.style.height = 'auto';
-            e.target.style.height = (e.target.scrollHeight) + 'px';
-        }
-    });
 
-    // Mostra ou oculta DataEnvio conforme checkbox
-    function toggleDataEnvio() {
-        const checkAniversario = document.getElementById("aniversario");
-        const dataEnvioContainer = document.getElementById("dataEnvioContainer");
-        const dataEnvioInput = document.getElementById("dataEnvioInput");
-
-        if (checkAniversario.checked) {
-            dataEnvioContainer.style.display = "block";
-        } else {
-            dataEnvioContainer.style.display = "none";
-            dataEnvioInput.value = ""; // limpa valor
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        toggleDataEnvio(); // inicializa corretamente
-        document.getElementById("aniversario").addEventListener("change", toggleDataEnvio);
-    });
-</script>

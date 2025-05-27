@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace ProjetoDW.Models;
@@ -7,24 +8,19 @@ namespace ProjetoDW.Models;
 public class Categorias
 {
     [Key] public int Id { get; set; }
+    public string UtilizadoresFk { get; set; } // FK com o ID do utilizador
+
+    [ForeignKey("UtilizadoresFk")]
+    public IdentityUser Utilizador { get; set; } // Propriedade de navegação
 
     [Display(Name = "Tem data?")] public bool Tipo { get; set; }
 
     [Display(Name = "Categoria")] public string Nome { get; set; }
 
-    [Display(Name = "Tópico")] public string Topico { get; set; }
-
-    [Display(Name = "Data a ser enviada")] public DateTime DataEnvio { get; set; }
-
-    [Display(Name = "Data de Criação")] public DateTime DataCriacao { get; set; }
+    public IdentityUser UtilizadorCriador { get; set; } // Navegação
 
 
-    [Display(Name = "Utilizador")]
-    [ForeignKey(nameof(UtilizadorCriador))]
-    public int UtilizadoresFk { get; set; }
-
-    public Utilizadores? UtilizadorCriador { get; set; }
-    
     public List<Cartas> Cartas { get; set; } = new List<Cartas>();
+
 
 }

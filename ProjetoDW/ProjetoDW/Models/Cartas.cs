@@ -14,8 +14,8 @@ public class Cartas
     [Display(Name = "Descrição")]
     public string Descricao { get; set; }
 
-    [Display(Name = "Tópico")]
-    public string Topico { get; set; }
+    [Display(Name = "Tópico")] 
+    public string Topico { get; set; } = "Geral";
 
     [Display(Name = "Data a ser enviada")]
     public DateTime DataEnvio { get; set; }

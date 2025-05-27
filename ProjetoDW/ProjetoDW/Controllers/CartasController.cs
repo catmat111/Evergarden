@@ -73,20 +73,23 @@ namespace ProjetoDW.Controllers
         // GET: Cartas/Create
         public async Task<IActionResult> Create()
         {
-            var userId = _userManager.GetUserId(User);
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == userId);
-            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-            var eremet = User.IsInRole("REMET");
-            if (remetente == null || !User.IsInRole("REMET"))
+            var user = await _userManager.GetUserAsync(User);
+    
+            if (user == null || !(await _userManager.IsInRoleAsync(user, "REMETENTE")))
             {
                 return Forbid();
             }
 
+            // Buscar destinatários associados a este remetente, se necessário
+            var remetente = await _context.Utilizadores
+                .FirstOrDefaultAsync(u => u.IdentityUserID == user.Id);
+
             var destinatarios = await _context.Utilizadores
-                .Where(u => u.RemetenteId == remetente.Id)
+                .Where(d => d.RemetenteId == remetente.Id)
                 .ToListAsync();
 
-            ViewData["UtilizadorDestinatarioFk"] = new SelectList(destinatarios, "Id", "Nome");
+            ViewBag.UtilizadoresDFk = new SelectList(destinatarios, "Id", "Nome");
+
             return View();
             
         }
@@ -101,8 +104,7 @@ namespace ProjetoDW.Controllers
             var userId = _userManager.GetUserId(User);
             var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
 
-            if (remetente == null || !User.IsInRole("REMETENTE"))
-                return Forbid();
+            
 
             if (ModelState.IsValid)
             {
@@ -151,7 +153,8 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Descricao,Topico,DataEnvio,DataCriacao,UtilizadoresEFk,UtilizadoresDFk")] Cartas cartas)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Descricao,Topico,DataEnvio,DataCriacao,UtilizadorRemetenteFk,UtilizadorDestinatarioFk")]
+            Cartas cartas)
         {
             
             if (id == null) return NotFound();
