@@ -34,10 +34,14 @@ namespace ProjetoDW.Controllers
 
             ViewBag.Tarefas = tarefas;
 
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
             var cartas = await _context.Cartas
                 .Include(c => c.UtilizadorRemetente)
                 .Include(c => c.UtilizadorDestinatario)
+                .Where(c => c.UtilizadorRemetenteFk == utilizador.Id || c.UtilizadorDestinatarioFk == utilizador.Id)
                 .ToListAsync();
+
 
             return View(cartas);
         }
@@ -47,25 +51,42 @@ namespace ProjetoDW.Controllers
         // GET: Cartas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var cartas = await _context.Cartas
+            var carta = await _context.Cartas
+                .Include(c => c.UtilizadorRemetente)
+                .Include(c => c.UtilizadorDestinatario)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (cartas == null)
-            {
-                return NotFound();
-            }
 
-            return View(cartas);
+            if (carta == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
+                return Forbid();
+
+            return View(carta);
         }
 
+
         // GET: Cartas/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["UtilizadorDestinatarioFk"] = new SelectList(_context.Utilizadores, "Id", "Nome");
+            var userId = _userManager.GetUserId(User);
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == userId);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+            var eremet = User.IsInRole("REMET");
+            if (remetente == null || !User.IsInRole("REMET"))
+            {
+                return Forbid();
+            }
+
+            var destinatarios = await _context.Utilizadores
+                .Where(u => u.RemetenteId == remetente.Id)
+                .ToListAsync();
+
+            ViewData["UtilizadorDestinatarioFk"] = new SelectList(destinatarios, "Id", "Nome");
             return View();
             
         }
@@ -75,37 +96,54 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Titulo,Descricao,Topico,DataEnvio,UtilizadoresEFk,UtilizadoresDFk")] Cartas cartas)
+        public async Task<IActionResult> Create([Bind("Titulo,Descricao,Topico,DataEnvio,UtilizadorDestinatarioFk")] Cartas cartas)
         {
+            var userId = _userManager.GetUserId(User);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (remetente == null || !User.IsInRole("REMETENTE"))
+                return Forbid();
+
             if (ModelState.IsValid)
             {
-                
-                // Preencher automaticamente a DataCriacao com a data atual
                 cartas.DataCriacao = DateTime.Now;
+                cartas.UtilizadorRemetenteFk = remetente.Id;
 
-                // Adicionar a carta ao contexto e salvar no banco de dados
                 _context.Add(cartas);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            var destinatarios = await _context.Utilizadores
+                .Where(u => u.RemetenteId == remetente.Id)
+                .ToListAsync();
+
+            ViewData["UtilizadorDestinatarioFk"] = new SelectList(destinatarios, "Id", "Nome", cartas.UtilizadorDestinatarioFk);
             return View(cartas);
         }
+
 
       
         // GET: Cartas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            
+            if (id == null) return NotFound();
 
-            var cartas = await _context.Cartas.FindAsync(id);
-            if (cartas == null)
-            {
-                return NotFound();
-            }
-            return View(cartas);
+            var carta = await _context.Cartas
+                .Include(c => c.UtilizadorRemetente)
+                .Include(c => c.UtilizadorDestinatario)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (carta == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
+                return Forbid();
+
+            return View(carta);
         }
 
         // POST: Cartas/Edit/5
@@ -115,50 +153,44 @@ namespace ProjetoDW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Descricao,Topico,DataEnvio,DataCriacao,UtilizadoresEFk,UtilizadoresDFk")] Cartas cartas)
         {
-            if (id != cartas.Id)
-            {
-                return NotFound();
-            }
+            
+            if (id == null) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(cartas);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CartasExists(cartas.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(cartas);
+            var carta = await _context.Cartas
+                .Include(c => c.UtilizadorRemetente)
+                .Include(c => c.UtilizadorDestinatario)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (carta == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
+                return Forbid();
+
+            return View(carta);
         }
 
         // GET: Cartas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var cartas = await _context.Cartas
+            var carta = await _context.Cartas
+                .Include(c => c.UtilizadorRemetente)
+                .Include(c => c.UtilizadorDestinatario)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (cartas == null)
-            {
-                return NotFound();
-            }
 
-            return View(cartas);
+            if (carta == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
+                return Forbid();
+
+            return View(carta);
         }
 
         // POST: Cartas/Delete/5
@@ -166,14 +198,22 @@ namespace ProjetoDW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cartas = await _context.Cartas.FindAsync(id);
-            if (cartas != null)
-            {
-                _context.Cartas.Remove(cartas);
-            }
+            if (id == null) return NotFound();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            var carta = await _context.Cartas
+                .Include(c => c.UtilizadorRemetente)
+                .Include(c => c.UtilizadorDestinatario)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (carta == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
+                return Forbid();
+
+            return View(carta);
         }
 
         private bool CartasExists(int id)
