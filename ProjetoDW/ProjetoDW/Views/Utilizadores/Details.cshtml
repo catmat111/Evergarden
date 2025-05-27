@@ -16,11 +16,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Nome)
         </dd>
+        
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ImagemPath)
         </dt>
         <dd class = "col-sm-10">
-            <img src="../recursos/@Html.DisplayNameFor(model => model.ImagemPath)"/>
+            <img src="recursos/@Model.ImagemPath"/>
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Telemovel)
