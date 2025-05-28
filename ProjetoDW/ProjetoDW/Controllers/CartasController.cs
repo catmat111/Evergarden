@@ -74,14 +74,16 @@ namespace ProjetoDW.Controllers
         public async Task<IActionResult> Create()
         {
             var userId = _userManager.GetUserId(User);
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Id == userId);
             var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-            var eremet = User.IsInRole("REMET");
-            if (remetente == null || !User.IsInRole("REMET"))
+            
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null || !(await _userManager.IsInRoleAsync(user, "REMETENTE")))
             {
                 return Forbid();
             }
-
+            
+            
             var destinatarios = await _context.Utilizadores
                 .Where(u => u.RemetenteId == remetente.Id)
                 .ToListAsync();
