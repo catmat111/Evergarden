@@ -36,4 +36,6 @@ public class Cartas
     public Utilizadores? UtilizadorDestinatario { get; set; }
     
     public List<Categorias> Categorias { get; set; } = new List<Categorias>();
+
+
 }

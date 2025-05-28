@@ -13,11 +13,6 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="UtilizadoresFk" class="control-label"></label>
-                <select asp-for="UtilizadoresFk" class="form-control" asp-items="ViewBag.UtilizadoresFk"></select>
-                <span asp-validation-for="UtilizadoresFk" class="text-danger"></span>
-            </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Tipo" /> @Html.DisplayNameFor(model => model.Tipo)

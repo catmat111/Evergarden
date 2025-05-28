@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoDW.Data;
 
@@ -10,9 +11,11 @@ using ProjetoDW.Data;
 namespace ProjetoDW.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250527200857_CartasCategoriasRelacaoV2")]
+    partial class CartasCategoriasRelacaoV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
@@ -264,6 +267,27 @@ namespace ProjetoDW.Data.Migrations
                     b.ToTable("Cartas");
                 });
 
+            modelBuilder.Entity("ProjetoDW.Models.CartasCategorias.CartaCategoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CartaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartaId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.ToTable("CartaCategoria");
+                });
+
             modelBuilder.Entity("ProjetoDW.Models.Categorias", b =>
                 {
                     b.Property<int>("Id")
@@ -433,6 +457,25 @@ namespace ProjetoDW.Data.Migrations
                     b.Navigation("UtilizadorRemetente");
                 });
 
+            modelBuilder.Entity("ProjetoDW.Models.CartasCategorias.CartaCategoria", b =>
+                {
+                    b.HasOne("ProjetoDW.Models.Cartas", "Carta")
+                        .WithMany("CartaCategorias")
+                        .HasForeignKey("CartaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjetoDW.Models.Categorias", "Categoria")
+                        .WithMany("CartaCategorias")
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Carta");
+
+                    b.Navigation("Categoria");
+                });
+
             modelBuilder.Entity("ProjetoDW.Models.Categorias", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "UtilizadorCriador")
@@ -458,6 +501,16 @@ namespace ProjetoDW.Data.Migrations
                         .HasForeignKey("RemetenteId");
 
                     b.Navigation("Remetente");
+                });
+
+            modelBuilder.Entity("ProjetoDW.Models.Cartas", b =>
+                {
+                    b.Navigation("CartaCategorias");
+                });
+
+            modelBuilder.Entity("ProjetoDW.Models.Categorias", b =>
+                {
+                    b.Navigation("CartaCategorias");
                 });
 
             modelBuilder.Entity("ProjetoDW.Models.Utilizadores", b =>

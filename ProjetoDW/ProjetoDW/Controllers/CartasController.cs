@@ -10,6 +10,7 @@ using ProjetoDW.Data;
 using ProjetoDW.Models;
 using Microsoft.AspNetCore.Identity;
 
+
 namespace ProjetoDW.Controllers
 {
     public class CartasController : Controller
@@ -88,8 +89,18 @@ namespace ProjetoDW.Controllers
                 .Where(d => d.RemetenteId == remetente.Id)
                 .ToListAsync();
 
-            ViewBag.UtilizadoresDFk = new SelectList(destinatarios, "Id", "Nome");
+            var categorias = await _context.Categorias.Where(d => d.UtilizadorCriador.Id == user.Id).ToListAsync();
+            
+            /*var categorias = await _context.Categorias
+                .Where(c => c.UtilizadorCriador.IdentityUserID == user.Id)
+                .ToListAsync();*/
 
+
+
+            ViewBag.UtilizadoresDFk = new SelectList(destinatarios, "Id", "Nome");
+            ViewBag.Categorias = new SelectList(categorias, "Id", "Nome");
+
+            
             return View();
             
         }
@@ -99,20 +110,28 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Titulo,Descricao,Topico,DataEnvio,UtilizadorDestinatarioFk")] Cartas cartas)
+        public async Task<IActionResult> Create([Bind("Titulo,Descricao,Topico,DataEnvio,UtilizadorDestinatarioFk")] Cartas cartas, int[] categoriasSelecionadas)
         {
-            var userId = _userManager.GetUserId(User);
-            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-
-            
+            var user = await _userManager.GetUserAsync(User);
+            var remetente = await _context.Utilizadores
+                .FirstOrDefaultAsync(u => u.IdentityUserID == user.Id);
 
             if (ModelState.IsValid)
             {
                 cartas.DataCriacao = DateTime.Now;
                 cartas.UtilizadorRemetenteFk = remetente.Id;
 
+                // Carregar categorias selecionadas
+                if (categoriasSelecionadas != null && categoriasSelecionadas.Length > 0)
+                {
+                    cartas.Categorias = await _context.Categorias
+                        .Where(c => categoriasSelecionadas.Contains(c.Id))
+                        .ToListAsync();
+                }
+
                 _context.Add(cartas);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -121,8 +140,17 @@ namespace ProjetoDW.Controllers
                 .ToListAsync();
 
             ViewData["UtilizadorDestinatarioFk"] = new SelectList(destinatarios, "Id", "Nome", cartas.UtilizadorDestinatarioFk);
+
+            var categorias = await _context.Categorias
+                .Where(c => c.UtilizadorCriador.Id == remetente.IdentityUserID)
+                .ToListAsync();
+
+            ViewBag.Categorias = new MultiSelectList(categorias, "Id", "Nome");
+
             return View(cartas);
         }
+
+
 
 
       

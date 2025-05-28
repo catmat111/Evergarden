@@ -40,8 +40,18 @@
                     </select>
                     <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
+                <div class="form-group Categorias">
+                    <select asp-for="Categorias" class="form-control " asp-items="ViewBag.Categorias">
+                        <option value="">-- Seleciona a Categoria --</option>
+                    </select>
+                    <span asp-validation-for="Categorias" class="text-danger"></span>
+                </div>
+                
 
                 
+
+
+
             </div>
             
         </div>
