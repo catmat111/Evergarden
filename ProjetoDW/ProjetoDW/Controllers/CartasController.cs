@@ -98,7 +98,7 @@ namespace ProjetoDW.Controllers
 
 
             ViewBag.UtilizadoresDFk = new SelectList(destinatarios, "Id", "Nome");
-            ViewBag.Categorias = new SelectList(categorias, "Id", "Nome");
+            ViewBag.Categorias = categorias;
 
             
             return View();
@@ -145,7 +145,7 @@ namespace ProjetoDW.Controllers
                 .Where(c => c.UtilizadorCriador.Id == remetente.IdentityUserID)
                 .ToListAsync();
 
-            ViewBag.Categorias = new MultiSelectList(categorias, "Id", "Nome");
+            ViewBag.Categorias = new SelectList(categorias, "Id", "Nome");
 
             return View(cartas);
         }
