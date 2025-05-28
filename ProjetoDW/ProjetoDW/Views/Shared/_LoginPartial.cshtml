@@ -3,7 +3,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject ApplicationDbContext _context
 @inject UserManager<IdentityUser> UserManager
-
+<link rel="stylesheet" href="css/Login_Partial.css">
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
@@ -11,12 +11,14 @@
         var utilizador = _context.Utilizadores.FirstOrDefault(u => u.IdentityUserID == userId);
         var utilizadorNome = utilizador?.Nome ?? User.Identity.Name;
 
-        
+
         if (utilizador != null && !string.IsNullOrEmpty(utilizador.ImagemPath))
         {
-            <li>
-                <img src="/recursos/@utilizador.ImagemPath" style="width: 40px; height: 40px; border-radius: 50%;" />
+            <li class="user_image_container">
+                <img class="user_image" src="/recursos/@utilizador.ImagemPath" />
+                <div class="user_frame"></div>
             </li>
+
         }
 
         <li class="nav-item">

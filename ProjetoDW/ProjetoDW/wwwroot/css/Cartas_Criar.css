@@ -150,3 +150,38 @@ form label {
     flex-wrap: wrap;
     
 }
+
+.user_image_container {
+    position: relative;
+    width: 90px;  /* Moldura maior */
+    height: 90px;
+    list-style: none;
+}
+
+.user_image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70px;  /* TAMANHO FIXO DA IMAGEM */
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff3cd;
+    z-index: 1;
+    transform: translate(-50%, -50%); /* Centraliza a imagem */
+}
+
+.user_frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;  /* TAMANHO DA MOLDURA */
+    height: 90px;
+    border-radius: 50%;
+    background-image: url("../recursos/imagens_geral/user_frame.png");
+    background-size: cover;
+    background-position: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
