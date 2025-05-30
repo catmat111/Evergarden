@@ -25,11 +25,23 @@ namespace ProjetoDW.Controllers
 
 
         // GET: Categorias
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var applicationDbContext = _context.Categorias.Include(c => c.UtilizadorCriador);
-            return View(await applicationDbContext.ToListAsync());
+            var user = await _userManager.GetUserAsync(User);
+
+            var query = _context.Categorias
+                .Include(c => c.UtilizadorCriador)
+                .Where(c => c.UtilizadorCriador.Id == user.Id);
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(c => c.Nome.Contains(searchString));
+            }
+
+            var categoriasDoUtilizador = await query.ToListAsync();
+            return View(categoriasDoUtilizador);
         }
+
 
         // GET: Categorias/Details/5
         public async Task<IActionResult> Details(int? id)

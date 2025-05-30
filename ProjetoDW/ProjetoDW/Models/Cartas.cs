@@ -14,11 +14,10 @@ public class Cartas
     [Display(Name = "Descrição")]
     public string Descricao { get; set; }
 
-    [Display(Name = "Tópico")] 
-    public string Topico { get; set; } = "Geral";
+    
 
     [Display(Name = "Data a ser enviada")]
-    public DateTime DataEnvio { get; set; }
+    public DateTime? DataEnvio { get; set; }
 
     [Display(Name = "Data de Criação")]
     public DateTime DataCriacao { get; set; }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -26,26 +27,51 @@ namespace ProjetoDW.Controllers
 
 
         // GET: Cartas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var userId = _userManager.GetUserId(User);
-            var tarefas = await _context.Tarefa
-                .Where(t => t.UtilizadorId == userId)
-                .ToListAsync();
-
-            ViewBag.Tarefas = tarefas;
-
-            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-
-            var cartas = await _context.Cartas
-                .Include(c => c.UtilizadorRemetente)
-                .Include(c => c.UtilizadorDestinatario)
-                .Where(c => c.UtilizadorRemetenteFk == utilizador.Id || c.UtilizadorDestinatarioFk == utilizador.Id)
-                .ToListAsync();
+            var isRemetente = User.IsInRole("Remetente");
+            if (isRemetente)
+            {
 
 
-            return View(cartas);
+                var user = await _userManager.GetUserAsync(User);
+                var query = _context.Cartas
+                    .Include(c => c.UtilizadorRemetente)
+                    .Include(c => c.UtilizadorDestinatario)
+                    .Include(c => c.Categorias)
+                    .Where(c => c.UtilizadorRemetente.IdentityUserID ==
+                                user.Id); // Mostra só as cartas do remetente autenticado
+
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    query = query.Where(c =>
+                        c.UtilizadorDestinatario.Nome.Contains(searchString));
+                }
+
+
+                return View(await query.ToListAsync());
+            }
+            else
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var query = _context.Cartas
+                    .Include(c => c.UtilizadorRemetente)
+                    .Include(c => c.UtilizadorDestinatario)
+                    .Include(c => c.Categorias)
+                    .Where(c => c.UtilizadorDestinatario.IdentityUserID ==
+                                user.Id); // Mostra só as cartas do remetente autenticado
+
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    query = query.Where(c =>
+                        c.UtilizadorDestinatario.Nome.Contains(searchString));
+                }
+
+
+                return View(await query.ToListAsync());
+            }
         }
+
 
 
 
@@ -72,14 +98,13 @@ namespace ProjetoDW.Controllers
 
 
         // GET: Cartas/Create
+        [Authorize(Roles = "Remetente")]
+
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);
-    
-            if (user == null || !(await _userManager.IsInRoleAsync(user, "REMETENTE")))
-            {
-                return Forbid();
-            }
+
+            
 
             // Buscar destinatários associados a este remetente, se necessário
             var remetente = await _context.Utilizadores
@@ -110,45 +135,59 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Titulo,Descricao,Topico,DataEnvio,UtilizadorDestinatarioFk")] Cartas cartas, int[] categoriasSelecionadas)
+        public async Task<IActionResult> Create(Cartas carta, List<int> categoriasSelecionadas, DateTime? DataEnvio)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var remetente = await _context.Utilizadores
-                .FirstOrDefaultAsync(u => u.IdentityUserID == user.Id);
+            var utilizadorAutenticado = await _userManager.GetUserAsync(User);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == utilizadorAutenticado.Id);
+
+            if (remetente == null)
+            {
+                return Unauthorized();
+            }
+
+            // Verifica se há pelo menos uma categoria com TemData == true
+            var categoriasCompletas = await _context.Categorias
+                .Where(c => categoriasSelecionadas.Contains(c.Id))
+                .ToListAsync();
+
+            bool exigeData = categoriasCompletas.Any(c => c.Tipo);
+
+            if (exigeData && !DataEnvio.HasValue)
+            {
+                ModelState.AddModelError("DataEnvio", "Esta carta requer uma data de envio devido à categoria selecionada.");
+            }
 
             if (ModelState.IsValid)
             {
-                cartas.DataCriacao = DateTime.Now;
-                cartas.UtilizadorRemetenteFk = remetente.Id;
+                carta.UtilizadorRemetenteFk = remetente.Id;
 
-                // Carregar categorias selecionadas
-                if (categoriasSelecionadas != null && categoriasSelecionadas.Length > 0)
+                if (exigeData)
                 {
-                    cartas.Categorias = await _context.Categorias
-                        .Where(c => categoriasSelecionadas.Contains(c.Id))
-                        .ToListAsync();
+                    carta.DataEnvio = DataEnvio.Value;
                 }
+                    
+                carta.DataCriacao = DateTime.Now;
+                
+                // Associar as categorias à carta
+                carta.Categorias = categoriasCompletas;
 
-                _context.Add(cartas);
+                _context.Add(carta);
                 await _context.SaveChangesAsync();
-
                 return RedirectToAction(nameof(Index));
             }
 
-            var destinatarios = await _context.Utilizadores
+            // Se o ModelState não for válido, recarrega os dados da ViewBag para a view
+            ViewBag.Categorias = await _context.Categorias
+                .Where(c => c.UtilizadorCriador.Id == utilizadorAutenticado.Id)
+                .ToListAsync();
+
+            ViewBag.UtilizadoresDFk = new SelectList(await _context.Utilizadores
                 .Where(u => u.RemetenteId == remetente.Id)
-                .ToListAsync();
+                .ToListAsync(), "Id", "Nome", carta.UtilizadorDestinatarioFk);
 
-            ViewData["UtilizadorDestinatarioFk"] = new SelectList(destinatarios, "Id", "Nome", cartas.UtilizadorDestinatarioFk);
-
-            var categorias = await _context.Categorias
-                .Where(c => c.UtilizadorCriador.Id == remetente.IdentityUserID)
-                .ToListAsync();
-
-            ViewBag.Categorias = new SelectList(categorias, "Id", "Nome");
-
-            return View(cartas);
+            return View(carta);
         }
+
 
 
 

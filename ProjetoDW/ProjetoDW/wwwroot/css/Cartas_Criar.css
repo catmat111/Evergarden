@@ -97,7 +97,6 @@ form input[type="checkbox"]:checked {
 }
 
 form input[type="checkbox"]:checked::after {
-    content: '✔';
     position: absolute;
     top: 50%;
     left: 50%;

@@ -47,12 +47,22 @@
                     @foreach (var categoria in categorias)
                     {
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="categoriasSelecionadas" value="@categoria.Id" id="cat_@categoria.Id" />
+                            <input class="form-check-input categoria-checkbox"
+                                   type="checkbox"
+                                   name="categoriasSelecionadas"
+                                   value="@categoria.Id"
+                                   data-temdata="@(categoria.Tipo ? "true" : "false")"
+                                   id="cat_@categoria.Id" />
                             <label class="form-check-label" for="cat_@categoria.Id">@categoria.Nome</label>
                         </div>
                     }
-                    
                 </div>
+
+                <div id="dataEnvioContainer" class="form-group" style="display:none;">
+                    <label for="DataEnvio">Data de Envio</label>
+                    <input type="date" name="DataEnvio" class="form-control" />
+                </div>
+
             </div>
             
         </div>
@@ -63,5 +73,22 @@
     </form>
 </div>
 
+@section Scripts {
+    <script>
+        const checkboxes = document.querySelectorAll('.categoria-checkbox');
+        const dataEnvioContainer = document.getElementById('dataEnvioContainer');
 
+        function verificarCategoriasComData() {
+            const mostrarData = Array.from(checkboxes).some(cb => cb.checked && cb.dataset.temdata === "true");
 
+            dataEnvioContainer.style.display = mostrarData ? 'block' : 'none';
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', verificarCategoriasComData);
+        });
+
+        // Executa na inicialização caso esteja voltando do POST com dados preenchidos
+        verificarCategoriasComData();
+    </script>
+}

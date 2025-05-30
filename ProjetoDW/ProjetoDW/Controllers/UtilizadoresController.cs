@@ -26,23 +26,42 @@ namespace ProjetoDW.Controllers
 
         // GET: UtilizadoresR
         [Authorize(Roles = "Remetente")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var identityUser = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
 
-            var remetente = await _context.Utilizadores
-                .Include(u => u.UtilizadoresDestinatarios)
-                .FirstOrDefaultAsync(u => u.IdentityUserID == identityUser.Id);
-
-            if (remetente == null)
+            
+            // Obtem o ID da role "Destinatario"
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Destinatario");
+            if (role == null)
             {
-                return NotFound("Remetente não encontrado.");
+                return Problem("A role 'Destinatario' não foi encontrada.");
             }
 
-            var meusDestinatarios = remetente.UtilizadoresDestinatarios;
+            // Obtem os UserIds de todos os utilizadores com essa role
+            var userIdsComRoleDestinatario = await _context.UserRoles
+                .Where(ur => ur.RoleId == role.Id)
+                .Select(ur => ur.UserId)
+                .ToListAsync();
 
-            return View(meusDestinatarios);
+            // Obtem os utilizadores da tabela Utilizadores cujos IdentityUserId está na lista
+            var utilizadoresQuery = _context.Utilizadores
+                .Include(u => u.Remetente)
+                .Where(u => userIdsComRoleDestinatario.Contains(u.IdentityUserID))
+                .Where(u => u.Remetente.IdentityUserID == user.Id);
+
+            // Se houver filtro de pesquisa
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                utilizadoresQuery = utilizadoresQuery
+                    .Where(u => u.Nome.Contains(searchString));
+            }
+
+            var listaFinal = await utilizadoresQuery.ToListAsync();
+            return View(listaFinal);
         }
+
+
 
 
 

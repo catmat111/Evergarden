@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoDW.Data;
 
@@ -10,9 +11,11 @@ using ProjetoDW.Data;
 namespace ProjetoDW.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529104750_DataEnvioOpcional")]
+    partial class DataEnvioOpcional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.14");
@@ -244,6 +247,9 @@ namespace ProjetoDW.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Titulo")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Topico")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UtilizadorDestinatarioFk")

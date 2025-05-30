@@ -4,92 +4,153 @@
 
 @{
     ViewData["Title"] = "Index";
+    var isRemetente = User.IsInRole("Remetente");
+    var isDestinatario = User.IsInRole("Destinatario");
 }
+
 <link rel="stylesheet" href="~/css/Cartas_Index.css" asp-append-version="true" />
 <div class="row">
     <div class="coluna-esquerda">
-        <div>
-            <img src="recursos/imagens_geral/lupa.png" width="20px"/>
-            <input type="text"/>
-        </div>
+        <h1>Cartas</h1>
 
-        <table class="table">
-            <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Titulo)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DataCriacao)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.UtilizadorRemetenteFk)
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model) {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Titulo)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Descricao)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Topico)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DataEnvio)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DataCriacao)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-    <div class="coluna-direita">
-        <h2>To-Do List</h2>
-
-        <form asp-controller="Tarefa" asp-action="Create" method="post">
-            <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required />
-            <button type="submit" class="btn btn-success mt-2">Adicionar</button>
+        <form asp-action="Index" method="get" class="mb-3">
+            <div style="display:flex;">
+                <img onclick="document.getElementById('formPesquisa').submit();" src="/recursos/imagens_geral/lupa.png" style="width: 40px; height: 40px; cursor:pointer; margin-right: 10px;"/>
+                <input type="text" name="searchString" class="form-control" placeholder="Pesquisar por remetente ou destinatário..." style="width: 50%"/>
+            </div>
         </form>
 
-        <ul>
-            @foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
-            {
-                <li>
-                    <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@tarefa.Id" />
-                        <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "") />
-                        @tarefa.Nome
-                    </form>
-                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@tarefa.Id" />
-                        <button type="submit" class="btn btn-sm btn-danger">X</button>
-                    </form>
-                </li>
-            }
-        </ul>
 
+        <table class="table">
+
+            @if (isRemetente)
+            {
+                <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Titulo)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Descricao)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DataEnvio)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UtilizadorDestinatario.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Categorias)
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Titulo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Descricao)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.DataEnvio)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Email)
+                        </td>
+                        <td>
+                            @if (item.Categorias != null && item.Categorias.Any())
+                            {
+                                foreach (var categoria in item.Categorias)
+                                {
+                                    <span class="badge bg-info me-1">@categoria.Nome</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sem categorias</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            }
+            else if (isDestinatario)
+            {
+                <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Titulo)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Descricao)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DataEnvio)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UtilizadorRemetenteFk)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UtilizadorRemetente.Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Categorias)
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Titulo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Descricao)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.DataEnvio)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Email)
+                        </td>
+                        <td>
+                            @if (item.Categorias != null && item.Categorias.Any())
+                            {
+                                foreach (var categoria in item.Categorias)
+                                {
+                                    <span class="badge bg-info me-1">@categoria.Nome</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sem categorias</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            }
+        </table>
     </div>
+
 </div>
     <script>
         function adicionarTarefa() {
