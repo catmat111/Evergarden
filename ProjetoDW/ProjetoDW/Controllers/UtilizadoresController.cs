@@ -85,7 +85,6 @@ namespace ProjetoDW.Controllers
 // POST: UtilizadoresR/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "REMETENTE")]
         public async Task<IActionResult> Create(Utilizadores model, string password)
         {
             if (!ModelState.IsValid)

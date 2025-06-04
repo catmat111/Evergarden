@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -26,13 +27,15 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly ApplicationDbContext _context;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IEmailSender _emailSender;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             ILogger<RegisterModel> logger,
             ApplicationDbContext context,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            IEmailSender emailSender) // <- novo
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -40,7 +43,9 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
             _logger = logger;
             _context = context;
             _signInManager = signInManager;
+            _emailSender = emailSender; // <- novo
         }
+
 
         [BindProperty] public InputModel Input { get; set; }
 
@@ -139,8 +144,23 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
                     
 
                     await _context.SaveChangesAsync();
+                    //Gerar o token de confirmação e enviar o e-mail
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                    return RedirectToAction("ContaCriada", "Utilizadores");
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = user.Id, code },
+                        protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(
+                        user.Email,
+                        "Confirmação de conta",
+                        $"Por favor confirma a tua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
+
+                    return RedirectToPage("RegisterConfirmation", new { email = user.Email });
+
 
 
                 }

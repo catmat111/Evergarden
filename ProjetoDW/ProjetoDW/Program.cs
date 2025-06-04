@@ -1,25 +1,35 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDW.Data;
+using ProjetoDW.Models;
+using ProjetoDW.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração para usar SQLite com a string de conexão fornecida no appsettings.json
+// Configurar base de dados (SQLite)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adicionando o Identity (para autenticação e gerenciamento de usuários)
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+// Configurar Identity com roles e conta confirmada
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+    })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Adicionando outros serviços como Controllers e Views
-builder.Services.AddControllersWithViews();
+// REGISTAR SERVIÇO DE ENVIO DE EMAIL
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-// Criando a aplicação
+// MVC e Razor Pages
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
-// Configurando o pipeline de requisição
+// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -33,13 +43,14 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthentication(); // Habilitando a autenticação
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages(); // Habilitando as páginas Razor para o Identity
+app.MapRazorPages();
 
 app.Run();
