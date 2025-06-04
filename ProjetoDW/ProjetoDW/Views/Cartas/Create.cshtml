@@ -56,12 +56,24 @@
                             <label class="form-check-label" for="cat_@categoria.Id">@categoria.Nome</label>
                         </div>
                     }
+                    @if (ViewData.ModelState["categoriasSelecionadas"]?.Errors.Count > 0)
+                    {
+                        <span class="text-danger">
+                            @ViewData.ModelState["categoriasSelecionadas"].Errors[0].ErrorMessage
+                        </span>
+                    }
                 </div>
 
                 <div id="dataEnvioContainer" class="form-group" style="display:none;">
                     <label for="DataEnvio">Data de Envio</label>
-                    <input type="date" name="DataEnvio" class="form-control" />
+                    <input type="date" name="DataEnvio" class="form-control"  min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
                 </div>
+                @if (ViewData.ModelState["DataEnvio"]?.Errors.Count > 0)
+                {
+                    <span class="text-danger">
+                        @ViewData.ModelState["DataEnvio"].Errors[0].ErrorMessage
+                    </span>
+                }
 
             </div>
             
@@ -90,5 +102,16 @@
 
         // Executa na inicialização caso esteja voltando do POST com dados preenchidos
         verificarCategoriasComData();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                dateInput.addEventListener('keydown', function (e) {
+                    e.preventDefault();
+                });
+            }
+        });
     </script>
 }

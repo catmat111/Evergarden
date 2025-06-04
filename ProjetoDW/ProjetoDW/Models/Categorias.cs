@@ -9,9 +9,12 @@ public class Categorias
 {
     [Key] public int Id { get; set; }
 
-    [Display(Name = "Tem data?")] public bool Tipo { get; set; }
+    [Display(Name = "Tem data?")] 
+    public bool Tipo { get; set; }
 
-    [Display(Name = "Categoria")] public string Nome { get; set; }
+    [Required(ErrorMessage = "Tem de colocar um nome para a sua Categoria!")]
+    [Display(Name = "Categoria")] 
+    public string Nome { get; set; }
 
     public IdentityUser UtilizadorCriador { get; set; } // Navegação
 

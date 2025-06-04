@@ -135,7 +135,7 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Cartas carta, List<int> categoriasSelecionadas, DateTime? DataEnvio)
+        public async Task<IActionResult> Create(Cartas carta, List<int> categoriasSelecionadas, DateOnly? DataEnvio)
         {
             var utilizadorAutenticado = await _userManager.GetUserAsync(User);
             var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == utilizadorAutenticado.Id);
@@ -144,17 +144,26 @@ namespace ProjetoDW.Controllers
             {
                 return Unauthorized();
             }
+            if (carta.UtilizadorDestinatarioFk == null || carta.UtilizadorDestinatarioFk == 0)
+            {
+                ModelState.AddModelError("UtilizadorDestinatarioFk", "Tem de ter alguém para enviar a sua carta!");
+            }
 
             // Verifica se há pelo menos uma categoria com TemData == true
             var categoriasCompletas = await _context.Categorias
                 .Where(c => categoriasSelecionadas.Contains(c.Id))
                 .ToListAsync();
 
+            if (categoriasSelecionadas == null || !categoriasSelecionadas.Any())
+            {
+                ModelState.AddModelError("categoriasSelecionadas", "Tem de ter uma categoria, no mínimo!");
+            }
+            
             bool exigeData = categoriasCompletas.Any(c => c.Tipo);
 
             if (exigeData && !DataEnvio.HasValue)
             {
-                ModelState.AddModelError("DataEnvio", "Esta carta requer uma data de envio devido à categoria selecionada.");
+                ModelState.AddModelError("DataEnvio", "Para quando é que queres enviar a carta?");
             }
 
             if (ModelState.IsValid)
@@ -166,11 +175,13 @@ namespace ProjetoDW.Controllers
                     carta.DataEnvio = DataEnvio.Value;
                 }
                     
-                carta.DataCriacao = DateTime.Now;
+                carta.DataCriacao = DateOnly.FromDateTime(DateTime.Now);
                 
+
                 // Associar as categorias à carta
                 carta.Categorias = categoriasCompletas;
 
+                
                 _context.Add(carta);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -196,6 +207,8 @@ namespace ProjetoDW.Controllers
         // GET: Cartas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var cartaOriginal = await _context.Cartas.FindAsync(id);
+
             
             if (id == null) return NotFound();
 
@@ -212,6 +225,13 @@ namespace ProjetoDW.Controllers
             if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
                 return Forbid();
 
+            if (carta.DataEnvio.HasValue && DateOnly.FromDateTime(DateTime.Now) >= carta.DataEnvio.Value || cartaOriginal.DataEnvio == null)
+            {
+                TempData["Erro"] = "Não é possível editar uma carta após a data de envio.";
+                return View("EdicaoNaoPermitida");
+            }
+            
+            
             return View(carta);
         }
 
@@ -220,27 +240,43 @@ namespace ProjetoDW.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Descricao,Topico,DataEnvio,DataCriacao,UtilizadorRemetenteFk,UtilizadorDestinatarioFk")]
-            Cartas cartas)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Descricao,DataEnvio")] Cartas cartaEditada)
         {
-            
-            if (id == null) return NotFound();
+            if (id != cartaEditada.Id)
+                return BadRequest();
 
-            var carta = await _context.Cartas
-                .Include(c => c.UtilizadorRemetente)
-                .Include(c => c.UtilizadorDestinatario)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            if (!ModelState.IsValid)
+                return View(cartaEditada);
 
-            if (carta == null) return NotFound();
+            var cartaOriginal = await _context.Cartas.FindAsync(id);
+            if (cartaOriginal == null)
+                return NotFound();
 
             var userId = _userManager.GetUserId(User);
             var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-
-            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
+    
+            // Só o remetente pode editar (podes ajustar conforme precisares)
+            if (cartaOriginal.UtilizadorRemetenteFk != utilizador.Id)
                 return Forbid();
 
-            return View(carta);
+            // Impede edição se a carta tem mais de 3 dias
+            if (DateOnly.FromDateTime(DateTime.Now) >= cartaOriginal.DataEnvio || cartaOriginal.DataEnvio == null)
+            {
+                ModelState.AddModelError(string.Empty, "Não é possível editar uma carta após a data de envio.");
+                return View("EdicaoNaoPermitida");
+            }
+
+            // Atualiza os campos editáveis
+            cartaOriginal.Titulo = cartaEditada.Titulo;
+            cartaOriginal.Descricao = cartaEditada.Descricao;
+            cartaOriginal.DataEnvio = cartaEditada.DataEnvio;
+
+            _context.Update(cartaOriginal);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Cartas/Delete/5
         public async Task<IActionResult> Delete(int? id)

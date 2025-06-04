@@ -91,11 +91,7 @@ namespace ProjetoDW.Controllers
         {
             return View();
         }
-
-
-
-
-
+        
 
 
         // POST: UtilizadoresR/Create
@@ -107,6 +103,7 @@ namespace ProjetoDW.Controllers
         [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> Create(Utilizadores model, string password)
         {
+            
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -154,6 +151,8 @@ namespace ProjetoDW.Controllers
 
             model.IdentityUserID = newUser.Id;
             model.RemetenteId = remetente.Id;
+            model.Telemovel = "+351 " + model.Telemovel;
+
 
             _context.Utilizadores.Add(model);
             await _context.SaveChangesAsync();
@@ -168,55 +167,100 @@ namespace ProjetoDW.Controllers
 
 
         // GET: UtilizadoresR/Edit/5
+        [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var utilizadoresR = await _context.Utilizadores.FindAsync(id);
-            if (utilizadoresR == null)
-            {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (remetente == null)
+                return Unauthorized();
+
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u =>
+                u.Id == id &&
+                (u.Id == remetente.Id || u.RemetenteId == remetente.Id)); // Pode editar-se a si ou aos destinatários criados
+
+            if (utilizador == null)
                 return NotFound();
-            }
-            return View(utilizadoresR);
+
+            return View(utilizador);
         }
+
 
         // POST: UtilizadoresR/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Password,Imagem,Telemovel,Email,Idade,DataNascimento")] Utilizadores utilizadores)
+[Authorize(Roles = "Remetente")]
+public async Task<IActionResult> Edit(int id, Utilizadores model)
+{
+    if (id != model.Id)
+        return NotFound();
+
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+    if (remetente == null)
+        return Unauthorized();
+
+    var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u =>
+        u.Id == id &&
+        (u.Id == remetente.Id || u.RemetenteId == remetente.Id));
+
+    if (utilizador == null)
+        return NotFound();
+
+    model.Email = utilizador.Email;
+    ModelState.Remove(nameof(model.Email)); // limpa o erro causado pelo campo vazio
+
+    if (ModelState.IsValid)
+    {
+        try
         {
-            if (id != utilizadores.Id)
+            // Atualiza dados
+            utilizador.Nome = model.Nome;
+            utilizador.Telemovel = model.Telemovel;
+            utilizador.DataNascimento = model.DataNascimento;
+
+            // Atualizar imagem se fornecida
+            if (model.Imagem != null && model.Imagem.Length > 0)
             {
-                return NotFound();
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Imagem.FileName);
+                var filePath = Path.Combine("wwwroot/recursos/imagens_user", fileName);
+
+                // Criar pasta se não existir
+                var folder = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.Imagem.CopyToAsync(stream);
+                }
+
+                utilizador.ImagemPath = "imagens_user/" + fileName;
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(utilizadores);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UtilizadoresRExists(utilizadores.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return View("DestinatarioCriado","UtilizadoresR");
-            }
-            return View(utilizadores);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!UtilizadoresRExists(model.Id))
+                return NotFound();
+            throw;
+        }
+    }
+
+    return View(model);
+}
+
+
 
         // GET: UtilizadoresR/Delete/5
         public async Task<IActionResult> Delete(int? id)
