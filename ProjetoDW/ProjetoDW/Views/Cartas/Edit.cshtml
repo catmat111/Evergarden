@@ -24,13 +24,8 @@
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Topico" class="control-label"></label>
-                <input asp-for="Topico" class="form-control" />
-                <span asp-validation-for="Topico" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="DataEnvio" class="control-label"></label>
-                <input asp-for="DataEnvio" class="form-control" />
+                <input type="date" asp-for="DataEnvio" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
                 <span asp-validation-for="DataEnvio" class="text-danger"></span>
             </div>
 
@@ -45,3 +40,14 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            dateInput.addEventListener('keydown', function (e) {
+                e.preventDefault();
+            });
+        }
+    });
+</script>

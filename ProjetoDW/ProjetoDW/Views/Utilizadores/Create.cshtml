@@ -1,35 +1,47 @@
+Create:
 @model ProjetoDW.Models.Utilizadores
 
 @{
     ViewData["Title"] = "Create";
 }
-<link rel="stylesheet" href="~/css/Utilizadores_Criar.css" asp-append-version="true" />
+
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">
-    
-    
+
+
     <div class="form-group">
         <label asp-for="Nome"></label>
-        <input asp-for="Nome" class="form-control" />
+        <input asp-for="Nome" class="form-control"/>
+        <span asp-validation-for="Nome" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Email"></label>
         <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Telemovel"></label>
-        <input asp-for="Telemovel" class="form-control" />
+        <label asp-for="Telemovel" class="control-label"></label>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">+351</span>
+            </div>
+            <input asp-for="Telemovel" class="form-control" />
+        </div>
+        <span asp-validation-for="Telemovel" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="Imagem"></label>
         <input asp-for="Imagem" type="file" class="form-control" />
+        <span asp-validation-for="Imagem" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="DataNascimento"></label>
-        <input asp-for="DataNascimento" class="form-control" type="date" />
+        <input asp-for="DataNascimento" class="form-control" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" min="1900-01-01"/>
+        <span asp-validation-for="DataNascimento" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -39,3 +51,15 @@
 
     <button type="submit" class="btn btn-primary">Criar Destinatário</button>
 </form>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            dateInput.addEventListener('keydown', function (e) {
+                e.preventDefault();
+            });
+        }
+    });
+</script>

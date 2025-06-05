@@ -3,7 +3,10 @@
 @model ProjetoDW.Models.Cartas
 
 @{
+
     ViewData["Title"] = "Create";
+    var categorias = ViewBag.Categorias as List<ProjetoDW.Models.Categorias>;
+
 }
 <link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
 
@@ -39,23 +42,41 @@
                     </select>
                     <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
+                <div class="form-group Categorias">
+                    <label>Categorias</label><br />
+                    @foreach (var categoria in categorias)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input categoria-checkbox"
+                                   type="checkbox"
+                                   name="categoriasSelecionadas"
+                                   value="@categoria.Id"
+                                   data-temdata="@(categoria.Tipo ? "true" : "false")"
+                                   id="cat_@categoria.Id" />
+                            <label class="form-check-label" for="cat_@categoria.Id">@categoria.Nome</label>
+                        </div>
+                    }
+                    @if (ViewData.ModelState["categoriasSelecionadas"]?.Errors.Count > 0)
+                    {
+                        <span class="text-danger">
+                            @ViewData.ModelState["categoriasSelecionadas"].Errors[0].ErrorMessage
+                        </span>
+                    }
+                </div>
 
-                <form>
-                    <input type="checkbox" id="aniversario" name="aniversario" value="aniversario">
-                    <label for="aniversario">Aniversário</label><br>
-                    <!-- DataEnvio visível só quando "aniversario" está checked -->
-                    <div class="form-group DataEnvio" id="dataEnvioContainer" style="display: none;">
-                        <label asp-for="DataEnvio" class="control-label"></label>
-                        <input asp-for="DataEnvio" class="form-control" id="dataEnvioInput"/>
-                        <span asp-validation-for="DataEnvio" class="text-danger"></span>
-                    </div>
-                    <input type="checkbox" id="casamento" name="casamento" value="casamento">
-                    <label for="casamento">Casamento</label><br>
-                    <input type="checkbox" id="feliz" name="feliz" value="feliz">
-                    <label for="feliz">Momento feliz</label>
-                </form>
+                <div id="dataEnvioContainer" class="form-group" style="display:none;">
+                    <label for="DataEnvio">Data de Envio</label>
+                    <input type="date" name="DataEnvio" class="form-control"  min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+                </div>
+                @if (ViewData.ModelState["DataEnvio"]?.Errors.Count > 0)
+                {
+                    <span class="text-danger">
+                        @ViewData.ModelState["DataEnvio"].Errors[0].ErrorMessage
+                    </span>
+                }
+
             </div>
-            
+
         </div>
 
         <div class="form-group Create full-width">
@@ -64,33 +85,33 @@
     </form>
 </div>
 
+@section Scripts {
+    <script>
+        const checkboxes = document.querySelectorAll('.categoria-checkbox');
+        const dataEnvioContainer = document.getElementById('dataEnvioContainer');
 
+        function verificarCategoriasComData() {
+            const mostrarData = Array.from(checkboxes).some(cb => cb.checked && cb.dataset.temdata === "true");
 
-<script>
-    // Expande automaticamente textarea
-    document.addEventListener('input', function (e) {
-        if (e.target.tagName.toLowerCase() === 'textarea' && e.target.classList.contains('auto-expand')) {
-            e.target.style.height = 'auto';
-            e.target.style.height = (e.target.scrollHeight) + 'px';
+            dataEnvioContainer.style.display = mostrarData ? 'block' : 'none';
         }
-    });
 
-    // Mostra ou oculta DataEnvio conforme checkbox
-    function toggleDataEnvio() {
-        const checkAniversario = document.getElementById("aniversario");
-        const dataEnvioContainer = document.getElementById("dataEnvioContainer");
-        const dataEnvioInput = document.getElementById("dataEnvioInput");
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', verificarCategoriasComData);
+        });
 
-        if (checkAniversario.checked) {
-            dataEnvioContainer.style.display = "block";
-        } else {
-            dataEnvioContainer.style.display = "none";
-            dataEnvioInput.value = ""; // limpa valor
-        }
-    }
+        // Executa na inicialização caso esteja voltando do POST com dados preenchidos
+        verificarCategoriasComData();
+    </script>
 
-    document.addEventListener("DOMContentLoaded", function () {
-        toggleDataEnvio(); // inicializa corretamente
-        document.getElementById("aniversario").addEventListener("change", toggleDataEnvio);
-    });
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                dateInput.addEventListener('keydown', function (e) {
+                    e.preventDefault();
+                });
+            }
+        });
+    </script>
+}

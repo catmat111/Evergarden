@@ -14,18 +14,28 @@
     </tr>
     </thead>
     <tbody>
+    <form asp-action="Index" method="get" class="mb-3">
+        <div style="display:flex;">
+            <button type="submit" style="border: none; background: none; padding: 0;">
+                <img src="/recursos/imagens_geral/lupa.png"
+                     style="width: 40px; height: 40px; cursor:pointer; margin-right: 10px;" />
+            </button>
+            <input type="text" name="searchString" class="form-control" placeholder="Pesquise pelo nome do seu Destinátario..." style="width: 50%" />
+        </div>
+    </form>
     @foreach (var destinatario in Model)
     {
         <tr>
             <td>
-                <img src="recursos/@destinatario.ImagemPath" style="width: 40px; height: 40px; border-radius: 50%;"/>
+                <img src="/recursos/@destinatario.ImagemPath" style="width: 40px; height: 40px; border-radius: 50%; border: solid darkgoldenrod 3px"/>
             </td>
             <td>@destinatario.Nome</td>
             <td>@destinatario.Email</td>
             <td>@destinatario.Telemovel</td>
             <td>@destinatario.DataNascimento</td>
             <td>
-                <a asp-action="Details" asp-controller="Utilizadores"  asp-route-id="@destinatario.Id">Detalhes</a>
+                <a asp-action="Details" asp-controller="Utilizadores" asp-route-id="@destinatario.Id">Detalhes</a>
+                <a asp-action="Delete" asp-controller="Utilizadores" asp-route-id="@destinatario.Id">Apagar</a>
             </td>
         </tr>
     }
