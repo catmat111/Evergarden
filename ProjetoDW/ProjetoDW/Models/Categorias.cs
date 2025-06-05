@@ -16,6 +16,10 @@ public class Categorias
     [Display(Name = "Categoria")] 
     public string Nome { get; set; }
 
+    
+    public string UtilizadorCriadorId { get; set; }
+
+    [ForeignKey(nameof(UtilizadorCriadorId))]
     public IdentityUser UtilizadorCriador { get; set; } // Navegação
 
 

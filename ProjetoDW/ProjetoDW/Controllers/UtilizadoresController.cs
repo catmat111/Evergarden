@@ -289,17 +289,43 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
         // POST: UtilizadoresR/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var utilizadoresR = await _context.Utilizadores.FindAsync(id);
-            if (utilizadoresR != null)
+            var utilizador = await _context.Utilizadores
+                .Include(u => u.UtilizadoresDestinatarios)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (utilizador == null)
             {
-                _context.Utilizadores.Remove(utilizadoresR);
+                return NotFound();
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (remetente == null || (utilizador.Id != remetente.Id && utilizador.RemetenteId != remetente.Id))
+            {
+                return Unauthorized();
+            }
+
+            // Eliminar o IdentityUser primeiro
+            var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
+            if (identityUser != null)
+            {
+                await _userManager.DeleteAsync(identityUser);
+            }
+
+            // O Cascade trata de cartas, destinatários, categorias
+            _context.Utilizadores.Remove(utilizador);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return View("ContaCriada");
         }
+
+
+
+
 
         private bool UtilizadoresRExists(int id)
         {
