@@ -105,50 +105,61 @@ namespace ProjetoDW.Controllers
                 return NotFound();
             }
 
-            var categorias = await _context.Categorias.FindAsync(id);
-            if (categorias == null)
+            var categoria = await _context.Categorias.FindAsync(id);
+            if (categoria == null)
             {
                 return NotFound();
             }
-            ViewData["UtilizadoresFk"] = new SelectList(_context.Users, "Id", "Id");
-            return View(categorias);
+
+            return View(categoria);
         }
+
+
 
         // POST: Categorias/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Tipo,Nome,UtilizadoresFk")] Categorias categorias)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Tipo,Nome")] Categorias categoriaAtualizada)
         {
-            if (id != categorias.Id)
+            if (!ModelState.IsValid)
+            {
+                return View(categoriaAtualizada);
+            }
+
+            var categoriaExistente = await _context.Categorias
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (categoriaExistente == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // Preserva o UtilizadorCriadorId original
+            categoriaAtualizada.UtilizadorCriadorId = categoriaExistente.UtilizadorCriadorId;
+
+            try
             {
-                try
-                {
-                    _context.Update(categorias);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoriasExists(categorias.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(categoriaAtualizada);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UtilizadoresFk"] = new SelectList(_context.Users, "Id", "Id");
-            return View(categorias);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoriasExists(categoriaAtualizada.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
+
+
 
         // GET: Categorias/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -174,14 +185,31 @@ namespace ProjetoDW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var categorias = await _context.Categorias.FindAsync(id);
-            if (categorias != null)
+            var categoria = await _context.Categorias
+                .Include(c => c.Cartas)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (categoria == null)
             {
-                _context.Categorias.Remove(categorias);
+                return NotFound();
             }
 
+// Remover esta categoria da lista de cada carta associada
+            foreach (var carta in categoria.Cartas.ToList())
+            {
+                carta.Categorias.Remove(categoria);
+            }
+
+// Guardar alterações antes de apagar
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+// Agora eliminar a categoria
+            _context.Categorias.Remove(categoria);
+            await _context.SaveChangesAsync();
+
+            return View("CategoriaDeletada");
+
+            return View("CategoriaDeletada");
         }
 
         private bool CategoriasExists(int id)

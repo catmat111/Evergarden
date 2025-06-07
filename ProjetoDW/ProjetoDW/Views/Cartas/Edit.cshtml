@@ -1,53 +1,85 @@
 @model ProjetoDW.Models.Cartas
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Carta";
+    var exigeData = ViewBag.ExigeData; // bool
 }
 
-<h1>Edit</h1>
+<h2>Editar Carta</h2>
 
-<h4>Cartas</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Titulo" class="control-label"></label>
-                <input asp-for="Titulo" class="form-control" />
-                <span asp-validation-for="Titulo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descricao" class="control-label"></label>
-                <input asp-for="Descricao" class="form-control" />
-                <span asp-validation-for="Descricao" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DataEnvio" class="control-label"></label>
-                <input type="date" asp-for="DataEnvio" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
-                <span asp-validation-for="DataEnvio" class="text-danger"></span>
-            </div>
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
 
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="form-group">
+        <label asp-for="Titulo" class="control-label"></label>
+        <input asp-for="Titulo" class="form-control" />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Descricao" class="control-label"></label>
+        <textarea asp-for="Descricao" class="form-control"></textarea>
+        <span asp-validation-for="Descricao" class="text-danger"></span>
+    </div>
 
+    <div class="form-group" id="dataEnvioContainer" style="display:@(exigeData ? "block" : "none")">
+        <label asp-for="DataEnvio" class="control-label"></label>
+        <input asp-for="DataEnvio" class="form-control" type="date" />
+        <span asp-validation-for="DataEnvio" class="text-danger"></span>
+    </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const dateInput = document.querySelector('input[type="date"]');
-        if (dateInput) {
-            dateInput.addEventListener('keydown', function (e) {
-                e.preventDefault();
+    <div class="form-group">
+        <label>Categorias</label>
+        <div>
+            @foreach (var categoria in (List<ProjetoDW.Models.Categorias>)ViewBag.Categorias)
+            {
+                <div class="form-check">
+                    <input type="checkbox"
+                           class="form-check-input categoria-checkbox"
+                           name="categoriasSelecionadas"
+                           value="@categoria.Id"
+                           data-tipo="@categoria.Tipo.ToString().ToLower()"
+                           @(Model.Categorias.Any(c => c.Id == categoria.Id) ? "checked" : "") />
+                    <label class="form-check-label">@categoria.Nome</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function atualizarVisibilidadeDataEnvio() {
+            const checkboxes = document.querySelectorAll('.categoria-checkbox');
+            let mostrarData = false;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked && cb.dataset.tipo === "true") {
+                    mostrarData = true;
+                }
             });
+
+            const dataContainer = document.getElementById("dataEnvioContainer");
+            const dataInput = document.getElementById("DataEnvio");
+
+            if (mostrarData) {
+                dataContainer.style.display = "block";
+            } else {
+                dataContainer.style.display = "none";
+                if (dataInput) {
+                    dataInput.value = "";
+                }
+            }
         }
-    });
-</script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+            atualizarVisibilidadeDataEnvio();
+            document.querySelectorAll('.categoria-checkbox').forEach(cb => {
+                cb.addEventListener("change", atualizarVisibilidadeDataEnvio);
+            });
+        });
+    </script>
+}
