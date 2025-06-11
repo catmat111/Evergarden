@@ -157,7 +157,7 @@ namespace ProjetoDW.Controllers
             _context.Utilizadores.Add(model);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return View("ContaCriada");
         }
 
 
@@ -288,19 +288,45 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
 
         // POST: UtilizadoresR/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+[ValidateAntiForgeryToken]
         [Authorize(Roles = "Remetente")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+public async Task<IActionResult> DeleteConfirmed(int id)
+{
+    var utilizador = await _context.Utilizadores
+        .Include(u => u.UtilizadoresDestinatarios)
+        .Include(u => u.Remetente)
+        .FirstOrDefaultAsync(u => u.Id == id);
+
+    if (utilizador == null)
+        return NotFound();
+
+    // Obter o IdentityUser relacionado
+    var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
+
+    // Verificar se é Remetente ou Destinatário
+    if (utilizador.RemetenteId == null)
+    {
+        // ➤ É um REMETENTE
+
+        // 1. Eliminar cartas criadas por este remetente
+        var cartasRemetente = _context.Cartas
+            .Where(c => c.UtilizadorRemetenteFk == utilizador.Id);
+        _context.Cartas.RemoveRange(cartasRemetente);
+
+        // 2. Eliminar destinatários criados por ele
+        foreach (var destinatario in utilizador.UtilizadoresDestinatarios)
         {
-            var utilizador = await _context.Utilizadores
-                .Include(u => u.UtilizadoresDestinatarios)
-                .FirstOrDefaultAsync(u => u.Id == id);
+            // ➤ Eliminar cartas recebidas pelo destinatário
+            var cartasDestinatario = _context.Cartas
+                .Where(c => c.UtilizadorDestinatarioFk == destinatario.Id);
+            _context.Cartas.RemoveRange(cartasDestinatario);
 
-            if (utilizador == null)
-            {
-                return NotFound();
-            }
+            // ➤ Eliminar o utilizador destinatário
+            var identityDestinatario = await _userManager.FindByIdAsync(destinatario.IdentityUserID);
+            if (identityDestinatario != null)
+                await _userManager.DeleteAsync(identityDestinatario);
 
+<<<<<<< HEAD
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
 
@@ -321,7 +347,37 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
             await _context.SaveChangesAsync();
 
             return View("ContaDeletada");
+=======
+            _context.Utilizadores.Remove(destinatario);
+>>>>>>> ab31682c94d3469bc9bdc399f7e7327b99271ff1
         }
+
+        // 3. Eliminar categorias criadas por este remetente
+        var categoriasCriadas = _context.Categorias
+            .Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID);
+        _context.Categorias.RemoveRange(categoriasCriadas);
+    }
+    else
+    {
+        // ➤ É um DESTINATÁRIO
+
+        // 1. Eliminar cartas recebidas
+        var cartasDestinatario = _context.Cartas
+            .Where(c => c.UtilizadorDestinatarioFk == utilizador.Id);
+        _context.Cartas.RemoveRange(cartasDestinatario);
+    }
+
+    // 4. Eliminar utilizador principal (Remetente ou Destinatário)
+    _context.Utilizadores.Remove(utilizador);
+
+    // 5. Eliminar IdentityUser (conta de login)
+    if (identityUser != null)
+        await _userManager.DeleteAsync(identityUser);
+
+    await _context.SaveChangesAsync();
+    return View("DestinatarioDeletado");
+}
+
 
 
 

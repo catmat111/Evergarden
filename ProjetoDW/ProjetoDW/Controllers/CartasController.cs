@@ -210,31 +210,39 @@ namespace ProjetoDW.Controllers
         // GET: Cartas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var cartaOriginal = await _context.Cartas.FindAsync(id);
-
-            
             if (id == null) return NotFound();
 
             var carta = await _context.Cartas
-                .Include(c => c.UtilizadorRemetente)
-                .Include(c => c.UtilizadorDestinatario)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(c => c.Categorias)
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (carta == null) return NotFound();
 
-            var userId = _userManager.GetUserId(User);
-            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-
-            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
-                return Forbid();
-
-            if (carta.DataEnvio.HasValue && DateOnly.FromDateTime(DateTime.Now) >= carta.DataEnvio.Value || cartaOriginal.DataEnvio == null)
+            // Impede edição se já foi enviada
+            if (carta.DataEnvio.HasValue && carta.DataEnvio <= DateOnly.FromDateTime(DateTime.Today))
             {
-                TempData["Erro"] = "Não é possível editar uma carta após a data de envio.";
-                return View("EdicaoNaoPermitida");
+                TempData["Erro"] = "Esta carta já foi enviada e não pode ser editada.";
+                return RedirectToAction("Index");
             }
-            
-            
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var remetente = await _context.Utilizadores
+                .FirstOrDefaultAsync(u => u.IdentityUserID == user.Id);
+
+            if (remetente == null) return Unauthorized();
+
+            var categoriasDisponiveis = await _context.Categorias
+                .Where(c => c.UtilizadorCriadorId == remetente.IdentityUserID)
+                .ToListAsync();
+
+            var temp = carta.Categorias.Any(c => c.Tipo);
+            ViewBag.Categorias = categoriasDisponiveis;
+
+            // Indica se há categorias que exigem DataEnvio
+            ViewBag.ExigeData = carta.Categorias.Any(c => c.Tipo);
+
             return View(carta);
         }
 
@@ -242,43 +250,70 @@ namespace ProjetoDW.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Descricao,DataEnvio")] Cartas cartaEditada)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, Cartas carta, int[] categoriasSelecionadas)
+{
+    if (id != carta.Id) return NotFound();
+
+    // Recarrega a carta original
+    var cartaExistente = await _context.Cartas
+        .Include(c => c.Categorias)
+        .FirstOrDefaultAsync(c => c.Id == id);
+
+    if (cartaExistente == null) return NotFound();
+
+    // Verifica se há categorias que exigem DataEnvio
+    var categoriasSelecionadasObjs = await _context.Categorias
+        .Where(c => categoriasSelecionadas.Contains(c.Id))
+        .ToListAsync();
+
+    bool exigeData = categoriasSelecionadasObjs.Any(c => c.Tipo);
+
+    if (!exigeData)
+    {
+        carta.DataEnvio = null;
+    }
+
+    if (ModelState.IsValid)
+    {
+        try
         {
-            if (id != cartaEditada.Id)
-                return BadRequest();
+            // Atualizar propriedades simples
+            cartaExistente.Titulo = carta.Titulo;
+            cartaExistente.Descricao = carta.Descricao;
+            cartaExistente.DataEnvio = exigeData ? carta.DataEnvio : null;
 
-            if (!ModelState.IsValid)
-                return View(cartaEditada);
+            // Atualizar categorias
+            cartaExistente.Categorias.Clear();
+            cartaExistente.Categorias.AddRange(categoriasSelecionadasObjs);
 
-            var cartaOriginal = await _context.Cartas.FindAsync(id);
-            if (cartaOriginal == null)
-                return NotFound();
-
-            var userId = _userManager.GetUserId(User);
-            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-    
-            // Só o remetente pode editar (podes ajustar conforme precisares)
-            if (cartaOriginal.UtilizadorRemetenteFk != utilizador.Id)
-                return Forbid();
-
-            // Impede edição se a carta tem mais de 3 dias
-            if (DateOnly.FromDateTime(DateTime.Now) >= cartaOriginal.DataEnvio || cartaOriginal.DataEnvio == null)
-            {
-                ModelState.AddModelError(string.Empty, "Não é possível editar uma carta após a data de envio.");
-                return View("EdicaoNaoPermitida");
-            }
-
-            // Atualiza os campos editáveis
-            cartaOriginal.Titulo = cartaEditada.Titulo;
-            cartaOriginal.Descricao = cartaEditada.Descricao;
-            cartaOriginal.DataEnvio = cartaEditada.DataEnvio;
-
-            _context.Update(cartaOriginal);
+            _context.Update(cartaExistente);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_context.Cartas.Any(c => c.Id == carta.Id))
+                return NotFound();
+            else
+                throw;
+        }
+    }
+
+    // Recarrega categorias se falhar a validação
+    var user = await _userManager.GetUserAsync(User);
+    var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == user.Id);
+    var categoriasDisponiveis = await _context.Categorias
+        .Where(c => c.Id == remetente.Id)
+        .ToListAsync();
+
+    ViewBag.Categorias = new MultiSelectList(categoriasDisponiveis, "Id", "Nome", categoriasSelecionadas);
+    ViewBag.ExigeData = exigeData;
+
+    return View(carta);
+}
+
 
 
         // GET: Cartas/Delete/5
@@ -305,25 +340,29 @@ namespace ProjetoDW.Controllers
         // POST: Cartas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (id == null) return NotFound();
-
             var carta = await _context.Cartas
-                .Include(c => c.UtilizadorRemetente)
-                .Include(c => c.UtilizadorDestinatario)
+                .Include(c => c.Categorias)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (carta == null) return NotFound();
+            if (carta == null)
+                return NotFound();
 
-            var userId = _userManager.GetUserId(User);
-            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+            // ➤ Limpar relações com Categorias (muitos-para-muitos)
+            carta.Categorias.Clear();
 
-            if (carta.UtilizadorRemetenteFk != utilizador.Id && carta.UtilizadorDestinatarioFk != utilizador.Id)
-                return Forbid();
+            // ➤ Guardar a mudança antes de remover
+            await _context.SaveChangesAsync();
 
-            return View(carta);
+            // ➤ Agora pode remover a carta com segurança
+            _context.Cartas.Remove(carta);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         private bool CartasExists(int id)
         {

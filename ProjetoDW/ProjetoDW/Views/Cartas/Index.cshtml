@@ -61,7 +61,14 @@
                             @Html.DisplayFor(modelItem => item.Descricao)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.DataEnvio)
+                            @if (item.DataEnvio == null)
+                            {
+                                @:Já foi enviada!
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.DataEnvio)
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
@@ -126,7 +133,14 @@
                             @Html.DisplayFor(modelItem => item.Descricao)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.DataEnvio)
+                            @if (item.DataEnvio == null)
+                            {
+                                @:Já chegou!
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.DataEnvio)
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
