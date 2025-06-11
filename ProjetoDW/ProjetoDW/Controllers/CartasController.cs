@@ -47,7 +47,10 @@ namespace ProjetoDW.Controllers
                     query = query.Where(c =>
                         c.UtilizadorDestinatario.Nome.Contains(searchString));
                 }
-
+                var tarefas = await _context.Tarefa
+                    .Where(t => t.UtilizadorId == user.Id)
+                    .ToListAsync();
+                ViewBag.Tarefas = tarefas;
 
                 return View(await query.ToListAsync());
             }

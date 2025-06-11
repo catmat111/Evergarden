@@ -320,7 +320,7 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
             _context.Utilizadores.Remove(utilizador);
             await _context.SaveChangesAsync();
 
-            return View("ContaCriada");
+            return View("ContaDeletada");
         }
 
 

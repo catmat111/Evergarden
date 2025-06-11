@@ -162,6 +162,25 @@
         <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required />
         <button type="submit" class="btn btn-success mt-2">Adicionar</button>
     </form>
+    <ul>
+        @if (ViewBag.Tarefas != null)
+        {
+            foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
+            {
+                <li>
+                    <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@tarefa.Id" />
+                        <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "") />
+                        @tarefa.Nome
+                    </form>
+                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@tarefa.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">X</button>
+                    </form>
+                </li>
+            }
+        }
+    </ul>
 
 </div>
 
