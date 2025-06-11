@@ -301,7 +301,7 @@ public async Task<IActionResult> DeleteConfirmed(int id)
         return NotFound();
 
     // Obter o IdentityUser relacionado
-    var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
+    var identityUserr = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
 
     // Verificar se é Remetente ou Destinatário
     if (utilizador.RemetenteId == null)
@@ -326,7 +326,6 @@ public async Task<IActionResult> DeleteConfirmed(int id)
             if (identityDestinatario != null)
                 await _userManager.DeleteAsync(identityDestinatario);
 
-<<<<<<< HEAD
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
 
@@ -347,9 +346,7 @@ public async Task<IActionResult> DeleteConfirmed(int id)
             await _context.SaveChangesAsync();
 
             return View("ContaDeletada");
-=======
             _context.Utilizadores.Remove(destinatario);
->>>>>>> ab31682c94d3469bc9bdc399f7e7327b99271ff1
         }
 
         // 3. Eliminar categorias criadas por este remetente
@@ -371,8 +368,8 @@ public async Task<IActionResult> DeleteConfirmed(int id)
     _context.Utilizadores.Remove(utilizador);
 
     // 5. Eliminar IdentityUser (conta de login)
-    if (identityUser != null)
-        await _userManager.DeleteAsync(identityUser);
+    if (identityUserr != null)
+        await _userManager.DeleteAsync(identityUserr);
 
     await _context.SaveChangesAsync();
     return View("DestinatarioDeletado");
