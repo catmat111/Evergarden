@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDW.Data;
 using ProjetoDW.Models;
@@ -17,11 +21,13 @@ namespace ProjetoDW.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailSender _emailSender;
 
-        public UtilizadoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public UtilizadoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IEmailSender emailSender)
         {
             _context = context;
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         // GET: UtilizadoresR
@@ -156,6 +162,22 @@ namespace ProjetoDW.Controllers
 
             _context.Utilizadores.Add(model);
             await _context.SaveChangesAsync();
+            
+            // Geração do token de confirmação de email
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            var callbackUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = newUser.Id, code },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                newUser.Email,
+                "Confirmação de conta",
+                $"Por favor confirma a tua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
+
 
             return View("ContaCriada");
         }
