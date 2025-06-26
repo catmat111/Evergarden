@@ -33,7 +33,7 @@ namespace ProjetoDW.Controllers
                 .Where(t => t.UtilizadorId == userId)
                 .ToListAsync();
 
-            return View(tarefas); // <-- agora passa o modelo corretamente
+            return View(tarefas); 
         }
 
 
@@ -42,7 +42,7 @@ namespace ProjetoDW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Tarefa tarefa)
         {
-            var userId = _userManager.GetUserId(User); // Certifica-te que _userManager está injetado
+            var userId = _userManager.GetUserId(User); 
 
             if (!string.IsNullOrEmpty(tarefa.Nome) && !string.IsNullOrEmpty(userId))
             {
@@ -58,7 +58,7 @@ namespace ProjetoDW.Controllers
 
 
 
-        // GET: Tarefa/Edit/5
+        // GET: Tarefa/Edit
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -70,7 +70,7 @@ namespace ProjetoDW.Controllers
             return View(tarefa);
         }
 
-        // POST: Tarefa/Edit/5
+        // POST: Tarefa/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Toggle(int id)
@@ -87,7 +87,7 @@ namespace ProjetoDW.Controllers
 
 
 
-        // GET: Tarefa/Delete/5
+        // GET: Tarefa/Delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -100,7 +100,7 @@ namespace ProjetoDW.Controllers
             return View(tarefa);
         }
 
-        // POST: Tarefa/Delete/5
+        // POST: Tarefa/Delete
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

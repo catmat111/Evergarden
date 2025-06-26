@@ -29,7 +29,7 @@
                 <span asp-validation-for="Titulo" class="text-danger"></span>
             </div>
             <div class="form-group descricao">
-                <textarea asp-for="Descricao" class="form-control auto-expand" placeholder="Clique para escrever a carta aqui..."></textarea>
+                <textarea asp-for="Descricao" class="form-control auto-expand" oninput="ajustarAltura(this)" rows="1" placeholder="Clique para escrever a carta aqui..."></textarea>
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
         </div>
@@ -113,5 +113,10 @@
                 });
             }
         });
+        function ajustarAltura(textarea) {
+            textarea.style.height = 'auto'; // reset altura
+            textarea.style.height = textarea.scrollHeight + 'px'; // ajusta à altura do conteúdo
+        }
+
     </script>
 }

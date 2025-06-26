@@ -57,11 +57,11 @@ body {
   -webkit-text-fill-color: transparent;
 
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
-  transform: scale(1.05); /* pequeno zoom */
+  transform: scale(1.05); 
 }
 
 #home{
-  font-size: 1.8rem; /* maior destaque */
+  font-size: 1.8rem; 
   font-weight: 800;
   letter-spacing: 1px;
 
@@ -96,7 +96,7 @@ body {
   box-sizing: border-box;
   z-index: 0;
 
-  /* Borda dourada com sombras internas */
+
   box-shadow:
           inset 0 0 0 4px #f5deb3,        
           inset 0 0 0 8px #e0c36c,         
@@ -105,13 +105,13 @@ body {
           0 0 10px rgba(212, 175, 55, 0.6),
           0 0 15px rgba(255, 223, 0, 0.3), 
 
-            /* Sombra adicional sobre as camadas do box-shadow */
+          
           0 0 20px rgba(0, 0, 0, 15),     
           0 0 30px rgba(0, 0, 0, 10);    
 }
 .navbar-toggler {
-  background-color: rgba(255, 215, 0, 0.2); /* leve dourado translúcido */
-  border: 2px solid #d4af37;                /* borda dourada */
+  background-color: rgba(255, 215, 0, 0.2); 
+  border: 2px solid #d4af37;               
   border-radius: 5px;
   padding: 6px 10px;
   transition: all 0.3s ease-in-out;
@@ -130,7 +130,6 @@ body {
 
 .pb-3{
   background-color: rgb(245, 241, 224);
-  /*background-image: url("../recursos/imagens_geral/papelbackground.jpg");*/
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;

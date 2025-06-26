@@ -20,7 +20,7 @@ public class Categorias
     public string UtilizadorCriadorId { get; set; }
 
     [ForeignKey(nameof(UtilizadorCriadorId))]
-    public IdentityUser UtilizadorCriador { get; set; } // Navegação
+    public IdentityUser UtilizadorCriador { get; set; } 
 
 
     public List<Cartas> Cartas { get; set; } = new List<Cartas>();

@@ -117,7 +117,7 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
                         }
                     }
 
-// Criar o utilizador de negócio
+// Criar um utilizador Remetente
                     var utilizadorR = new Utilizadores
                     {
                         Nome = Input.Utilizadores.Nome,
@@ -128,7 +128,7 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
                         IdentityUserID = user.Id
                     };
 
-// Se for destinatário, assume o remetente atualmente autenticado como criador
+                    // Se for destinatário, associa o ID do remetente ao novo utilizador destinatário
                     if (Input.TipoUtilizador == 2)
                     {
                         var remetenteIdentityUser = await _userManager.GetUserAsync(User);
@@ -139,26 +139,28 @@ namespace ProjetoDW.Areas.Identity.Pages.Account
                             utilizadorR.RemetenteId = remetente.Id;
                         }
                     }
-
+                    //Guarda o objeto utilizadorR
                     _context.Utilizadores.Add(utilizadorR);
-                    
-
                     await _context.SaveChangesAsync();
+                    
                     //Gerar o token de confirmação e enviar o e-mail
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
+                    //Criação do link de confirmação
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
                         values: new { area = "Identity", userId = user.Id, code },
                         protocol: Request.Scheme);
-
+                    
+                    //Envio do e-mail
                     await _emailSender.SendEmailAsync(
                         user.Email,
                         "Confirmação de conta",
                         $"Por favor confirma a tua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
 
+                    //Redirecionamento final
                     return RedirectToPage("RegisterConfirmation", new { email = user.Email });
 
 

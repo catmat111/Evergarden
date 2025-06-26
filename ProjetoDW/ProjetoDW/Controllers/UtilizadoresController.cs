@@ -91,7 +91,7 @@ namespace ProjetoDW.Controllers
 
         // GET: UtilizadoresR/Create
         // GET: UtilizadoresR/Create
-// GET: UtilizadoresR/Create
+        // GET: UtilizadoresR/Create
         [Authorize(Roles = "Remetente")]
         public IActionResult Create()
         {
@@ -328,22 +328,22 @@ public async Task<IActionResult> DeleteConfirmed(int id)
     // Verificar se é Remetente ou Destinatário
     if (utilizador.RemetenteId == null)
     {
-        // ➤ É um REMETENTE
+        // É um REMETENTE
 
-        // 1. Eliminar cartas criadas por este remetente
+        // Eliminar cartas criadas por este remetente
         var cartasRemetente = _context.Cartas
             .Where(c => c.UtilizadorRemetenteFk == utilizador.Id);
         _context.Cartas.RemoveRange(cartasRemetente);
 
-        // 2. Eliminar destinatários criados por ele
+        // Eliminar destinatários criados por ele
         foreach (var destinatario in utilizador.UtilizadoresDestinatarios)
         {
-            // ➤ Eliminar cartas recebidas pelo destinatário
+            // Eliminar cartas recebidas pelo destinatário
             var cartasDestinatario = _context.Cartas
                 .Where(c => c.UtilizadorDestinatarioFk == destinatario.Id);
             _context.Cartas.RemoveRange(cartasDestinatario);
 
-            // ➤ Eliminar o utilizador destinatário
+            // Eliminar o utilizador destinatário
             var identityDestinatario = await _userManager.FindByIdAsync(destinatario.IdentityUserID);
             if (identityDestinatario != null)
                 await _userManager.DeleteAsync(identityDestinatario);
@@ -371,25 +371,25 @@ public async Task<IActionResult> DeleteConfirmed(int id)
             _context.Utilizadores.Remove(destinatario);
         }
 
-        // 3. Eliminar categorias criadas por este remetente
+        // Eliminar categorias criadas por este remetente
         var categoriasCriadas = _context.Categorias
             .Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID);
         _context.Categorias.RemoveRange(categoriasCriadas);
     }
     else
     {
-        // ➤ É um DESTINATÁRIO
+        // É um DESTINATÁRIO
 
-        // 1. Eliminar cartas recebidas
+        // Eliminar cartas recebidas
         var cartasDestinatario = _context.Cartas
             .Where(c => c.UtilizadorDestinatarioFk == utilizador.Id);
         _context.Cartas.RemoveRange(cartasDestinatario);
     }
 
-    // 4. Eliminar utilizador principal (Remetente ou Destinatário)
+    // Eliminar utilizador principal (Remetente ou Destinatário)
     _context.Utilizadores.Remove(utilizador);
 
-    // 5. Eliminar IdentityUser (conta de login)
+    // Eliminar IdentityUser (conta de login)
     if (identityUserr != null)
         await _userManager.DeleteAsync(identityUserr);
 
