@@ -1,20 +1,93 @@
-﻿.row {
+﻿/* ---------------------------- */
+/* Área Geral e Layout Principal */
+/* ---------------------------- */
+
+.row {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 20px;
+    gap: 0px;
     padding: 20px;
 }
 
+body {
+    font-family: Verdana, sans-serif;
+}
+
+
+/* ---------------------------- */
+/* Área da Tabela de Cartas     */
+/* ---------------------------- */
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fffdf7;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+    margin-top: 20px;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0e6c1;
+    vertical-align: middle;
+}
+
+.table th {
+    background-color: #fcf4c6;
+    color: #7d6608;
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tr:hover {
+    background-color: #fff9dc;
+    transition: background-color 0.2s ease;
+}
+
+/* Links de ações */
+a {
+    text-decoration: none;
+    color: #006699;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a[href*="Delete"] {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+a[href*="Delete"]:hover {
+    color: #e74c3c;
+}
+
+
+/* ---------------------------- */
+/* Área das Cartas (Destinatário) */
+/* ---------------------------- */
+
 .carta-fundo {
+    background-color: #fff9e6;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
     position: relative;
     width: 450px;
     height: 300px;
     margin: 40px auto;
     background-size: cover;
     background-position: center;
-    border-radius: 8px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,7 +104,6 @@
 }
 
 .carta-fundo .titulo-carta {
-    
     font-weight: bold;
     font-size: 1.4em;
     margin-bottom: 10px;
@@ -41,6 +113,14 @@
     margin-bottom: 8px;
 }
 
+.carta-conteudo p {
+    margin: 6px 0;
+}
+
+
+/* ---------------------------- */
+/* Área da Barra de Pesquisa    */
+/* ---------------------------- */
 
 .pesquisa_nome {
     display: flex;
@@ -91,58 +171,59 @@
 }
 
 
-
+/* ---------------------------- */
+/* Área da Coluna Esquerda      */
+/* ---------------------------- */
 
 .coluna-esquerda {
-    flex: 1;
-    min-width: 60%; 
-}
-
-.coluna-direita {
-    flex: 1;
-    min-width: 35%; 
-}
-
-.table {
+    flex: 1 1 100%;
+    min-width: 60%;
     width: 100%;
-    border-collapse: collapse;
+    padding: 0;
+    margin: 0;
 }
 
-.table th, .table td {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-}
 
-input[type="text"] {
-    padding: 6px 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-left: 5px;
-}
-
+/* ---------------------------- */
+/* Área da Coluna Direita       */
+/* (To-Do List + Calendário)    */
+/* ---------------------------- */
 
 .coluna-direita {
+    flex: 1;
+    min-width: 35%;
     background-color: #fffbea;
     padding: 20px;
     border-left: 3px solid #f4d35e;
-    height: 50vh;
-    width: 30%;
-    overflow-y: auto;
+    height: auto;
     font-family: 'Segoe UI', sans-serif;
-    
 }
 
-.coluna-direita h2 {
+/* Container horizontal do To-Do + Calendário */
+.lado-a-lado-direita {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+/* To-Do List */
+.to-do {
+    flex: 1;
+    min-width: 200px;
+}
+
+.to-do h2 {
     font-size: 1.8em;
     margin-bottom: 20px;
     color: #f4d35e;
 }
 
-.coluna-direita form {
+.to-do form {
     margin-bottom: 15px;
 }
 
-.coluna-direita input[type="text"] {
+.to-do input[type="text"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #f4d35e;
@@ -150,18 +231,18 @@ input[type="text"] {
     background-color: #fffde7;
 }
 
-.coluna-direita input[type="text"]:focus{
+.to-do input[type="text"]:focus {
     border-color: #d4af37;
     outline: none;
     box-shadow: 0 0 5px #d4af37aa;
 }
 
-.coluna-direita ul {
+.to-do ul {
     list-style: none;
     padding: 0;
 }
 
-.coluna-direita li {
+.to-do li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -173,15 +254,13 @@ input[type="text"] {
     transition: background-color 0.3s;
 }
 
-
-
-.coluna-direita input[type="checkbox"] {
+.to-do input[type="checkbox"] {
     margin-right: 10px;
     transform: scale(1.2);
     accent-color: #f4d35e;
 }
 
-.coluna-direita button {
+.to-do button {
     margin-left: 10px;
     background-color: #f4d35e;
     color: white;
@@ -191,35 +270,33 @@ input[type="text"] {
     transition: background-color 0.2s;
 }
 
-
-
-
-.coluna-direita li.terminada {
+.to-do li.terminada {
     text-decoration: line-through;
     color: #999;
 }
 
 
+/* ---------------------------- */
+/* Área do Calendário           */
+/* ---------------------------- */
 
-
-
-
-
-
-
-
-ul {list-style-type: none;}
-body {font-family: Verdana, sans-serif;}
-
-/* Month header */
-.month {
-    padding: 10px 10px;
-    width: 100%;
-    text-align: center;
-    
+#calendar {
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+    background-color: #fffde7;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #f4d35e;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
 }
 
-/* Month list */
+.month {
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+}
+
 .month ul {
     margin: 0;
     padding: 0;
@@ -235,23 +312,20 @@ body {font-family: Verdana, sans-serif;}
     cursor: pointer;
 }
 
-/* Previous button inside month header */
 .month .prev {
     float: left;
     padding-top: 10px;
 }
 
-/* Next button */
 .month .next {
     float: right;
     padding-top: 10px;
 }
 
-/* Weekdays (Mon-Sun) */
 .weekdays {
     margin: 0;
     padding: 10px 0;
-    background-color:#ddd;
+    background-color: #ffd700;
 }
 
 .weekdays li {
@@ -259,10 +333,8 @@ body {font-family: Verdana, sans-serif;}
     width: 13.6%;
     color: #666;
     text-align: center;
-    background-color: #ffd700;
 }
 
-/* Days (1-31) */
 .days {
     padding: 10px 0;
     background: #eee;
@@ -276,21 +348,12 @@ body {font-family: Verdana, sans-serif;}
     width: 13.6%;
     text-align: center;
     margin-bottom: 5px;
-    font-size:12px;
+    font-size: 12px;
     color: #777;
     cursor: pointer;
 }
 
-/* Highlight the "current" day */
-.days li .active {
-    padding: 5px;
-    background: #1abc9c;
-    color: white !important
-}
-
 .days li.tem-carta {
     background-color: #f6da87;
-    
     font-weight: bold;
 }
-
