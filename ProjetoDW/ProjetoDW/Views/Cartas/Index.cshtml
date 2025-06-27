@@ -40,30 +40,56 @@
 
 
 
-        <table class="table">
+        <table class="table table-hover">
 
             @if (isRemetente)
             {
                 <thead>
                 <tr>
-                    <th>
+                    <th style="min-width: 150px">
                         @Html.DisplayNameFor(model => model.Titulo)
                     </th>
-                    <th>
+                    <th style="min-width: 100px">
                         @Html.DisplayNameFor(model => model.DataEnvio)
                     </th>
-                    <th>
+                    <th style="min-width: 150px">
                         @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
                     </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.UtilizadorDestinatario.Email)
-                    </th>
-                    <th>
+                    <th style="min-width: 150px">
                         @Html.DisplayNameFor(model => model.Categorias)
                     </th>
                 </tr>
                 </thead>
                 <tbody>
+                <div class="coluna-direita">
+                    <h2>To-Do List</h2>
+
+
+                    <ul>
+                        @if (ViewBag.Tarefas != null)
+                        {
+                            foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
+                            {
+                                <li>
+                                    <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@tarefa.Id"/>
+                                        <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "")/>
+                                        @tarefa.Nome
+                                    </form>
+                                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@tarefa.Id"/>
+                                        <button type="submit" class="btn btn-sm btn-danger">X</button>
+                                    </form>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                </div>
+                <form asp-controller="Tarefa" asp-action="Create" method="post">
+                    <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required/>
+                    <button type="submit" class="btn btn-success mt-2" style="margin-bottom: 5px">Adicionar</button>
+                </form>
                 @foreach (var item in Model)
                 {
                     <tr>
@@ -85,9 +111,6 @@
                             @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Email)
-                        </td>
-                        <td>
                             @if (item.Categorias != null && item.Categorias.Any())
                             {
                                 foreach (var categoria in item.Categorias)
@@ -100,40 +123,12 @@
                                 <span class="text-muted">Sem categorias</span>
                             }
                         </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <td style="min-width: 250px">
+                            <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
                         </td>
                     </tr>
-                    <div class="coluna-direita">
-                        <h2>To-Do List</h2>
-
-                        <form asp-controller="Tarefa" asp-action="Create" method="post">
-                            <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required/>
-                            <button type="submit" class="btn btn-success mt-2">Adicionar</button>
-                        </form>
-                        <ul>
-                            @if (ViewBag.Tarefas != null)
-                            {
-                                foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
-                                {
-                                    <li>
-                                        <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
-                                            <input type="hidden" name="id" value="@tarefa.Id"/>
-                                            <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "")/>
-                                            @tarefa.Nome
-                                        </form>
-                                        <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
-                                            <input type="hidden" name="id" value="@tarefa.Id"/>
-                                            <button type="submit" class="btn btn-sm btn-danger">X</button>
-                                        </form>
-                                    </li>
-                                }
-                            }
-                        </ul>
-
-                    </div>
                 }
                 </tbody>
             }
