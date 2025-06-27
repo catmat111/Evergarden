@@ -1,12 +1,12 @@
 @model ProjetoDW.Models.Cartas
 @{
     ViewData["Title"] = "Editar Carta";
-    var exigeData = ViewBag.ExigeData; // bool
+    var exigeData = ViewBag.ExigeData; // bool para o estado inicial, pode vir do controller
 }
 
 <h2>Editar Carta</h2>
 
-<form asp-action="Edit">
+<form asp-action="Edit" method="post" id="formCarta">
     <input type="hidden" asp-for="Id" />
 
     <div class="form-group">
@@ -23,12 +23,12 @@
 
     <div class="form-group" id="dataEnvioContainer" style="display:@(exigeData ? "block" : "none")">
         <label asp-for="DataEnvio" class="control-label"></label>
-        <input asp-for="DataEnvio" class="form-control" type="date" />
-        <span asp-validation-for="DataEnvio" class="text-danger"></span>
+        <input asp-for="DataEnvio" class="form-control" type="date" id="DataEnvio" min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+        <span asp-validation-for="DataEnvio" class="text-danger" id="dataEnvioErro" style="display:none;">Por favor selecione uma data válida (hoje ou depois).</span>
     </div>
 
     <div class="form-group">
-        <label>Categorias</label>
+        <label>Categorias <span class="text-danger">*</span></label>
         <div>
             @foreach (var categoria in (List<ProjetoDW.Models.Categorias>)ViewBag.Categorias)
             {
@@ -43,6 +43,7 @@
                 </div>
             }
         </div>
+        <span id="categoriasErro" class="text-danger" style="display:none;">Por favor selecione pelo menos uma categoria.</span>
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar</button>
@@ -51,6 +52,7 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
     <script>
         function atualizarVisibilidadeDataEnvio() {
             const checkboxes = document.querySelectorAll('.categoria-checkbox');
@@ -64,21 +66,68 @@
 
             const dataContainer = document.getElementById("dataEnvioContainer");
             const dataInput = document.getElementById("DataEnvio");
+            const dataErro = document.getElementById("dataEnvioErro");
 
             if (mostrarData) {
                 dataContainer.style.display = "block";
+                dataInput.required = true;
+                dataErro.style.display = "none";
             } else {
                 dataContainer.style.display = "none";
-                if (dataInput) {
-                    dataInput.value = "";
-                }
+                dataInput.required = false;
+                dataInput.value = "";
+                dataErro.style.display = "none";
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             atualizarVisibilidadeDataEnvio();
+
+            // Bloquear digitação manual no input data (só calendário)
+            const dataInput = document.getElementById("DataEnvio");
+            dataInput.addEventListener("keydown", e => e.preventDefault());
+
             document.querySelectorAll('.categoria-checkbox').forEach(cb => {
                 cb.addEventListener("change", atualizarVisibilidadeDataEnvio);
+            });
+
+            document.getElementById('formCarta').addEventListener('submit', function (e) {
+                const checkboxes = document.querySelectorAll('.categoria-checkbox:checked');
+                const erroCategorias = document.getElementById('categoriasErro');
+                const dataErro = document.getElementById("dataEnvioErro");
+                const dataInput = document.getElementById("DataEnvio");
+
+                // Valida categorias selecionadas
+                if (checkboxes.length === 0) {
+                    erroCategorias.style.display = "block";
+                    e.preventDefault();
+                    return;
+                } else {
+                    erroCategorias.style.display = "none";
+                }
+
+                // Se o input de data estiver visível (exige data), valida a data
+                if (dataInput.required) {
+                    if (!dataInput.value) {
+                        dataErro.textContent = "Por favor selecione uma data.";
+                        dataErro.style.display = "block";
+                        e.preventDefault();
+                        return;
+                    }
+
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0); // Zera horário para comparar só a data
+                    const dataSelecionada = new Date(dataInput.value);
+
+                    if (dataSelecionada < hoje) {
+                        dataErro.textContent = "A data deve ser hoje ou uma data futura.";
+                        dataErro.style.display = "block";
+                        e.preventDefault();
+                        return;
+                    }
+
+                    dataErro.style.display = "none";
+                }
             });
         });
     </script>

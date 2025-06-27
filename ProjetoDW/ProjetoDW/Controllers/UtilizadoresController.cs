@@ -179,7 +179,7 @@ namespace ProjetoDW.Controllers
                 $"Por favor confirma a tua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
 
 
-            return View("ContaCriada");
+            return View("DestinatarioCriado");
         }
 
 
