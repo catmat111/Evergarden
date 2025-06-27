@@ -1,11 +1,11 @@
-﻿Create:
-@model ProjetoDW.Models.Categorias
+﻿@model ProjetoDW.Models.Categorias
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h1>Create Categoria</h1>
+<link rel="stylesheet" href="~/css/Categorias.css" asp-append-version="true" />
+<h1>Criar Categoria</h1>
 
 <form asp-action="Create">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -22,9 +22,9 @@
         <span asp-validation-for="Tipo" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
+    <div class="form-group-cat">
         <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="Index">Voltar</a>
     </div>
 </form>
 
-<a asp-action="Index">Voltar</a>
