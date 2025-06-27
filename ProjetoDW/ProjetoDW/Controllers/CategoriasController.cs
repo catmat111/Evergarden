@@ -83,7 +83,16 @@ namespace ProjetoDW.Controllers
                 {
                     return Unauthorized();
                 }
+                // Verifica se já existe uma categoria com o mesmo nome
+                var categoriaExistente = await _context.Categorias
+                    .FirstOrDefaultAsync(c => c.Nome.ToLower() == categorias.Nome.ToLower());
 
+                if (categoriaExistente != null)
+                {
+                    ModelState.AddModelError("Nome", "Já existe uma categoria com este nome");
+                    return View(categorias);
+                }
+                
                 // Buscar o IdentityUser completo
                 var user = await _userManager.FindByIdAsync(userId);
                 categorias.UtilizadorCriador = user;
