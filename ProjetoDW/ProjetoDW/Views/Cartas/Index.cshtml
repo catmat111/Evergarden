@@ -9,62 +9,43 @@
     var query = ViewContext.HttpContext.Request.Query;
     var inputName = isRemetente ? "searchDestinatario" : "searchRemetente";
     var inputPlaceholder = isRemetente ? "Pesquise pelo nome do Destinatário" : "Pesquise pelo nome do Remetente";
-
-    string currentSearch = isRemetente ? (query.ContainsKey("searchDestinatario") ? query["searchDestinatario"].ToString() : "") 
+    string currentSearch = isRemetente ? (query.ContainsKey("searchDestinatario") ? query["searchDestinatario"].ToString() : "")
         : (query.ContainsKey("searchRemetente") ? query["searchRemetente"].ToString() : "");
 }
 
-
-
-
 <link rel="stylesheet" href="~/css/Cartas_Index.css" asp-append-version="true" />
+
 <div class="row">
-    <div class="coluna-esquerda">
-        <div class="pesquisa_nome">
-            <h1>Cartas</h1>
+    <div class="coluna-esquerda" style="width: 100%;">
 
-            <form asp-action="Index" method="get" class="mb-3">
-                <div style="display:flex; align-items:center; gap: 10px;">
-                    <button type="submit" style="border: none; background: none; padding: 0;">
-                        <img src="/recursos/imagens_geral/lupa.png"
-                             style="width: 40px; height: 40px; cursor:pointer;" />
-                    </button>
+        <!-- CALENDÁRIO + PESQUISA + TO-DO -->
+        <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 30px;">
 
-                    <input type="text" name="@inputName"
-                           value="@currentSearch"
-                           placeholder="@inputPlaceholder"
-                           class="form-control" style="width: 50%" />
+            <!-- Calendário à esquerda -->
+            <div style="width: 320px;">
+                <div id="calendar"></div>
+            </div>
+
+            <!-- Barra de Pesquisa + To-Do List -->
+            <div style="flex: 1;">
+                <!-- Barra de Pesquisa -->
+                <div class="pesquisa_nome">
+                    <h1>Cartas</h1>
+                    <form asp-action="Index" method="get" class="mb-3">
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            <button type="submit" style="border: none; background: none; padding: 0;">
+                                <img src="/recursos/imagens_geral/lupa.png" style="width: 40px; height: 40px; cursor:pointer;" />
+                            </button>
+                            <input type="text" name="@inputName" value="@currentSearch" placeholder="@inputPlaceholder"
+                                   class="form-control" style="width: 60%;" />
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
 
-
-
-        <table class="table table-hover">
-
-            @if (isRemetente)
-            {
-                <thead>
-                <tr>
-                    <th style="min-width: 150px">
-                        @Html.DisplayNameFor(model => model.Titulo)
-                    </th>
-                    <th style="min-width: 100px">
-                        @Html.DisplayNameFor(model => model.DataEnvio)
-                    </th>
-                    <th style="min-width: 150px">
-                        @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
-                    </th>
-                    <th style="min-width: 150px">
-                        @Html.DisplayNameFor(model => model.Categorias)
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <div class="coluna-direita">
+                <!-- To-Do List -->
+                <div class="to-do">
+                    @if (isRemetente){
                     <h2>To-Do List</h2>
-
-
                     <ul>
                         @if (ViewBag.Tarefas != null)
                         {
@@ -84,19 +65,33 @@
                             }
                         }
                     </ul>
-
+                    <form asp-controller="Tarefa" asp-action="Create" method="post">
+                        <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required/>
+                        <button type="submit" class="btn btn-success mt-2" style="margin-bottom: 5px">Adicionar</button>
+                    </form>
+                    }
                 </div>
-                <form asp-controller="Tarefa" asp-action="Create" method="post">
-                    <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required/>
-                    <button type="submit" class="btn btn-success mt-2" style="margin-bottom: 5px">Adicionar</button>
-                </form>
+            </div>
+        </div>
+
+        <!-- TABELA DE CARTAS -->
+        <table class="table table-hover">
+            @if (isRemetente)
+            {
+                <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Titulo)</th>
+                    <th>@Html.DisplayNameFor(model => model.DataEnvio)</th>
+                    <th>@Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)</th>
+                    <th>@Html.DisplayNameFor(model => model.Categorias)</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Titulo)
-                        </td>
-
+                        <td>@Html.DisplayFor(modelItem => item.Titulo)</td>
                         <td>
                             @if (item.DataEnvio == null)
                             {
@@ -107,9 +102,7 @@
                                 @Html.DisplayFor(modelItem => item.DataEnvio)
                             }
                         </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
-                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)</td>
                         <td>
                             @if (item.Categorias != null && item.Categorias.Any())
                             {
@@ -123,7 +116,7 @@
                                 <span class="text-muted">Sem categorias</span>
                             }
                         </td>
-                        <td style="min-width: 250px">
+                        <td>
                             <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
                             <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
                             <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
@@ -134,95 +127,40 @@
             }
             else if (isDestinatario)
             {
-                
                 <tbody>
-                @foreach (var item in Model)
-                {
-                    <div class="carta-fundo">
-                        <div class="carta-conteudo">
-                        <h4>@item.Titulo</h4>
-                        <p><strong>Data de Envio:</strong> @(item.DataEnvio?.ToShortDateString() ?? "Já foi enviada!")</p>
-                        <p><strong>@(isRemetente ? "Destinatário" : "Remetente"):</strong> @(isRemetente ? item.UtilizadorDestinatario?.Nome : item.UtilizadorRemetente?.Nome)</p>
-                        
-                        <p><strong>Categorias:</strong>
-                            @if (item.Categorias != null && item.Categorias.Any())
-                            {
-                                foreach (var categoria in item.Categorias)
+                <div class="cartas-mosaico">
+                    @foreach (var item in Model)
+                    {
+                        <div class="carta-card">
+                            <h4>@item.Titulo</h4>
+                            <p><strong>Data de Envio:</strong> @(item.DataEnvio?.ToShortDateString() ?? "Já foi enviada!")</p>
+                            <p><strong>Remetente:</strong> @item.UtilizadorRemetente?.Nome</p>
+                            <p><strong>Categorias:</strong>
+                                @if (item.Categorias != null && item.Categorias.Any())
                                 {
-                                    <span class="badge bg-info me-1">@categoria.Nome</span>
+                                    foreach (var categoria in item.Categorias)
+                                    {
+                                        <span class="badge bg-info me-1">@categoria.Nome</span>
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                <span class="text-muted">Sem categorias</span>
-                            }
-                        </p>
-                            <a asp-action="Details" asp-route-id="@item.Id">Ver a carta</a> 
+                                else
+                                {
+                                    <span class="text-muted">Sem categorias</span>
+                                }
+                            </p>
+                            <a asp-action="Details" asp-route-id="@item.Id">Ver a carta</a>
                         </div>
-                    </div>
-
-                }
+                    }
+                </div>
                 </tbody>
             }
         </table>
     </div>
-    <div class="coluna-direita">
-        <div id="calendar"></div>
-    </div>
-
 </div>
 
-
-
+<!-- SCRIPT DO CALENDÁRIO -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("formPesquisa");
-        const input = document.getElementById("inputPesquisa");
-
-        // Verifica a role do utilizador usando atributos da página
-        const isRemetente = @User.IsInRole("Remetente").ToString().ToLower(); // "true" ou "false"
-        const isDestinatario = @User.IsInRole("Destinatario").ToString().ToLower();
-
-        if (isRemetente === "true") {
-            input.name = "searchDestinatario";
-            input.placeholder = "Pesquise pelo nome do Destinatário...";
-        } else if (isDestinatario === "true") {
-            input.name = "searchRemetente";
-            input.placeholder = "Pesquise pelo nome do Remetente...";
-        }
-    });
-    
     const datasComCartas = @Html.Raw(Json.Serialize(ViewBag.DatasComCartas ?? new List<string>()));
-
-    function adicionarTarefa() {
-        const input = document.getElementById("novaTarefa");
-        const nome = input.value.trim();
-
-        if (nome === "") return;
-
-        fetch('/Tarefa/Adicionar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]').value
-            },
-            body: JSON.stringify({ nome })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.sucesso) {
-                    const lista = document.getElementById("listaTarefas");
-                    const item = document.createElement("li");
-                    item.className = "list-group-item d-flex justify-content-between align-items-center";
-                    item.innerHTML = `
-                    <span>${data.tarefa.nome}</span>
-                    <input type="checkbox" disabled />
-                `;
-                    lista.appendChild(item);
-                    input.value = "";
-                }
-            });
-    }
 
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
@@ -235,7 +173,6 @@
 
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-
             let calendarHTML = `<div class="month">
                 <ul>
                     <li class="prev" onclick="changeMonth(-1)">&#10094;</li>
@@ -263,7 +200,7 @@
                     }
                 }
             }
-            
+
             calendarHTML += `</ul>`;
             calendarEl.innerHTML = calendarHTML;
         }
@@ -297,7 +234,4 @@
 
         renderCalendar(currentMonth, currentYear);
     });
-
 </script>
-
-

@@ -76,45 +76,47 @@ a[href*="Delete"]:hover {
 /* Área das Cartas (Destinatário) */
 /* ---------------------------- */
 
-.carta-fundo {
-    background-color: #fff9e6;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    box-shadow: 0 0 6px rgba(0,0,0,0.05);
-    position: relative;
-    width: 450px;
-    height: 300px;
-    margin: 40px auto;
-    background-size: cover;
-    background-position: center;
+.cartas-mosaico {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
 }
 
-.carta-conteudo {
-    background-color: rgb(246, 218, 135);
-    padding: 20px;
-    border-radius: 10px;
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    width: 90%;
+.carta-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    width: 280px; 
+    box-sizing: border-box;
+    transition: transform 0.2s ease;
+    border: 2px solid #f4d35e;
+    
 }
 
-.carta-fundo .titulo-carta {
-    font-weight: bold;
-    font-size: 1.4em;
+.carta-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.carta-card h4 {
+    margin-top: 0;
     margin-bottom: 10px;
 }
 
-.carta-fundo .info-carta {
-    margin-bottom: 8px;
+.carta-card p {
+    margin: 5px 0;
 }
 
-.carta-conteudo p {
-    margin: 6px 0;
+.carta-card a {
+    text-decoration: none;
+    color: #f4d35e;
+}
+
+.carta-card a:hover {
+    text-decoration: underline;
+    color: #86b7fe;
 }
 
 
@@ -298,6 +300,7 @@ a[href*="Delete"]:hover {
 }
 
 .month ul {
+    list-style-type: none;
     margin: 0;
     padding: 0;
     color: #f4d35e;
