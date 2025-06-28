@@ -37,7 +37,7 @@
           
             <div class="form-group">
                 <label asp-for="Input.Utilizadores.DataNascimento"></label>
-                <input asp-for="Input.Utilizadores.DataNascimento" class="form-control" type="date" placeholder="Data de Nascimento"/>
+                <input asp-for="Input.Utilizadores.DataNascimento" class="form-control" type="date" placeholder="Data de Nascimento" max="@DateTime.Today.ToString("yyyy-MM-dd")"/>
                 <span asp-validation-for="Input.Utilizadores.DataNascimento" class="text-danger"></span>
             </div>
             <div class="form-group">

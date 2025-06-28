@@ -1,13 +1,13 @@
-@model ProjetoDW.Models.Utilizadores
+﻿@model ProjetoDW.Models.Utilizadores
 
 @{
-    ViewData["Title"] = "Detalhes do Utilizador";
+    ViewData["Title"] = "Perfil";
 }
 
-<link rel="stylesheet" href="~/css/Utilizadores_Details.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/Utilizadores_Perfil.css" asp-append-version="true" />
 
 <div class="perfil-container">
-    <h2 class="perfil-title">Detalhes do Utilizador</h2>
+    <h2 class="perfil-title">Perfil do Utilizador</h2>
 
     <div class="perfil-card">
         <div class="perfil-imagem">
@@ -22,6 +22,7 @@
     </div>
 
     <div class="perfil-voltar">
-        <a asp-action="Index">&#8592 Voltar para a Lista</a>
+        <a asp-action="Edit" asp-controller="Utilizadores" asp-route-id="@Model.Id" style="color: #2dcf84;">Editar</a> |
+        <a asp-action="Delete" asp-controller="Utilizadores" asp-route-id="@Model.Id" style=" color: #c0392b;">Apagar</a>
     </div>
 </div>

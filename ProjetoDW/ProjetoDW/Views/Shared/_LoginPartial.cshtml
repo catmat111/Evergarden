@@ -3,7 +3,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject ApplicationDbContext _context
 @inject UserManager<IdentityUser> UserManager
-<link rel="stylesheet" href="~/css/Login_Partial.css">
+<link rel="stylesheet" href="~/css/Login_Partial.css" asp-append-version="true">
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
@@ -23,7 +23,7 @@
         }
 
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Olá @utilizadorNome!</a>
+            <a class="nav-link text-dark" asp-controller="Utilizadores" asp-action="Perfil" asp-route-id="@utilizador.Id">Olá @utilizadorNome!</a>
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

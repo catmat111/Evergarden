@@ -1,0 +1,18 @@
+﻿@model ProjetoDW.Models.Utilizadores
+
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@if (Model.RemetenteId == null)
+{
+    <h1 style="color: #d4af37aa; font-weight: bold">A sua conta foi atualizada com sucesso!</h1>
+}
+else
+{
+    <h1 style="color: #d4af37aa; font-weight: bold">A conta de @Model.Nome foi atualizada com sucesso!</h1>
+}
+
+<a asp-action="Index" style="text-decoration: none;color: #1b6e7e; font-weight: bold; font-size: xx-large">&#8592 Voltar para a Lista</a>

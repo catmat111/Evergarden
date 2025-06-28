@@ -22,12 +22,14 @@ namespace ProjetoDW.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly SignInManager<IdentityUser> _signInManager;
 
-        public UtilizadoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IEmailSender emailSender)
+        public UtilizadoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IEmailSender emailSender, SignInManager<IdentityUser> signInManager)
         {
             _context = context;
             _userManager = userManager;
             _emailSender = emailSender;
+            _signInManager = signInManager;
         }
 
         // GET: UtilizadoresR
@@ -157,7 +159,7 @@ namespace ProjetoDW.Controllers
 
             model.IdentityUserID = newUser.Id;
             model.RemetenteId = remetente.Id;
-            model.Telemovel = "+351 " + model.Telemovel;
+            model.Telemovel = model.Telemovel;
 
 
             _context.Utilizadores.Add(model);
@@ -269,7 +271,7 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
 
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return View("ContaEditada",utilizador);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -282,6 +284,24 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
     return View(model);
 }
 
+        public async Task<IActionResult> Perfil()
+        {
+            var identityUser = await _userManager.GetUserAsync(User);
+            if (identityUser == null)
+            {
+                return NotFound();
+            }
+
+            var utilizador = await _context.Utilizadores
+                .FirstOrDefaultAsync(u => u.IdentityUserID == identityUser.Id);
+
+            if (utilizador == null)
+            {
+                return NotFound();
+            }
+
+            return View(utilizador);
+        }
 
 
         // GET: UtilizadoresR/Delete/5
@@ -309,9 +329,9 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
         }
 
         // POST: UtilizadoresR/Delete/5
-        [HttpPost, ActionName("Delete")]
+       [HttpPost, ActionName("Delete")]
 [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Remetente")]
+[Authorize(Roles = "Remetente")]
 public async Task<IActionResult> DeleteConfirmed(int id)
 {
     var utilizador = await _context.Utilizadores
@@ -322,80 +342,62 @@ public async Task<IActionResult> DeleteConfirmed(int id)
     if (utilizador == null)
         return NotFound();
 
-    // Obter o IdentityUser relacionado
-    var identityUserr = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
+    var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
 
-    // Verificar se é Remetente ou Destinatário
+    // Verificar se é utilizador autenticado a eliminar a própria conta
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (utilizador.IdentityUserID != userId)
+        return Unauthorized();
+
     if (utilizador.RemetenteId == null)
     {
-        // É um REMETENTE
+        // REMETENTE
 
-        // Eliminar cartas criadas por este remetente
-        var cartasRemetente = _context.Cartas
-            .Where(c => c.UtilizadorRemetenteFk == utilizador.Id);
+        // Eliminar cartas do remetente
+        var cartasRemetente = _context.Cartas.Where(c => c.UtilizadorRemetenteFk == utilizador.Id);
         _context.Cartas.RemoveRange(cartasRemetente);
 
-        // Eliminar destinatários criados por ele
-        foreach (var destinatario in utilizador.UtilizadoresDestinatarios)
+        // Eliminar categorias do remetente
+        var categorias = _context.Categorias.Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID);
+        _context.Categorias.RemoveRange(categorias);
+
+        // Eliminar destinatários e suas cartas + contas
+        foreach (var dest in utilizador.UtilizadoresDestinatarios)
         {
-            // Eliminar cartas recebidas pelo destinatário
-            var cartasDestinatario = _context.Cartas
-                .Where(c => c.UtilizadorDestinatarioFk == destinatario.Id);
-            _context.Cartas.RemoveRange(cartasDestinatario);
+            var cartasDest = _context.Cartas.Where(c => c.UtilizadorDestinatarioFk == dest.Id);
+            _context.Cartas.RemoveRange(cartasDest);
 
-            // Eliminar o utilizador destinatário
-            var identityDestinatario = await _userManager.FindByIdAsync(destinatario.IdentityUserID);
-            if (identityDestinatario != null)
-                await _userManager.DeleteAsync(identityDestinatario);
+            var destIdentity = await _userManager.FindByIdAsync(dest.IdentityUserID);
+            if (destIdentity != null)
+                await _userManager.DeleteAsync(destIdentity);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-
-            if (remetente == null || (utilizador.Id != remetente.Id && utilizador.RemetenteId != remetente.Id))
-            {
-                return Unauthorized();
-            }
-
-            // Eliminar o IdentityUser primeiro
-            var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
-            if (identityUser != null)
-            {
-                await _userManager.DeleteAsync(identityUser);
-            }
-
-            // O Cascade trata de cartas, destinatários, categorias
-            _context.Utilizadores.Remove(utilizador);
-            await _context.SaveChangesAsync();
-
-            return View("ContaDeletada");
-            _context.Utilizadores.Remove(destinatario);
+            _context.Utilizadores.Remove(dest);
         }
-
-        // Eliminar categorias criadas por este remetente
-        var categoriasCriadas = _context.Categorias
-            .Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID);
-        _context.Categorias.RemoveRange(categoriasCriadas);
     }
     else
     {
-        // É um DESTINATÁRIO
+        // DESTINATÁRIO
 
-        // Eliminar cartas recebidas
-        var cartasDestinatario = _context.Cartas
-            .Where(c => c.UtilizadorDestinatarioFk == utilizador.Id);
-        _context.Cartas.RemoveRange(cartasDestinatario);
+        var cartasDest = _context.Cartas.Where(c => c.UtilizadorDestinatarioFk == utilizador.Id);
+        _context.Cartas.RemoveRange(cartasDest);
     }
 
-    // Eliminar utilizador principal (Remetente ou Destinatário)
+    // Remover utilizador principal
     _context.Utilizadores.Remove(utilizador);
 
-    // Eliminar IdentityUser (conta de login)
-    if (identityUserr != null)
-        await _userManager.DeleteAsync(identityUserr);
-
+    // Guardar alterações na base de dados antes de terminar sessão
     await _context.SaveChangesAsync();
-    return View("DestinatarioDeletado");
+
+    // Terminar sessão antes de remover o AspNetUser
+    await _signInManager.SignOutAsync();
+
+    if (identityUser != null)
+        await _userManager.DeleteAsync(identityUser);
+
+    // Redirecionar para página pública
+    return RedirectToAction("Index", "Home");
 }
+
 
 
 

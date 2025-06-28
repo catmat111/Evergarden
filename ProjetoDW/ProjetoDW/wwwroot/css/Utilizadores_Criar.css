@@ -31,3 +31,7 @@
     z-index: 2;
     pointer-events: none;
 }
+label{
+    color: #d4af37aa;
+    font-weight: bold;
+}

@@ -1,54 +1,65 @@
 @model ProjetoDW.Models.Cartas
+
 @{
     ViewData["Title"] = "Editar Carta";
-    var exigeData = ViewBag.ExigeData; // bool para o estado inicial, pode vir do controller
+    var exigeData = ViewBag.ExigeData;
 }
 
-<h2>Editar Carta</h2>
+<link rel="stylesheet" href="~/css/Cartas_Edit.css" asp-append-version="true" />
 
-<form asp-action="Edit" method="post" id="formCarta">
-    <input type="hidden" asp-for="Id" />
+<div class="edit-container">
+    <h2 class="title">Editar Carta</h2>
 
-    <div class="form-group">
-        <label asp-for="Titulo" class="control-label"></label>
-        <input asp-for="Titulo" class="form-control" />
-        <span asp-validation-for="Titulo" class="text-danger"></span>
-    </div>
+    <form asp-action="Edit" method="post" id="formCarta">
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="Descricao" class="control-label"></label>
-        <textarea asp-for="Descricao" class="form-control"></textarea>
-        <span asp-validation-for="Descricao" class="text-danger"></span>
-    </div>
-
-    <div class="form-group" id="dataEnvioContainer" style="display:@(exigeData ? "block" : "none")">
-        <label asp-for="DataEnvio" class="control-label"></label>
-        <input asp-for="DataEnvio" class="form-control" type="date" id="DataEnvio" min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
-        <span asp-validation-for="DataEnvio" class="text-danger" id="dataEnvioErro" style="display:none;">Por favor selecione uma data válida (hoje ou depois).</span>
-    </div>
-
-    <div class="form-group">
-        <label>Categorias <span class="text-danger">*</span></label>
-        <div>
-            @foreach (var categoria in (List<ProjetoDW.Models.Categorias>)ViewBag.Categorias)
-            {
-                <div class="form-check">
-                    <input type="checkbox"
-                           class="form-check-input categoria-checkbox"
-                           name="categoriasSelecionadas"
-                           value="@categoria.Id"
-                           data-tipo="@categoria.Tipo.ToString().ToLower()"
-                           @(Model.Categorias.Any(c => c.Id == categoria.Id) ? "checked" : "") />
-                    <label class="form-check-label">@categoria.Nome</label>
-                </div>
-            }
+        <div class="form-group">
+            <label asp-for="Titulo" class="control-label"></label>
+            <input asp-for="Titulo" class="form-control" />
+            <span asp-validation-for="Titulo" class="text-danger"></span>
         </div>
-        <span id="categoriasErro" class="text-danger" style="display:none;">Por favor selecione pelo menos uma categoria.</span>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+        <div class="form-group">
+            <label asp-for="Descricao" class="control-label"></label>
+            <textarea asp-for="Descricao" class="form-control" rows="5"></textarea>
+            <span asp-validation-for="Descricao" class="text-danger"></span>
+        </div>
+
+        <div class="form-group" id="dataEnvioContainer" style="display:@(exigeData ? "block" : "none")">
+            <label asp-for="DataEnvio" class="control-label"></label>
+            <input asp-for="DataEnvio" class="form-control" type="date" id="DataEnvio" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="DataEnvio" class="text-danger" id="dataEnvioErro" style="display:none;"></span>
+        </div>
+
+        <div class="form-group">
+            <label><strong>Categorias</strong> <span class="text-danger">*</span></label>
+            <div class="categorias-lista">
+                @foreach (var categoria in (List<ProjetoDW.Models.Categorias>)ViewBag.Categorias)
+                {
+                    <div class="form-check form-check-inline categoria-item">
+                        <input type="checkbox"
+                               class="form-check-input categoria-checkbox"
+                               name="categoriasSelecionadas"
+                               value="@categoria.Id"
+                               data-tipo="@categoria.Tipo.ToString().ToLower()"
+                               @(Model.Categorias.Any(c => c.Id == categoria.Id) ? "checked" : "") />
+                        <label class="form-check-label">@categoria.Nome</label>
+                    </div>
+                }
+            </div>
+            <span id="categoriasErro" class="text-danger" style="display:none;">Por favor selecione pelo menos uma categoria.</span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <a asp-action="Index" class="btn btn-secondary ml-2">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -83,7 +94,6 @@
         document.addEventListener("DOMContentLoaded", () => {
             atualizarVisibilidadeDataEnvio();
 
-            // Bloquear digitação manual no input data (só calendário)
             const dataInput = document.getElementById("DataEnvio");
             dataInput.addEventListener("keydown", e => e.preventDefault());
 
@@ -95,9 +105,7 @@
                 const checkboxes = document.querySelectorAll('.categoria-checkbox:checked');
                 const erroCategorias = document.getElementById('categoriasErro');
                 const dataErro = document.getElementById("dataEnvioErro");
-                const dataInput = document.getElementById("DataEnvio");
 
-                // Valida categorias selecionadas
                 if (checkboxes.length === 0) {
                     erroCategorias.style.display = "block";
                     e.preventDefault();
@@ -106,7 +114,6 @@
                     erroCategorias.style.display = "none";
                 }
 
-                // Se o input de data estiver visível (exige data), valida a data
                 if (dataInput.required) {
                     if (!dataInput.value) {
                         dataErro.textContent = "Por favor selecione uma data.";
@@ -116,7 +123,7 @@
                     }
 
                     const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0); // Zera horário para comparar só a data
+                    hoje.setHours(0, 0, 0, 0);
                     const dataSelecionada = new Date(dataInput.value);
 
                     if (dataSelecionada < hoje) {
