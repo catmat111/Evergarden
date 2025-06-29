@@ -189,3 +189,22 @@ form label {
     pointer-events: none;
 }
 
+#dataEnvioContainer {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+}
+#dataEnvioContainer.show {
+    max-height: 150px; /* espaço suficiente para o input */
+    opacity: 1;
+}
+.form-group input[type="date"] {
+    padding: 12px 15px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fdfdfd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}

@@ -3,10 +3,8 @@
 @model ProjetoDW.Models.Cartas
 
 @{
-
     ViewData["Title"] = "Create";
     var categorias = ViewBag.Categorias as List<ProjetoDW.Models.Categorias>;
-
 }
 <link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
 
@@ -15,12 +13,9 @@
     <h1 style="color: #bfa145; font-weight: bold">Escrever Carta</h1>
 </div>
 
-
-
-
 <hr />
 <div class="row">
-    <form asp-action="Create" class="form-carta">
+    <form asp-action="Create" class="form-carta" id="formCarta">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="coluna-esquerda">
@@ -29,7 +24,7 @@
                 <span asp-validation-for="Titulo" class="text-danger"></span>
             </div>
             <div class="form-group descricao">
-                <textarea asp-for="Descricao" class="form-control auto-expand" oninput="ajustarAltura(this)" rows="1" placeholder="Clique para escrever a carta aqui..."></textarea>
+                <textarea asp-for="Descricao" class="form-control auto-expand" id="Descricao" placeholder="Clique para escrever a carta aqui..."></textarea>
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
         </div>
@@ -37,13 +32,14 @@
         <div class="coluna-direita">
             <div class="form-group">
                 <div class="form-group UtilizadoresDFk">
-                    <select asp-for="UtilizadorDestinatarioFk" class="form-control " asp-items="ViewBag.UtilizadoresDFk">
+                    <select asp-for="UtilizadorDestinatarioFk" class="form-control" asp-items="ViewBag.UtilizadoresDFk">
                         <option value="">-- Seleciona o destinatário --</option>
                     </select>
                     <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
+
                 <div class="form-group Categorias">
-                    <label style="  font-family: cursive; color: #bfa145; font-weight: bold">Categorias</label><br />
+                    <label style="font-family: cursive; color: #bfa145; font-weight: bold">Categorias</label><br />
                     @foreach (var categoria in categorias)
                     {
                         <div class="form-check">
@@ -64,19 +60,12 @@
                     }
                 </div>
 
-                <div id="dataEnvioContainer" class="form-group" style="display:none;">
+                <div id="dataEnvioContainer" class="form-group data-envio-container">
                     <label for="DataEnvio">Data de Envio</label>
-                    <input type="date" name="DataEnvio" class="form-control"  min="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+                    <input type="date" id="DataEnvio" name="DataEnvio" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    <div id="dataEnvioErro" class="text-danger" style="display:none;"></div>
                 </div>
-                @if (ViewData.ModelState["DataEnvio"]?.Errors.Count > 0)
-                {
-                    <span class="text-danger">
-                        @ViewData.ModelState["DataEnvio"].Errors[0].ErrorMessage
-                    </span>
-                }
-
             </div>
-
         </div>
 
         <div class="form-actions" style="margin: auto">
@@ -88,29 +77,19 @@
 
 @section Scripts {
     <script>
-        /**
-         * Ajusta a altura de um elemento textarea para se adaptar ao seu conteúdo.
-         * param {HTMLTextAreaElement} textarea - O elemento textarea a ser ajustado.
-         */
         function ajustarAltura(textarea) {
             if (textarea) {
-                textarea.style.height = 'auto'; // Reseta a altura para recalcular corretamente.
-                textarea.style.height = textarea.scrollHeight + 'px'; // Ajusta a altura à altura do conteúdo.
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
             }
-}
+        }
 
-        /**
-         * Atualiza a visibilidade e o requisito do campo de data de envio
-         * com base nas categorias selecionadas.
-         */
         function atualizarVisibilidadeDataEnvio() {
             const checkboxes = document.querySelectorAll('.categoria-checkbox');
             let mostrarData = false;
 
-            // Itera sobre cada checkbox para verificar se alguma marcada exige data.
             checkboxes.forEach(cb => {
-                // Usa `dataset.tipo` que corresponde à propriedade `Tipo` no modelo C#.
-                if (cb.checked && cb.dataset.tipo === "True") { // "True" em C# torna-se "True" no HTML.
+                if (cb.checked && cb.dataset.temdata === "true") {
                     mostrarData = true;
                 }
             });
@@ -120,65 +99,51 @@
             const dataErro = document.getElementById("dataEnvioErro");
 
             if (mostrarData) {
-                dataContainer.style.display = "block";
+                dataContainer.classList.add("show");
                 dataInput.required = true;
             } else {
-                dataContainer.style.display = "none";
+                dataContainer.classList.remove("show");
                 dataInput.required = false;
-                dataInput.value = ""; // Limpa o valor se o campo for escondido.
+                dataInput.value = "";
             }
-            // Sempre esconde a mensagem de erro ao verificar
+
             if (dataErro) dataErro.style.display = "none";
         }
 
-        // Adiciona um 'ouvinte' que espera que toda a página seja carregada.
         document.addEventListener("DOMContentLoaded", () => {
             const dataInput = document.getElementById("DataEnvio");
-            const descricaoTextarea = document.getElementById('Descricao'); // ID da textarea do model
-            const form = document.getElementById('formCarta');
+            const descricaoTextarea = document.getElementById("Descricao");
+            const form = document.getElementById("formCarta");
 
-            // --- CONFIGURAÇÃO INICIAL ---
-
-            // 1. Define o estado inicial do campo de data.
             atualizarVisibilidadeDataEnvio();
-
-            // 2. Ajusta a altura inicial da textarea caso a página seja recarregada com conteúdo.
             ajustarAltura(descricaoTextarea);
 
-            // 3. Impede que o utilizador digite manualmente no campo de data.
             if (dataInput) {
                 dataInput.addEventListener("keydown", e => e.preventDefault());
             }
 
-            // --- OUVINTES DE EVENTOS (EVENT LISTENERS) ---
-
-            // 1. Ouve mudanças nas checkboxes de categoria.
             document.querySelectorAll('.categoria-checkbox').forEach(cb => {
                 cb.addEventListener("change", atualizarVisibilidadeDataEnvio);
             });
 
-            // 2. Ouve a digitação na textarea para ajustar a altura dinamicamente.
             if (descricaoTextarea) {
                 descricaoTextarea.addEventListener('input', () => ajustarAltura(descricaoTextarea));
             }
 
-            // 3. Adiciona validação do lado do cliente ao formulário antes de ser submetido.
             if (form) {
                 form.addEventListener('submit', function (e) {
                     const checkboxes = document.querySelectorAll('.categoria-checkbox:checked');
                     const erroCategorias = document.getElementById('categoriasErro');
                     const dataErro = document.getElementById("dataEnvioErro");
 
-                    // Validação 1: Pelo menos uma categoria deve ser selecionada.
                     if (checkboxes.length === 0) {
                         if (erroCategorias) erroCategorias.style.display = "block";
-                        e.preventDefault(); // Impede a submissão do formulário.
+                        e.preventDefault();
                         return;
                     } else {
                         if (erroCategorias) erroCategorias.style.display = "none";
                     }
 
-                    // Validação 2: Se a data for obrigatória, verificar se foi preenchida e se é válida.
                     if (dataInput && dataInput.required) {
                         if (!dataInput.value) {
                             dataErro.textContent = "Por favor selecione uma data.";
@@ -198,10 +163,10 @@
                             return;
                         }
                     }
+
                     if (dataErro) dataErro.style.display = "none";
                 });
             }
-});
-
+        });
     </script>
 }
