@@ -12,7 +12,7 @@
 
 <div class="cima">
     <a asp-action="Index" class="btn btn-back"></a>
-    <h1>Escrever Carta</h1>
+    <h1 style="color: #bfa145; font-weight: bold">Escrever Carta</h1>
 </div>
 
 
@@ -43,7 +43,7 @@
                     <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
                 <div class="form-group Categorias">
-                    <label>Categorias</label><br />
+                    <label style="  font-family: cursive; color: #bfa145; font-weight: bold">Categorias</label><br />
                     @foreach (var categoria in categorias)
                     {
                         <div class="form-check">
@@ -79,8 +79,9 @@
 
         </div>
 
-        <div class="form-group Create full-width">
-            <input type="submit" value="Create" class="btn btn-primary" />
+        <div class="form-actions" style="margin: auto">
+            <button type="submit" class="btn btn-primary">✏️ Criar</button>
+            <a asp-action="Index" class="btn btn-secondary ml-2" style="border: none; padding: 10px 18px">❌ Cancelar</a>
         </div>
     </form>
 </div>

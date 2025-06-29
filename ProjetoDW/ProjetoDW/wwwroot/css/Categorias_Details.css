@@ -1,0 +1,37 @@
+﻿.details-container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+}
+
+.title {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.details-box {
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+dl dt {
+    font-weight: 600;
+}
+
+dl dd {
+    margin-bottom: 15px;
+}
+
+.btn + .btn {
+    margin-left: 10px;
+}
+.btn.btn-secondary.ml-2{
+    border: none;
+    background-color: #1b6e7e;
+    transition: background-color 0.3s;
+}
+.btn.btn-secondary.ml-2:hover {
+    background-color: #229eb8;
+}

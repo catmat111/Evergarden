@@ -17,8 +17,8 @@
             <dd class="col-sm-9">@Html.DisplayFor(model => model.Nome)</dd>
 
             <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ImagemPath)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.ImagemPath)</dd>
-
+            <dd class="col-sm-9"><img src="~/recursos/@Model.ImagemPath" style="width: 100px;height: 100px;border-radius: 50%;border: 4px solid #bfa145;display: inline-block"/></dd>
+            
             <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Telemovel)</dt>
             <dd class="col-sm-9">@Html.DisplayFor(model => model.Telemovel)</dd>
 
@@ -33,6 +33,13 @@
     <form asp-action="Delete" method="post" class="mt-4">
         <input type="hidden" asp-for="Id" />
         <button type="submit" class="btn btn-danger">🗑️ Eliminar Conta</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Cancelar</a>
+        @if (Model.RemetenteId == null)
+        {
+            <a asp-action="Perfil" class="btn btn-secondary ms-2">❌ Cancelar</a>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-secondary ms-2">❌ Cancelar</a>
+        }
     </form>
 </div>

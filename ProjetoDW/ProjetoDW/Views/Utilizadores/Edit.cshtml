@@ -29,7 +29,7 @@
                 <input type="file" asp-for="Imagem" class="form-control" accept="image/*" onchange="previewImagem(this)" />
                 <span asp-validation-for="Imagem" class="text-danger"></span>
                 <div class="imagem-preview mt-2">
-                    <img id="preview" src="~/@Model.ImagemPath" alt="Imagem atual" class="img-thumbnail" />
+                    <img id="preview" src="/recursos/@Model.ImagemPath" alt="Imagem atual" class="img-thumbnail" />
                 </div>
             </div>
 
@@ -51,8 +51,15 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Salvar</button>
-                <a asp-action="Index" class="btn btn-secondary ml-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                @if (Model.RemetenteId == null)
+                {
+                    <a asp-action="Perfil" class="btn btn-secondary ml-2">❌ Cancelar</a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn btn-secondary ml-2">❌ Cancelar</a>
+                }
             </div>
         </form>
     </div>

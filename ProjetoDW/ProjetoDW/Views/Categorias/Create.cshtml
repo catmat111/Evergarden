@@ -1,30 +1,35 @@
 ﻿@model ProjetoDW.Models.Categorias
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Criar Categoria";
 }
+<link rel="stylesheet" href="~/css/Categorias_Create.css" asp-append-version="true" />
 
-<link rel="stylesheet" href="~/css/Categorias.css" asp-append-version="true" />
-<h1>Criar Categoria</h1>
+<div class="cima">
+    <a asp-action="Index" class="btn-voltar" title="Voltar"></a>
+    <h1 class="titulo">Criar Categoria</h1>
+</div>
 
-<form asp-action="Create">
+<hr />
+
+<form asp-action="Create" method="post" class="form-categoria">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="form-group">
-        <label asp-for="Nome" class="control-label"></label>
-        <input asp-for="Nome" class="form-control" />
+    <div class="form-esquerda">
+        <input asp-for="Nome" class="input" placeholder="Nome da Categoria" />
         <span asp-validation-for="Nome" class="text-danger"></span>
     </div>
 
-    <div class="form-group form-check">
-        <input asp-for="Tipo" class="form-check-input" />
-        <label asp-for="Tipo" class="form-check-label"></label>
+    <div class="form-direita">
+        <label class="checkbox-label">
+            <input asp-for="Tipo" type="checkbox" />
+            Categoria com Data
+        </label>
         <span asp-validation-for="Tipo" class="text-danger"></span>
     </div>
 
-    <div class="form-group-cat">
-        <input type="submit" value="Criare" class="btn btn-primary" />
-        <a asp-action="Index">Voltar</a>
+    <div class="botoes">
+        <button type="submit" class="btn btn-primary">✏️ Criar</button>
+        <a asp-action="Index" class="btn btn-secondary ml-2">❌ Cancelar</a>
     </div>
 </form>
-

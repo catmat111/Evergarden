@@ -1,37 +1,59 @@
-﻿.user_image_container {
-    position: relative;
-    width: 90px;  
-    height: 90px;
-    list-style: none;
+﻿.edit-container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.user_image {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 70px;  
-    height: 70px;
-    border-radius: 50%;
-    object-fit: cover;
-    background-color: #fff3cd;
-    z-index: 1;
-    transform: translate(-50%, -50%); 
-}
-
-.user_frame {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 90px;  
-    height: 90px;
-    border-radius: 50%;
-    background-image: url("../recursos/imagens_geral/user_frame.png");
-    background-size: cover;
-    background-position: center;
-    z-index: 2;
-    pointer-events: none;
-}
-label{
-    color: #d4af37aa;
+.title {
+    color: #d4af37;
     font-weight: bold;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.form-wrapper {
+    padding: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.img-thumbnail {
+    max-width: 150px;
+    max-height: 150px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #4e5359;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
 }

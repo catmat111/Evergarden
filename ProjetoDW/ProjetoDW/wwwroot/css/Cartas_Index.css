@@ -360,3 +360,37 @@ a[href*="Delete"]:hover {
     background-color: #f6da87;
     font-weight: bold;
 }
+/* Transições básicas para os botões */
+.btn-detalhes, .btn-editar, .btn-eliminar {
+    color: white;
+    padding: 3px 6px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+/* Cores iniciais */
+.btn-detalhes {
+    background-color: #b1af5d;
+    border: none;
+}
+.btn-editar {
+    background-color: #2dcf84;
+    border: none;
+}
+.btn-eliminar {
+    background-color: #c0392b;
+    border: none;
+}
+
+/* Hover */
+.btn-detalhes:hover {
+    background-color: #808035;
+}
+.btn-editar:hover {
+    background-color: #1f8155;
+}
+.btn-eliminar:hover {
+    background-color: #812b23;
+}

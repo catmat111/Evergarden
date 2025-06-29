@@ -1,5 +1,6 @@
 ﻿@model ProjetoDW.Models.Utilizadores
 
+<link rel="stylesheet" href="~/css/Utilizadores_ContaCriada.css" asp-append-version="true" />
 
 @{
     ViewBag.Title = "title";
@@ -8,11 +9,16 @@
 
 @if (Model.RemetenteId == null)
 {
-    <h1 style="color: #d4af37aa; font-weight: bold">A sua conta foi atualizada com sucesso!</h1>
+    <h1 style="color: #d4af37aa; font-weight: bold; text-align: center">A sua conta foi atualizada com sucesso!</h1>
+    <div class="containerd">
+        <a asp-action="Perfil" class="butao">↩️ Voltar para a Lista</a>
+    </div>
 }
 else
 {
-    <h1 style="color: #d4af37aa; font-weight: bold">A conta de @Model.Nome foi atualizada com sucesso!</h1>
+    <h1 style="color: #d4af37aa; font-weight: bold; text-align: center">A conta de @Model.Nome foi atualizada com sucesso!</h1>
+    <div class="containerd">
+        <a asp-action="Index" class="butao">↩️ Voltar para a Lista</a>
+    </div>
 }
 
-<a asp-action="Index" style="text-decoration: none;color: #1b6e7e; font-weight: bold; font-size: xx-large">&#8592 Voltar para a Lista</a>

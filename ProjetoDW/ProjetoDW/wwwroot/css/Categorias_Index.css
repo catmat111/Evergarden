@@ -96,18 +96,34 @@
 .utilizador-botoes a:nth-child(1) {
     background-color: #b1af5d;
     color: white;
+    transition: background-color 0.3s;
 }
 
 .utilizador-botoes a.editar {
     background-color: #2dcf84;
     color: white;
+    transition: background-color 0.3s;
 }
 
 .utilizador-botoes a.apagar {
     background-color: #c0392b;
     color: white;
+    transition: background-color 0.3s;
 }
 
-.utilizador-botoes a:hover {
-    opacity: 0.9;
+.utilizador-botoes a:nth-child(1):hover {
+    background-color: #808035;
+}
+.utilizador-botoes a.editar:hover {
+    background-color: #1f8155;
+}
+.utilizador-botoes a.apagar:hover {
+    background-color: #812b23;
+}
+.lupa{
+    transition: transform 0.2s;
+}
+.lupa:hover{
+    transform: scale(1.1);
+
 }

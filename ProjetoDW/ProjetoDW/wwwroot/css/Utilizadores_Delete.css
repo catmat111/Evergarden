@@ -33,14 +33,14 @@ dd {
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    border: none;
+    background-color: #c0392b;    border: none;
     padding: 10px 20px;
     font-weight: 600;
+    transition: background-color 0.3s;
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #812b23;
 }
 
 .btn-secondary {
@@ -48,8 +48,9 @@ dd {
     font-weight: 500;
     background-color: #6c757d;
     border: none;
+    transition: background-color 0.3s;
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background-color: #4e5359;
 }

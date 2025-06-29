@@ -33,30 +33,32 @@ dd {
 }
 
 .btn-danger {
-    background-color: #dc3545;
+    font-weight: bold;
+    background-color: #c0392b;
     border: none;
-    padding: 10px 20px;
-    font-weight: 600;
+    padding: 10px 18px;
     color: white;
     border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
+    background-color: #812b23;
 }
 
 .btn-secondary {
-    padding: 10px 20px;
-    font-weight: 500;
+    padding: 10px 18px;
+    font-weight: bold;
     background-color: #6c757d;
     border: none;
     color: white;
     border-radius: 5px;
+    transition: background-color 0.3s;
+
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
-}
+    background-color: #4e5359;}
 
 .ml-3 {
     margin-left: 1rem;

@@ -1,29 +1,33 @@
 ﻿@model ProjetoDW.Models.Categorias
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes da Categoria";
 }
-<link rel="stylesheet" href="~/css/Categorias.css" asp-append-version="true" />
-<div>
-    <h4> Detalhes da categoria @Html.DisplayFor(model => model.Nome) </h4> 
+<link rel="stylesheet" href="~/css/Categorias_Details.css" asp-append-version="true" />
+
+<div class="details-container">
+    <h1 class="title">Detalhes da Categoria</h1>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Tipo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Tipo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a> |
-    <a asp-action="Delete" asp-route-id="@Model?.Id">Eliminar</a> |
-    <a asp-action="Index">Voltar</a>
+
+    <div class="details-box">
+        <dl class="row">
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Nome)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Nome)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Tipo)
+            </dt>
+            <dd class="col-sm-9">
+                @(Model.Tipo ? "Exige data de envio" : "Não exige data")
+            </dd>
+        </dl>
+    </div>
+
+    <div class="mt-4" style="text-align: center">
+        <a asp-action="Index" class="btn btn-secondary ml-2">↩️ Voltar à Lista</a>
+    </div>
 </div>

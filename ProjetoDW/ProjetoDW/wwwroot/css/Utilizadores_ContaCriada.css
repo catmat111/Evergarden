@@ -1,0 +1,19 @@
+﻿.butao{
+    background-color: #1b6e7e;
+    border: none;
+    padding: 10px 18px;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    color: white; 
+    font-weight: bold; 
+    text-align: center ;
+    border-radius: 10px;
+}
+.butao:hover{
+    background-color: #229eb8;
+    color: white;
+}
+.containerd{
+    text-align: center;
+    margin-top: 10%;
+}

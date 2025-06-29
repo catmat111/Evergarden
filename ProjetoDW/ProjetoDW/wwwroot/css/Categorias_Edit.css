@@ -34,18 +34,23 @@ input.form-check-input {
 }
 
 button.btn-primary {
-    background-color: #bfa145;
-    border-color: #bfa145;
-    transition: background-color 0.3s ease;
+    background-color: #007bff;
+    border:none;
+    transition: background-color 0.3s;
 }
 
 button.btn-primary:hover {
-    background-color: #a48d38;
-    border-color: #a48d38;
+    background-color: #0056b3;
 }
 
 button.btn-secondary {
+    background-color: #6c757d;
+    border:none;
+    transition: background-color 0.3s;
     margin-left: 10px;
+}
+button.btn-secondary:hover {
+    background-color: #4e5359;
 }
 
 @media (max-width: 768px) {

@@ -1,63 +1,90 @@
 @model ProjetoDW.Models.Utilizadores
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Criar Destinatário";
 }
 <link rel="stylesheet" href="~/css/Utilizadores_Criar.css" asp-append-version="true" />
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
+<div class="edit-container">
+    <h1 class="title">Criar Destinatário</h1>
 
-    <div style="border: 2px solid #f4d35e; border-radius: 20px; padding-left: 10px; margin-bottom: 5px; color: #d4af37aa; font-weight: bold"; background-color: #fffbea;>
-        <h2 style="font-weight: bold">Criar Utilizador Destinatário</h2>
+    <hr />
+
+    <div class="form-wrapper">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Nome"></label>
+                <input asp-for="Nome" class="form-control" placeholder="Nome completo" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Telemovel"></label>
+                <input asp-for="Telemovel" class="form-control" placeholder="Telemóvel" />
+                <span asp-validation-for="Telemovel" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Imagem">Fotografia</label>
+                <input type="file" asp-for="Imagem" class="form-control" accept="image/*" onchange="previewImagem(this)" />
+                <span asp-validation-for="Imagem" class="text-danger"></span>
+                <div class="imagem-preview mt-2">
+                    <img id="preview" src="../recursos/default.png" alt="Pré-visualização" class="img-thumbnail" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DataNascimento"></label>
+                <input asp-for="DataNascimento" type="date" class="form-control"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="DataNascimento" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Palavra-passe</label>
+                <input name="password" type="password" class="form-control" placeholder="Palavra-passe" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">✏️ Criar</button>
+                <a asp-action="Index" class="btn btn-secondary ml-2">❌ Cancelar</a>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="Nome"></label>
-        <input asp-for="Nome" class="form-control"/>
-        <span asp-validation-for="Nome" class="text-danger"></span>
-    </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Telemovel" class="control-label"></label>
-        <div class="input-group">
-            <input asp-for="Telemovel" class="form-control" />
-        </div>
-        <span asp-validation-for="Telemovel" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Imagem"></label>
-        <input asp-for="Imagem" type="file" class="form-control" />
-        <span asp-validation-for="Imagem" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="DataNascimento"></label>
-        <input asp-for="DataNascimento" class="form-control" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" min="1900-01-01"/>
-        <span asp-validation-for="DataNascimento" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Password</label>
-        <input name="password" type="password" class="form-control" />
-    </div>
-
-    <button style="margin-top: 10px" type="submit" class="btn btn-primary">Criar Destinatário</button>
-</form>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const dateInput = document.querySelector('input[type="date"]');
-        if (dateInput) {
-            dateInput.addEventListener('keydown', function (e) {
-                e.preventDefault();
-            });
+@section Scripts {
+    <script>
+        function previewImagem(input) {
+            const preview = document.getElementById('preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = "#";
+                preview.style.display = "none";
+            }
         }
-    });
-</script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                dateInput.addEventListener('keydown', function (e) {
+                    e.preventDefault();
+                });
+            }
+        });
+    </script>
+}
