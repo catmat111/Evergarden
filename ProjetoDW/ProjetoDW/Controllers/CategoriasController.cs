@@ -201,7 +201,7 @@ namespace ProjetoDW.Controllers
                 // Marca a entidade como modificada para que o EF a atualize.
                 _context.Update(categoriaAtualizada);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View("EditadaComSucesso");
             }
             catch (DbUpdateConcurrencyException)
             {

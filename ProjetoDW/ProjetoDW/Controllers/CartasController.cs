@@ -23,18 +23,18 @@ namespace ProjetoDW.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IHubContext<SignarRNotificacao> _hubContext;
+        //private readonly IHubContext<SignarRNotificacao> _hubContext;
 
         /// <summary>
         /// Inicializa uma nova instância do <see cref="CartasController"/>.
         /// </summary>
         /// <param name="context">O contexto da base de dados da aplicação.</param>
         /// <param name="userManager">O serviço para gestão de utilizadores do Identity.</param>
-        public CartasController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHubContext<SignarRNotificacao> _hubContext)
+        public CartasController(ApplicationDbContext context, UserManager<IdentityUser> userManager/*, IHubContext<SignarRNotificacao> _hubContext*/)
         {
             _context = context;
             _userManager = userManager;
-            _hubContext = _hubContext;
+            //_hubContext = _hubContext;
         }
 
         // GET: Cartas
@@ -225,13 +225,13 @@ namespace ProjetoDW.Controllers
 
                 _context.Add(carta);
                 await _context.SaveChangesAsync();
-                await _hubContext.Clients
+                /*await _hubContext.Clients
                     .User(carta.UtilizadorDestinatario.IdentityUserID) // IdentityUserId do destinatário
                     .SendAsync("NovaCartaRecebida", new {
                         id = carta.Id,
                         titulo = carta.Titulo,
                         data = carta.DataCriacao.ToString("dd/MM/yyyy")
-                    });
+                    });*/
                 return RedirectToAction(nameof(Index));
             }
 
@@ -265,10 +265,10 @@ namespace ProjetoDW.Controllers
             if (carta == null) return NotFound();
 
             // Validação: Impede a edição de cartas já enviadas (data de envio no passado ou hoje)
-            if (carta.DataEnvio.HasValue && carta.DataEnvio <= DateOnly.FromDateTime(DateTime.Today))
+            if (carta.DataEnvio.HasValue && carta.DataEnvio <= DateOnly.FromDateTime(DateTime.Today) || carta.DataEnvio == null)
             {
                 TempData["Erro"] = "Esta carta já foi enviada e não pode ser editada.";
-                return RedirectToAction("Index");
+                return View("EdicaoNaoPermitida");
             }
 
             var user = await _userManager.GetUserAsync(User);
@@ -359,7 +359,7 @@ namespace ProjetoDW.Controllers
             ViewBag.Categorias = new MultiSelectList(categoriasDisponiveis, "Id", "Nome", categoriasSelecionadas);
             ViewBag.ExigeData = exigeData;
 
-            return View(carta);
+            return View("EditadaComSucesso");
         }
 
         // GET: Cartas/Delete/5
@@ -413,7 +413,7 @@ namespace ProjetoDW.Controllers
             _context.Cartas.Remove(carta);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return View("DeletedaComSucesso");
         }
 
         /// <summary>

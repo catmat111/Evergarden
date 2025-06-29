@@ -3,20 +3,30 @@
 @{
     ViewData["Title"] = "Login";
 }
+<link rel="stylesheet" href="~/css/Login.css" />
 
-<h1>Entrar na Conta</h1>
+<h1 class="text-center mb-4">Entrar na Conta</h1>
 
-<form  id="registerForm"  method="post">
-    <div class="form-group">
-        <label for="username">Email</label>
-        <input type="text" class="form-control" id="Email" name="Email" required />
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <form id="loginForm" method="post" class="bg-light p-4 rounded shadow-sm">
+            <div class="form-group mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <input type="text" class="form-control" id="Email" name="Email" placeholder="name@example.com" required />
+            </div>
+            <div class="form-group mb-4">
+                <label for="password" class="form-label">Palavra-Passe</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required />
+            </div>
+            <div class="form-group d-grid">
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="/Identity/Account/Register" class="text-decoration-none text-warning fw-semibold">
+                Não tem uma conta? Registe-se
+            </a>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="password">Palavra-Passe</label>
-        <input type="password" class="form-control" id="password" name="password" required />
-    </div>
-    <div class="form-group" style="margin-top: 10px">
-        <button type="submit" class="btn btn-primary">Entrar</button>
-    </div>
-</form>
-<a style="font-weight: bold; text-decoration: none;     color: #d4af37aa;" href="/Identity/Account/Register">Não tem uma conta? Registre-se</a>
+</div>
