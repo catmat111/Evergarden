@@ -258,3 +258,19 @@
         renderCalendar(currentMonth, currentYear);
     });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notificacoesHub")
+        .build();
+
+    connection.on("NovaCartaRecebida", function (carta) {
+        const lista = document.getElementById("lista-cartas");
+        const novaCarta = document.createElement("li");
+        novaCarta.textContent = `📩 ${carta.titulo} (${carta.data})`;
+        lista.appendChild(novaCarta);
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+</script>
+

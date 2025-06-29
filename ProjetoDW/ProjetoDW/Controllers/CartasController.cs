@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using ProjetoDW.Data;
 using ProjetoDW.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using ProjetoDW.Services;
 
 namespace ProjetoDW.Controllers
 {
@@ -21,16 +23,18 @@ namespace ProjetoDW.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHubContext<SignarRNotificacao> _hubContext;
 
         /// <summary>
         /// Inicializa uma nova instância do <see cref="CartasController"/>.
         /// </summary>
         /// <param name="context">O contexto da base de dados da aplicação.</param>
         /// <param name="userManager">O serviço para gestão de utilizadores do Identity.</param>
-        public CartasController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public CartasController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHubContext<SignarRNotificacao> _hubContext)
         {
             _context = context;
             _userManager = userManager;
+            _hubContext = _hubContext;
         }
 
         // GET: Cartas
@@ -221,6 +225,13 @@ namespace ProjetoDW.Controllers
 
                 _context.Add(carta);
                 await _context.SaveChangesAsync();
+                await _hubContext.Clients
+                    .User(carta.UtilizadorDestinatario.IdentityUserID) // IdentityUserId do destinatário
+                    .SendAsync("NovaCartaRecebida", new {
+                        id = carta.Id,
+                        titulo = carta.Titulo,
+                        data = carta.DataCriacao.ToString("dd/MM/yyyy")
+                    });
                 return RedirectToAction(nameof(Index));
             }
 
