@@ -1,0 +1,102 @@
+﻿h1 {
+    color: #d4af37;
+    margin-bottom: 30px;
+}
+
+.form-group, .form-group-cat {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #d4af37aa;
+}
+
+input.form-control, input.form-check-input {
+    border: 2px solid #ffe680;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+input.form-control:focus,
+input.form-check-input:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 0 0.2rem rgba(255, 223, 0, 0.25); 
+    outline: none;
+    background-color: #fffde7;
+}
+
+input.form-check-input:checked {
+    background-color: #ffd700;
+    border-color: #e6b800;
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+} 
+.form-check-label {
+    color: #d4af37aa;
+}
+
+.text-danger {
+    color: #c0392b;
+    font-size: 0.9em;
+}
+
+.form-group-cat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-primary {
+    background-color: #d4af37;
+    border-color: #bfa235;
+    color: #4a4a4a;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background-color 0.3s, transform 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background-color: #d4af37;
+    color: white;
+    transform: scale(1.03);
+}
+
+a {
+    color: #d4a400;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #86b7fe;
+}
+
+
+
+
+
+
+/*Index*/
+
+.tipo-indicador.sim {
+    color: #27ae60; 
+    font-weight: bold;
+    font-size: 1.5rem;
+    
+}
+
+.tipo-indicador.nao {
+    color: #c0392b; 
+    font-weight: bold;
+    font-size: 1.5rem;
+    
+}
+a[href*="Delete"]:hover {
+    color: #e74c3c; 
+    text-decoration: underline;
+}

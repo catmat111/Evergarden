@@ -1,0 +1,35 @@
+﻿@model ProjetoDW.Models.Categorias
+
+@{
+    ViewData["Title"] = "Criar Categoria";
+}
+<link rel="stylesheet" href="~/css/Categorias_Create.css" asp-append-version="true" />
+
+<div class="cima">
+    <a asp-action="Index" class="btn-voltar" title="Voltar"></a>
+    <h1 class="titulo">Criar Categoria</h1>
+</div>
+
+<hr />
+
+<form asp-action="Create" method="post" class="form-categoria">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-esquerda">
+        <input asp-for="Nome" class="input" placeholder="Nome da Categoria" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+
+    <div class="form-direita">
+        <label class="checkbox-label">
+            <input asp-for="Tipo" type="checkbox" />
+            Categoria com Data
+        </label>
+        <span asp-validation-for="Tipo" class="text-danger"></span>
+    </div>
+
+    <div class="botoes">
+        <button type="submit" class="btn btn-primary">✏️ Criar</button>
+        <a asp-action="Index" class="btn btn-secondary ml-2">❌ Cancelar</a>
+    </div>
+</form>

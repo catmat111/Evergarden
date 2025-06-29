@@ -1,0 +1,34 @@
+﻿@model IEnumerable<ProjetoDW.Models.Categorias>
+
+<link rel="stylesheet" href="~/css/Categorias_Index.css" asp-append-version="true" />
+
+<div class="utilizadores-container">
+    <h2 class="utilizadores-title">Minhas Categorias</h2>
+
+    <form asp-action="Index" method="get" class="utilizadores-search">
+        <input type="text" name="searchString" class="form-control" placeholder="Pesquise pelo nome da sua Categoria..." />
+        <button type="submit">
+            <img class="lupa" src="/recursos/imagens_geral/lupa.png" alt="Pesquisar" />
+        </button>
+    </form>
+
+    <div class="utilizadores-lista">
+        @foreach (var categoria in Model)
+        {
+            <div class="utilizador-linha">
+                <div class="utilizador-info">
+                    <p><span class="rotulo">Nome:</span> @categoria.Nome</p>
+                    <p>
+                        <span class="rotulo">Tipo:</span>
+                        @(categoria.Tipo ? "Com data de envio" : "Sem data de envio")
+                    </p>
+                </div>
+                <div class="utilizador-botoes">
+                    <a asp-action="Details" asp-route-id="@categoria.Id">Detalhes</a>
+                    <a asp-action="Edit" asp-route-id="@categoria.Id" class="editar">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@categoria.Id" class="apagar">Eliminar</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,61 +1,231 @@
-﻿.row {
+﻿/* ---------------------------- */
+/* Área Geral e Layout Principal */
+/* ---------------------------- */
+
+.row {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 20px;
+    gap: 0px;
     padding: 20px;
 }
 
-.coluna-esquerda {
-    flex: 1;
-    min-width: 60%; 
+body {
+    font-family: Verdana, sans-serif;
 }
 
-.coluna-direita {
-    flex: 1;
-    min-width: 35%; 
-}
+
+/* ---------------------------- */
+/* Área da Tabela de Cartas     */
+/* ---------------------------- */
 
 .table {
     width: 100%;
     border-collapse: collapse;
+    background-color: #fffdf7;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+    margin-top: 20px;
 }
 
-.table th, .table td {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0e6c1;
+    vertical-align: middle;
 }
 
-input[type="text"] {
-    padding: 6px 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    margin-left: 5px;
+.table th {
+    background-color: #fcf4c6;
+    color: #7d6608;
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tr:hover {
+    background-color: #fff9dc;
+    transition: background-color 0.2s ease;
+}
+
+/* Links de ações */
+a {
+    text-decoration: none;
+    color: #006699;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a[href*="Delete"] {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+a[href*="Delete"]:hover {
+    color: #e74c3c;
 }
 
 
-.coluna-direita {
-    background-color: #fffbea;
-    padding: 20px;
-    border-left: 3px solid #f4d35e;
-    height: 50vh;
-    width: 30%;
-    overflow-y: auto;
-    font-family: 'Segoe UI', sans-serif;
+/* ---------------------------- */
+/* Área das Cartas (Destinatário) */
+/* ---------------------------- */
+
+.cartas-mosaico {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.carta-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px;
+    width: 280px; 
+    box-sizing: border-box;
+    transition: transform 0.2s ease;
+    border: 2px solid #f4d35e;
     
 }
 
-.coluna-direita h2 {
+.carta-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.carta-card h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.carta-card p {
+    margin: 5px 0;
+}
+
+.carta-card a {
+    text-decoration: none;
+    color: #f4d35e;
+}
+
+.carta-card a:hover {
+    text-decoration: underline;
+    color: #86b7fe;
+}
+
+
+/* ---------------------------- */
+/* Área da Barra de Pesquisa    */
+/* ---------------------------- */
+
+.pesquisa_nome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #fffbea;
+    border: 2px solid #f4d35e;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.pesquisa_nome h1 {
+    margin: 0;
+    font-size: 2em;
+    color: #f4d35e;
+}
+
+.pesquisa_nome form {
+    flex-grow: 1;
+}
+
+.pesquisa_nome input[type="text"] {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid #f4d35e;
+    width: 100%;
+    max-width: 400px;
+    transition: 0.3s ease;
+    background-color: #fffde7;
+    font-size: 14px;
+}
+
+.pesquisa_nome input[type="text"]:focus {
+    border-color: #d4af37;
+    outline: none;
+    box-shadow: 0 0 5px #f4d35e80;
+}
+
+.pesquisa_nome button img {
+    transition: transform 0.2s;
+}
+
+.pesquisa_nome button:hover img {
+    transform: scale(1.1);
+}
+
+
+/* ---------------------------- */
+/* Área da Coluna Esquerda      */
+/* ---------------------------- */
+
+.coluna-esquerda {
+    flex: 1 1 100%;
+    min-width: 60%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+
+/* ---------------------------- */
+/* Área da Coluna Direita       */
+/* (To-Do List + Calendário)    */
+/* ---------------------------- */
+
+.coluna-direita {
+    flex: 1;
+    min-width: 35%;
+    background-color: #fffbea;
+    padding: 20px;
+    border-left: 3px solid #f4d35e;
+    height: auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Container horizontal do To-Do + Calendário */
+.lado-a-lado-direita {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+/* To-Do List */
+.to-do {
+    flex: 1;
+    min-width: 200px;
+}
+
+.to-do h2 {
     font-size: 1.8em;
     margin-bottom: 20px;
     color: #f4d35e;
 }
 
-.coluna-direita form {
+.to-do form {
     margin-bottom: 15px;
 }
 
-.coluna-direita input[type="text"] {
+.to-do input[type="text"] {
     width: 100%;
     padding: 10px;
     border: 1px solid #f4d35e;
@@ -63,18 +233,18 @@ input[type="text"] {
     background-color: #fffde7;
 }
 
-.coluna-direita input[type="text"]:focus{
+.to-do input[type="text"]:focus {
     border-color: #d4af37;
     outline: none;
     box-shadow: 0 0 5px #d4af37aa;
 }
 
-.coluna-direita ul {
+.to-do ul {
     list-style: none;
     padding: 0;
 }
 
-.coluna-direita li {
+.to-do li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -86,17 +256,13 @@ input[type="text"] {
     transition: background-color 0.3s;
 }
 
-.coluna-direita li:hover {
-    background-color: #fff3c4;
-}
-
-.coluna-direita input[type="checkbox"] {
+.to-do input[type="checkbox"] {
     margin-right: 10px;
     transform: scale(1.2);
     accent-color: #f4d35e;
 }
 
-.coluna-direita button {
+.to-do button {
     margin-left: 10px;
     background-color: #f4d35e;
     color: white;
@@ -106,12 +272,125 @@ input[type="text"] {
     transition: background-color 0.2s;
 }
 
-.coluna-direita button:hover {
-    background-color: #f4d35e;
-}
-
-/* Tarefa riscada */
-.coluna-direita li.terminada {
+.to-do li.terminada {
     text-decoration: line-through;
     color: #999;
+}
+
+
+/* ---------------------------- */
+/* Área do Calendário           */
+/* ---------------------------- */
+
+#calendar {
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+    background-color: #fffde7;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #f4d35e;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+.month {
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+.month ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    color: #f4d35e;
+    cursor: pointer;
+}
+
+.month ul li {
+    color: black;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    cursor: pointer;
+}
+
+.month .prev {
+    float: left;
+    padding-top: 10px;
+}
+
+.month .next {
+    float: right;
+    padding-top: 10px;
+}
+
+.weekdays {
+    margin: 0;
+    padding: 10px 0;
+    background-color: #ffd700;
+}
+
+.weekdays li {
+    display: inline-block;
+    width: 13.6%;
+    color: #666;
+    text-align: center;
+}
+
+.days {
+    padding: 10px 0;
+    background: #eee;
+    margin: 0;
+    cursor: pointer;
+}
+
+.days li {
+    list-style-type: none;
+    display: inline-block;
+    width: 13.6%;
+    text-align: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #777;
+    cursor: pointer;
+}
+
+.days li.tem-carta {
+    background-color: #f6da87;
+    font-weight: bold;
+}
+/* Transições básicas para os botões */
+.btn-detalhes, .btn-editar, .btn-eliminar {
+    color: white;
+    padding: 3px 6px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+/* Cores iniciais */
+.btn-detalhes {
+    background-color: #b1af5d;
+    border: none;
+}
+.btn-editar {
+    background-color: #2dcf84;
+    border: none;
+}
+.btn-eliminar {
+    background-color: #c0392b;
+    border: none;
+}
+
+/* Hover */
+.btn-detalhes:hover {
+    background-color: #808035;
+}
+.btn-editar:hover {
+    background-color: #1f8155;
+}
+.btn-eliminar:hover {
+    background-color: #812b23;
 }

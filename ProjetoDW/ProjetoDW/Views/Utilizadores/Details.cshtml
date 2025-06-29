@@ -1,49 +1,27 @@
 @model ProjetoDW.Models.Utilizadores
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes do Utilizador";
 }
 
-<h1>Details</h1>
+<link rel="stylesheet" href="~/css/Utilizadores_Details.css" asp-append-version="true" />
 
-<div>
-    <h4>UtilizadoresR</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImagemPath)
-        </dt>
-        <dd class = "col-sm-10">
-            <img src="recursos/@Model.ImagemPath"/>
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telemovel)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telemovel)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DataNascimento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DataNascimento)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="perfil-container">
+    <h2 class="perfil-title">Detalhes do Utilizador</h2>
+
+    <div class="perfil-card">
+        <div class="perfil-imagem">
+            <img src="/recursos/@Model.ImagemPath" alt="Foto de perfil" />
+        </div>
+        <div class="perfil-detalhes">
+            <p><strong>Nome:</strong> @Model.Nome</p>
+            <p><strong>Telemóvel:</strong> @Model.Telemovel</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Data de Nascimento:</strong> @Model.DataNascimento</p>
+        </div>
+    </div>
+
+    <div class="perfil-voltar">
+        <a asp-action="Index" class="btn-voltar">↩️ Voltar à Lista</a>
+    </div>
 </div>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ProjetoDW.Data;
 using ProjetoDW.Models;
@@ -26,6 +27,8 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 // MVC e Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+//builder.Services.AddSignalR();
+//builder.Services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
 
 var app = builder.Build();
 
@@ -52,5 +55,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+//app.MapHub<SignarRNotificacao>("/SignarRNotificacao");
 
 app.Run();

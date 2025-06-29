@@ -1,0 +1,57 @@
+﻿.carta-container {
+    max-width: 750px;
+    margin: 40px auto;
+    background-color: #fdfaf6;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.carta-title {
+    text-align: center;
+    color: #bfa145;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+.carta-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.carta-detalhes p {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 10px 0;
+}
+
+.carta-acoes {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.carta-acoes a {
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 18px;
+    border-radius: 8px;
+    margin: 0 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+
+
+.btn-voltar {
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: #1b6e7e;
+    color: white;
+}
+
+.btn-voltar:hover {
+    background-color: #229eb8;
+    color: white;
+}

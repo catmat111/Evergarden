@@ -4,20 +4,18 @@
 
 @{
     ViewData["Title"] = "Create";
+    var categorias = ViewBag.Categorias as List<ProjetoDW.Models.Categorias>;
 }
 <link rel="stylesheet" href="~/css/Cartas_Criar.css" asp-append-version="true" />
 
 <div class="cima">
     <a asp-action="Index" class="btn btn-back"></a>
-    <h1>Escrever Carta</h1>
+    <h1 style="color: #bfa145; font-weight: bold">Escrever Carta</h1>
 </div>
-
-
-
 
 <hr />
 <div class="row">
-    <form asp-action="Create" class="form-carta">
+    <form asp-action="Create" class="form-carta" id="formCarta">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="coluna-esquerda">
@@ -26,7 +24,7 @@
                 <span asp-validation-for="Titulo" class="text-danger"></span>
             </div>
             <div class="form-group descricao">
-                <textarea asp-for="Descricao" class="form-control auto-expand" placeholder="Clique para escrever a carta aqui..."></textarea>
+                <textarea asp-for="Descricao" class="form-control auto-expand" id="Descricao" placeholder="Clique para escrever a carta aqui..."></textarea>
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
         </div>
@@ -34,63 +32,141 @@
         <div class="coluna-direita">
             <div class="form-group">
                 <div class="form-group UtilizadoresDFk">
-                    <select asp-for="UtilizadorDestinatarioFk" class="form-control " asp-items="ViewBag.UtilizadoresDFk">
+                    <select asp-for="UtilizadorDestinatarioFk" class="form-control" asp-items="ViewBag.UtilizadoresDFk">
                         <option value="">-- Seleciona o destinatário --</option>
                     </select>
                     <span asp-validation-for="UtilizadorDestinatarioFk" class="text-danger"></span>
                 </div>
 
-                <form>
-                    <input type="checkbox" id="aniversario" name="aniversario" value="aniversario">
-                    <label for="aniversario">Aniversário</label><br>
-                    <!-- DataEnvio visível só quando "aniversario" está checked -->
-                    <div class="form-group DataEnvio" id="dataEnvioContainer" style="display: none;">
-                        <label asp-for="DataEnvio" class="control-label"></label>
-                        <input asp-for="DataEnvio" class="form-control" id="dataEnvioInput"/>
-                        <span asp-validation-for="DataEnvio" class="text-danger"></span>
-                    </div>
-                    <input type="checkbox" id="casamento" name="casamento" value="casamento">
-                    <label for="casamento">Casamento</label><br>
-                    <input type="checkbox" id="feliz" name="feliz" value="feliz">
-                    <label for="feliz">Momento feliz</label>
-                </form>
+                <div class="form-group Categorias">
+                    <label style="font-family: cursive; color: #bfa145; font-weight: bold">Categorias</label><br />
+                    @foreach (var categoria in categorias)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input categoria-checkbox"
+                                   type="checkbox"
+                                   name="categoriasSelecionadas"
+                                   value="@categoria.Id"
+                                   data-temdata="@(categoria.Tipo ? "true" : "false")"
+                                   id="cat_@categoria.Id" />
+                            <label class="form-check-label" for="cat_@categoria.Id">@categoria.Nome</label>
+                        </div>
+                    }
+                    @if (ViewData.ModelState["categoriasSelecionadas"]?.Errors.Count > 0)
+                    {
+                        <span class="text-danger">
+                            @ViewData.ModelState["categoriasSelecionadas"].Errors[0].ErrorMessage
+                        </span>
+                    }
+                </div>
+
+                <div id="dataEnvioContainer" class="form-group data-envio-container">
+                    <label for="DataEnvio">Data de Envio</label>
+                    <input type="date" id="DataEnvio" name="DataEnvio" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    <div id="dataEnvioErro" class="text-danger" style="display:none;"></div>
+                </div>
             </div>
-            
         </div>
 
-        <div class="form-group Create full-width">
-            <input type="submit" value="Create" class="btn btn-primary" />
+        <div class="form-actions" style="margin: auto">
+            <button type="submit" class="btn btn-primary">✏️ Criar</button>
+            <a asp-action="Index" class="btn btn-secondary ml-2" style="border: none; padding: 10px 18px">❌ Cancelar</a>
         </div>
     </form>
 </div>
 
-
-
-<script>
-    // Expande automaticamente textarea
-    document.addEventListener('input', function (e) {
-        if (e.target.tagName.toLowerCase() === 'textarea' && e.target.classList.contains('auto-expand')) {
-            e.target.style.height = 'auto';
-            e.target.style.height = (e.target.scrollHeight) + 'px';
+@section Scripts {
+    <script>
+        function ajustarAltura(textarea) {
+            if (textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            }
         }
-    });
 
-    // Mostra ou oculta DataEnvio conforme checkbox
-    function toggleDataEnvio() {
-        const checkAniversario = document.getElementById("aniversario");
-        const dataEnvioContainer = document.getElementById("dataEnvioContainer");
-        const dataEnvioInput = document.getElementById("dataEnvioInput");
+        function atualizarVisibilidadeDataEnvio() {
+            const checkboxes = document.querySelectorAll('.categoria-checkbox');
+            let mostrarData = false;
 
-        if (checkAniversario.checked) {
-            dataEnvioContainer.style.display = "block";
-        } else {
-            dataEnvioContainer.style.display = "none";
-            dataEnvioInput.value = ""; // limpa valor
+            checkboxes.forEach(cb => {
+                if (cb.checked && cb.dataset.temdata === "true") {
+                    mostrarData = true;
+                }
+            });
+
+            const dataContainer = document.getElementById("dataEnvioContainer");
+            const dataInput = document.getElementById("DataEnvio");
+            const dataErro = document.getElementById("dataEnvioErro");
+
+            if (mostrarData) {
+                dataContainer.classList.add("show");
+                dataInput.required = true;
+            } else {
+                dataContainer.classList.remove("show");
+                dataInput.required = false;
+                dataInput.value = "";
+            }
+
+            if (dataErro) dataErro.style.display = "none";
         }
-    }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        toggleDataEnvio(); // inicializa corretamente
-        document.getElementById("aniversario").addEventListener("change", toggleDataEnvio);
-    });
-</script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dataInput = document.getElementById("DataEnvio");
+            const descricaoTextarea = document.getElementById("Descricao");
+            const form = document.getElementById("formCarta");
+
+            atualizarVisibilidadeDataEnvio();
+            ajustarAltura(descricaoTextarea);
+
+            if (dataInput) {
+                dataInput.addEventListener("keydown", e => e.preventDefault());
+            }
+
+            document.querySelectorAll('.categoria-checkbox').forEach(cb => {
+                cb.addEventListener("change", atualizarVisibilidadeDataEnvio);
+            });
+
+            if (descricaoTextarea) {
+                descricaoTextarea.addEventListener('input', () => ajustarAltura(descricaoTextarea));
+            }
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    const checkboxes = document.querySelectorAll('.categoria-checkbox:checked');
+                    const erroCategorias = document.getElementById('categoriasErro');
+                    const dataErro = document.getElementById("dataEnvioErro");
+
+                    if (checkboxes.length === 0) {
+                        if (erroCategorias) erroCategorias.style.display = "block";
+                        e.preventDefault();
+                        return;
+                    } else {
+                        if (erroCategorias) erroCategorias.style.display = "none";
+                    }
+
+                    if (dataInput && dataInput.required) {
+                        if (!dataInput.value) {
+                            dataErro.textContent = "Por favor selecione uma data.";
+                            if (dataErro) dataErro.style.display = "block";
+                            e.preventDefault();
+                            return;
+                        }
+
+                        const hoje = new Date();
+                        hoje.setHours(0, 0, 0, 0);
+                        const dataSelecionada = new Date(dataInput.value);
+
+                        if (dataSelecionada < hoje) {
+                            dataErro.textContent = "A data deve ser hoje ou uma data futura.";
+                            if (dataErro) dataErro.style.display = "block";
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+
+                    if (dataErro) dataErro.style.display = "none";
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,57 @@
+﻿/* Personalização do formulário de registo */
+
+form#registerForm {
+    background-color: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+form#registerForm .form-label {
+    font-weight: 600;
+    color: #343a40;
+}
+
+form#registerForm input.form-control {
+    border-radius: 0.5rem;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+form#registerForm input.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+form#registerForm .btn-primary {
+    font-weight: bold;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    border: none;
+    transition: background-color 0.2s ease;
+}
+
+form#registerForm .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+form#registerForm .text-danger {
+    font-size: 0.875rem;
+}
+
+h1 {
+    font-weight: 700;
+    color: #212529;
+    text-align: center;
+}
+
+a.text-decoration-none {
+    color: #0d6efd;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+a.text-decoration-none:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}

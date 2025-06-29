@@ -1,0 +1,28 @@
+﻿@model ProjetoDW.Models.Utilizadores
+
+@{
+    ViewData["Title"] = "Perfil";
+}
+
+<link rel="stylesheet" href="~/css/Utilizadores_Perfil.css" asp-append-version="true" />
+
+<div class="perfil-container">
+    <h2 class="perfil-title">Perfil do Utilizador</h2>
+
+    <div class="perfil-card">
+        <div class="perfil-imagem">
+            <img src="/recursos/@Model.ImagemPath" alt="Foto de perfil" />
+        </div>
+        <div class="perfil-detalhes">
+            <p><strong>Nome:</strong> @Model.Nome</p>
+            <p><strong>Telemóvel:</strong> @Model.Telemovel</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Data de Nascimento:</strong> @Model.DataNascimento</p>
+        </div>
+    </div>
+
+    <div class="perfil-voltar">
+        <a asp-action="Edit" asp-controller="Utilizadores" asp-route-id="@Model.Id" style="background-color: #2dcf84; padding: 10px 18px; color: white;    border-radius: 8px; margin-right: 5px">Editar</a>
+        <a asp-action="Delete" asp-controller="Utilizadores" asp-route-id="@Model.Id" style="background-color: #c0392b;padding: 10px 18px; color: white;    border-radius: 8px;">Apagar</a>
+    </div>
+</div>

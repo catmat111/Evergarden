@@ -1,51 +1,111 @@
 @model ProjetoDW.Models.Utilizadores
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Utilizador";
 }
 
-<h1>Edit</h1>
+<link rel="stylesheet" href="~/css/Utilizadores_Edit.css" asp-append-version="true" />
 
-<h4>UtilizadoresR</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+<div class="edit-container">
+    <h1 class="title">
+        @(Model.RemetenteId == null ? "Editar Remetente" : "Editar Destinatário")
+    </h1>
+
+    <hr />
+
+    <div class="form-wrapper">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+
             <div class="form-group">
-                <label asp-for="Nome" class="control-label"></label>
+                <label asp-for="Nome"></label>
                 <input asp-for="Nome" class="form-control" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ImagemPath" class="control-label"></label>
-                <input type="file" asp-for="ImagemPath" class="form-control" />
-                <span asp-validation-for="ImagemPath" class="text-danger"></span>
+                <label asp-for="Imagem"></label>
+                <input type="file" asp-for="Imagem" class="form-control" accept="image/*" onchange="previewImagem(this)" />
+                <span asp-validation-for="Imagem" class="text-danger"></span>
+                <div class="imagem-preview mt-2">
+                    <img id="preview" src="/recursos/@Model.ImagemPath" alt="Imagem atual" class="img-thumbnail" />
+                </div>
             </div>
+
             <div class="form-group">
-                <label asp-for="Telemovel" class="control-label"></label>
+                <label asp-for="Telemovel"></label>
                 <input asp-for="Telemovel" class="form-control" />
                 <span asp-validation-for="Telemovel" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DataNascimento" class="control-label"></label>
-                <input asp-for="DataNascimento" class="form-control" />
+                <label asp-for="DataNascimento"></label>
+                <input asp-for="DataNascimento" class="form-control" type="date" max="@DateTime.Today.ToString("yyyy-MM-dd")" min="1900-01-01" />
                 <span asp-validation-for="DataNascimento" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label>Email</label>
+                <input type="text" value="@Model.Email" class="form-control" readonly />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                @if (Model.RemetenteId == null)
+                {
+                    <a asp-action="Perfil" class="btn btn-secondary ml-2">❌ Cancelar</a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn btn-secondary ml-2">❌ Cancelar</a>
+                }
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<script>
+    /**
+     * Exibe uma pré-visualização da imagem selecionada num campo de input de ficheiro.
+     * Esta versão assume que o elemento de pré-visualização já está visível.
+     * Exemplo de uso no HTML: <input type="file" onchange="previewImagem(this)" />
+     * param {HTMLInputElement} input - O elemento input do tipo 'file' que acionou o evento.
+     */
+    function previewImagem(input) {
+        // Obtém o elemento <img> onde a pré-visualização será exibida.
+        const preview = document.getElementById('preview');
 
+        // Verifica se um ficheiro foi selecionado e se o elemento de preview existe.
+        if (preview && input.files && input.files[0]) {
+            // Cria um objeto FileReader para ler o conteúdo do ficheiro.
+            const reader = new FileReader();
+
+            // Define o que acontece quando a leitura do ficheiro estiver concluída.
+            reader.onload = function (e) {
+                // Atribui o resultado da leitura (um URL de dados) ao 'src' da imagem.
+                preview.src = e.target.result;
+            };
+
+            // Inicia a leitura do ficheiro como um Data URL.
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    /**
+     * Ouve o evento de carregamento do conteúdo da página.
+     */
+    document.addEventListener('DOMContentLoaded', function () {
+        // Procura por qualquer campo de input do tipo 'date'.
+        const dateInput = document.querySelector('input[type="date"]');
+
+        // Se um campo de data for encontrado, adiciona um 'ouvinte' de evento.
+        if (dateInput) {
+            // Impede que o utilizador digite manualmente no campo de data,
+            // forçando o uso do seletor de data do browser.
+            dateInput.addEventListener('keydown', function (e) {
+                e.preventDefault();
+            });
+        }
+    });
+</script>

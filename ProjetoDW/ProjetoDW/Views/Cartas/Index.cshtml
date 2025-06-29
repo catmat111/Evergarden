@@ -1,124 +1,276 @@
+@using Azure.Core
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model IEnumerable<ProjetoDW.Models.Cartas>
 
 @{
-    ViewData["Title"] = "Index";
+    var isRemetente = User.IsInRole("Remetente");
+    var isDestinatario = User.IsInRole("Destinatario");
+    var query = ViewContext.HttpContext.Request.Query;
+    var inputName = isRemetente ? "searchDestinatario" : "searchRemetente";
+    var inputPlaceholder = isRemetente ? "Pesquise pelo nome do Destinatário" : "Pesquise pelo nome do Remetente";
+    string currentSearch = isRemetente ? (query.ContainsKey("searchDestinatario") ? query["searchDestinatario"].ToString() : "")
+        : (query.ContainsKey("searchRemetente") ? query["searchRemetente"].ToString() : "");
 }
+
 <link rel="stylesheet" href="~/css/Cartas_Index.css" asp-append-version="true" />
+
 <div class="row">
-    <div class="coluna-esquerda">
-        <div>
-            <img src="recursos/imagens_geral/lupa.png" width="20px"/>
-            <input type="text"/>
+    <div class="coluna-esquerda" style="width: 100%;">
+
+        <!-- CALENDÁRIO + PESQUISA + TO-DO -->
+        <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 30px;">
+
+            <!-- Calendário à esquerda -->
+            <div style="width: 320px;">
+                <div id="calendar"></div>
+            </div>
+
+            <!-- Barra de Pesquisa + To-Do List -->
+            <div style="flex: 1;">
+                <!-- Barra de Pesquisa -->
+                <div class="pesquisa_nome">
+                    <h1>Cartas</h1>
+                    <form asp-action="Index" method="get" class="mb-3">
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            <button type="submit" style="border: none; background: none; padding: 0;">
+                                <img class="lupa" src="/recursos/imagens_geral/lupa.png" style="width: 40px; height: 40px; cursor:pointer;" />
+                            </button>
+                            <input type="text" name="@inputName" value="@currentSearch" placeholder="@inputPlaceholder"
+                                   class="form-control" style="width: 60%;" />
+                        </div>
+                    </form>
+                </div>
+
+                <!-- To-Do List -->
+                <div class="to-do">
+                    @if (isRemetente){
+                    <h2>To-Do List</h2>
+                    <ul>
+                        @if (ViewBag.Tarefas != null)
+                        {
+                            foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
+                            {
+                                <li>
+                                    <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@tarefa.Id"/>
+                                        <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "")/>
+                                        @tarefa.Nome
+                                    </form>
+                                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@tarefa.Id"/>
+                                        <button type="submit" class="btn btn-sm btn-danger">X</button>
+                                    </form>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <form asp-controller="Tarefa" asp-action="Create" method="post">
+                        <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required/>
+                        <button type="submit" class="btn btn-success mt-2" style="margin-bottom: 5px">Adicionar</button>
+                    </form>
+                    }
+                </div>
+            </div>
         </div>
 
-        <table class="table">
-            <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Titulo)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DataCriacao)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.UtilizadorDestinatarioFk)
-                </th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model) {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Titulo)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Descricao)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Topico)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DataEnvio)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DataCriacao)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UtilizadorRemetente.Nome)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UtilizadorDestinatario.Nome)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                </tr>
+        <!-- TABELA DE CARTAS -->
+        <table class="table table-hover">
+            @if (isRemetente)
+            {
+                <div class="cartas-mosaico">
+                    @foreach (var item in Model)
+                    {
+                        <div class="carta-card">
+                            <h4>@item.Titulo</h4>
+                            <p><strong>Data de Envio:</strong> @(item.DataEnvio?.ToShortDateString() ?? "Já foi enviada!")</p>
+                            <p><strong>Destinatário:</strong> @item.UtilizadorDestinatario?.Nome</p>
+                            <p><strong>Categorias:</strong>
+                                @if (item.Categorias != null && item.Categorias.Any())
+                                {
+                                    foreach (var categoria in item.Categorias)
+                                    {
+                                        <span class="badge bg-info me-1">@categoria.Nome</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Sem categorias</span>
+                                }
+                            </p>
+                            <div style="margin-top: 10px;">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-detalhes me-1" style="color: white;text-decoration: none">Detalhes</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn-editar me-1" style="color: white;text-decoration: none">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn-eliminar" style="color: white;text-decoration: none">Eliminar</a>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
-            </tbody>
+            else if (isDestinatario)
+            {
+                <tbody>
+                <div class="cartas-mosaico">
+                    @foreach (var item in Model)
+                    {
+                        <div class="carta-card">
+                            <h4>@item.Titulo</h4>
+                            <p><strong>Data de Envio:</strong> @(item.DataEnvio?.ToShortDateString() ?? "Já foi enviada!")</p>
+                            <p><strong>Remetente:</strong> @item.UtilizadorRemetente?.Nome</p>
+                            <p><strong>Categorias:</strong>
+                                @if (item.Categorias != null && item.Categorias.Any())
+                                {
+                                    foreach (var categoria in item.Categorias)
+                                    {
+                                        <span class="badge bg-info me-1">@categoria.Nome</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Sem categorias</span>
+                                }
+                            </p>
+                            <a asp-action="Details" asp-route-id="@item.Id">Ver a carta</a>
+                        </div>
+                    }
+                </div>
+                </tbody>
+            }
         </table>
     </div>
-    <div class="coluna-direita">
-        <h2>To-Do List</h2>
-
-        <form asp-controller="Tarefa" asp-action="Create" method="post">
-            <input type="text" name="Nome" placeholder="Nova tarefa" class="form-control" required />
-            <button type="submit" class="btn btn-success mt-2">Adicionar</button>
-        </form>
-
-        <ul>
-            @foreach (var tarefa in ViewBag.Tarefas as List<ProjetoDW.Models.Tarefa>)
-            {
-                <li>
-                    <form asp-controller="Tarefa" asp-action="Toggle" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@tarefa.Id" />
-                        <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "") />
-                        @tarefa.Nome
-                    </form>
-                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
-                        <input type="hidden" name="id" value="@tarefa.Id" />
-                        <button type="submit" class="btn btn-sm btn-danger">X</button>
-                    </form>
-                </li>
-            }
-        </ul>
-
-    </div>
 </div>
-    <script>
-        function adicionarTarefa() {
-            const input = document.getElementById("novaTarefa");
-            const nome = input.value.trim();
 
-            if (nome === "") return;
+<!-- SCRIPT DO CALENDÁRIO -->
+<script>
+    // Esta linha é executada no lado do servidor (Razor) antes da página ser enviada para o browser.
+    // Ela pega a lista de strings de data (ex: "2024-05-20") do ViewBag,
+    // serializa-a para um formato JSON e cria uma variável JavaScript 'datasComCartas'.
+    // Se ViewBag.DatasComCartas for nulo, cria uma lista vazia para evitar erros.
+    const datasComCartas = @Html.Raw(Json.Serialize(ViewBag.DatasComCartas ?? new List<string>()));
 
-            fetch('/Tarefa/Adicionar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify({ nome })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.sucesso) {
-                        const lista = document.getElementById("listaTarefas");
-                        const item = document.createElement("li");
-                        item.className = "list-group-item d-flex justify-content-between align-items-center";
-                        item.innerHTML = `
-                    <span>${data.tarefa.nome}</span>
-                    <input type="checkbox" disabled />
-                `;
-                        lista.appendChild(item);
-                        input.value = "";
+    // Adiciona um 'ouvinte' que espera que todo o conteúdo HTML da página (DOM) seja carregado
+    // antes de executar o código do calendário.
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+        // Define o mês e o ano atuais como ponto de partida para o calendário.
+        let currentMonth = new Date().getMonth(); // 0 = Janeiro, 11 = Dezembro
+        let currentYear = new Date().getFullYear();
+
+        /**
+         * Função principal que gera e desenha o HTML do calendário para um determinado mês e ano.
+         * param {number} month - O mês a ser renderizado (0-11).
+         * param {number} year - O ano a ser renderizado.
+         */
+        function renderCalendar(month, year) {
+            // Nomes dos meses para exibição no cabeçalho.
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho",
+                "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+            // Calcula o primeiro dia da semana do mês e o total de dias no mês.
+            const firstDay = new Date(year, month, 1).getDay(); // 0 = Domingo, 1 = Segunda, ...
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Constrói o HTML do calendário usando template strings.
+            let calendarHTML = `<div class="month">
+            <ul>
+                <li class="prev" onclick="changeMonth(-1)">&#10094;</li>
+                <li class="next" onclick="changeMonth(1)">&#10095;</li>
+                <li>${monthNames[month]}<br><span style="font-size:18px">${year}</span></li>
+            </ul>
+        </div>
+        <ul class="weekdays">
+            <li>Seg</li><li>Ter</li><li>Qua</li><li>Qui</li><li>Sex</li><li>Sáb</li><li>Dom</li>
+        </ul>
+        <ul class="days">`;
+
+            let day = 1;
+            // Ajusta o 'primeiro dia' para que a semana comece na Segunda (0) em vez de Domingo.
+            const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+
+            // Itera para criar as 6 linhas de semanas do calendário.
+            for (let i = 0; i < 6; i++) {
+                // Itera para criar os 7 dias da semana.
+                for (let j = 0; j < 7; j++) {
+                    // Se for um espaço vazio antes do dia 1 ou depois do último dia do mês.
+                    if ((i === 0 && j < adjustedFirstDay) || day > daysInMonth) {
+                        calendarHTML += `<li></li>`;
+                    } else {
+                        // Formata a data atual no formato YYYY-MM-DD para comparação.
+                        const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                        // Verifica se a data atual existe na lista 'datasComCartas'.
+                        // Se existir, adiciona a classe CSS 'tem-carta' para realçar o dia.
+                        const temCarta = datasComCartas.includes(dateString) ? 'tem-carta' : '';
+                        // Adiciona o dia ao calendário, com a classe e a função de clique.
+                        calendarHTML += `<li class="${temCarta}" onclick="filtrarPorData('${dateString}')">${day}</li>`;
+                        day++;
                     }
-                });
-        }
-    </script>
+                }
+            }
 
+            calendarHTML += `</ul>`;
+            // Insere o HTML gerado dentro do elemento do calendário na página.
+            calendarEl.innerHTML = calendarHTML;
+        }
+
+        /**
+         * Altera o mês exibido no calendário.
+         * Esta função é exposta globalmente (window.changeMonth) para ser chamada pelo 'onclick' das setas.
+         * param {number} delta - A quantidade de meses a avançar (1) ou retroceder (-1).
+         */
+        window.changeMonth = function (delta) {
+            currentMonth += delta;
+            // Lógica para mudar o ano se o mês for menor que Janeiro ou maior que Dezembro.
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            // Redesenha o calendário para o novo mês/ano.
+            renderCalendar(currentMonth, currentYear);
+        };
+
+        /**
+         * Submete um formulário para filtrar as cartas pela data selecionada.
+         * param {string} data - A data selecionada no formato "YYYY-MM-DD".
+         */
+        window.filtrarPorData = function (data) {
+            // Cria um elemento de formulário dinamicamente na memória.
+            const form = document.createElement("form");
+            form.method = "get";
+            form.action = "/Cartas/Index"; // A action para onde os dados serão enviados.
+
+            // Cria um campo de input escondido para enviar a data selecionada.
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "dataSelecionada";
+            input.value = data;
+
+            // Adiciona o input ao formulário e o formulário à página.
+            form.appendChild(input);
+            document.body.appendChild(form);
+            // Submete o formulário, o que recarrega a página com o parâmetro de filtro.
+            form.submit();
+        };
+
+        // Chama a função renderCalendar pela primeira vez para exibir o mês atual quando a página carrega.
+        renderCalendar(currentMonth, currentYear);
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notificacoesHub")
+        .build();
+
+    connection.on("NovaCartaRecebida", function (carta) {
+        const lista = document.getElementById("lista-cartas");
+        const novaCarta = document.createElement("li");
+        novaCarta.textContent = `📩 ${carta.titulo} (${carta.data})`;
+        lista.appendChild(novaCarta);
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+</script>
 

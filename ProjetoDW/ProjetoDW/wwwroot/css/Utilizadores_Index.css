@@ -1,0 +1,137 @@
+﻿.utilizadores-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 0 20px;
+}
+
+.utilizadores-title {
+    text-align: center;
+    color: #bfa145;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.utilizadores-search {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 10px;
+}
+.rotulo {
+    font-weight: bold;
+    color: #d4af37aa;
+    margin-right: 5px;
+}
+
+.utilizadores-search input {
+    width: 50%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.utilizadores-search button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.utilizadores-search img {
+    width: 40px;
+    height: 40px;
+}
+
+.utilizadores-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.utilizador-linha {
+    display: flex;
+    align-items: center;
+    background-color: #fdfaf6;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
+}
+
+.utilizador-imagem img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid #bfa145;
+    object-fit: cover;
+    margin-right: 30px;
+}
+
+.utilizador-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.utilizador-info p:first-child {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000;
+}
+
+.utilizador-botoes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 20px;
+}
+
+.utilizador-botoes a {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    width: 100px;
+}
+
+.utilizador-botoes a:nth-child(1) {
+    background-color: #b1af5d;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.utilizador-botoes a.editar {
+    background-color: #2dcf84;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.utilizador-botoes a.apagar {
+    background-color: #c0392b;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.utilizador-botoes a:hover {
+    background-color: #808035;
+}
+.utilizador-botoes a.apagar:hover {
+    background-color: #812b23;
+}
+.utilizador-botoes a.editar:hover {
+    background-color: #1f8155;
+}
+
+.lupa{
+    transition: transform 0.2s;
+}
+.lupa:hover {
+    transform: scale(1.1);
+
+}

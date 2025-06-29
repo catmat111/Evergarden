@@ -1,30 +1,38 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 
-namespace ProjetoDW.Models;
-
-public class Categorias
+namespace ProjetoDW.Models
 {
-    [Key] public int Id { get; set; }
+    /// <summary>
+    /// Representa uma categoria que pode ser associada a uma ou mais cartas.
+    /// </summary>
+    public class Categorias
+    {
+        [Key]
+        public int Id { get; set; }
 
-    [Display(Name = "Tem data?")] public bool Tipo { get; set; }
+        [Display(Name = "Tem data?")]
+        public bool Tipo { get; set; }
 
-    [Display(Name = "Categoria")] public string Nome { get; set; }
+        [Required(ErrorMessage = "Tem de colocar um nome para a sua Categoria!")]
+        [Display(Name = "Categoria")]
+        public string Nome { get; set; }
 
-    [Display(Name = "Tópico")] public string Topico { get; set; }
+        // --- RELACIONAMENTO COM IDENTITYUSER (CRIADOR) ---
+        // Uma Categoria tem UM UtilizadorCriador (Relação N-1)
+        // Um IdentityUser pode ser o criador de MUITAS Categorias (Relação 1-N)
+        public string UtilizadorCriadorId { get; set; }
 
-    [Display(Name = "Data a ser enviada")] public DateTime DataEnvio { get; set; }
+        [ForeignKey(nameof(UtilizadorCriadorId))]
+        public IdentityUser UtilizadorCriador { get; set; }
 
-    [Display(Name = "Data de Criação")] public DateTime DataCriacao { get; set; }
-
-
-    [Display(Name = "Utilizador")]
-    [ForeignKey(nameof(UtilizadorCriador))]
-    public int UtilizadoresFk { get; set; }
-
-    public Utilizadores? UtilizadorCriador { get; set; }
-    
-    public List<Cartas> Cartas { get; set; } = new List<Cartas>();
-
+        // --- RELACIONAMENTO COM CARTAS ---
+        // Uma Categoria pode estar em MUITAS Cartas.
+        // Uma Carta pode ter MUITAS Categorias.
+        // Relação Muitos-para-Muitos (N-N). O Entity Framework usará a tabela de junção
+        // que foi definida a partir do modelo 'Cartas'.
+        public List<Cartas> Cartas { get; set; } = new List<Cartas>();
+    }
 }
