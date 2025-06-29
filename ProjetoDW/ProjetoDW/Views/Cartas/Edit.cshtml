@@ -61,56 +61,76 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script>
+        /**
+         * Atualiza a visibilidade e o requisito do campo de data de envio
+         * com base nas categorias selecionadas.
+         */
         function atualizarVisibilidadeDataEnvio() {
+            // Seleciona todas as checkboxes de categoria.
             const checkboxes = document.querySelectorAll('.categoria-checkbox');
             let mostrarData = false;
 
+            // Itera sobre cada checkbox.
             checkboxes.forEach(cb => {
+                // Se uma checkbox estiver marcada e o seu 'data-tipo' for "true" (indicando que exige data),
+                // define a flag 'mostrarData' como verdadeira.
                 if (cb.checked && cb.dataset.tipo === "true") {
                     mostrarData = true;
                 }
             });
 
+            // Obtém os elementos do DOM relacionados com a data de envio.
             const dataContainer = document.getElementById("dataEnvioContainer");
             const dataInput = document.getElementById("DataEnvio");
             const dataErro = document.getElementById("dataEnvioErro");
 
             if (mostrarData) {
+                // Se alguma categoria exigir data, mostra o campo, torna-o obrigatório e esconde erros.
                 dataContainer.style.display = "block";
                 dataInput.required = true;
                 dataErro.style.display = "none";
             } else {
+                // Caso contrário, esconde o campo, remove a obrigatoriedade, limpa o valor e esconde erros.
                 dataContainer.style.display = "none";
                 dataInput.required = false;
                 dataInput.value = "";
                 dataErro.style.display = "none";
             }
-        }
+}
 
+        // Adiciona um 'ouvinte' que espera que toda a página seja carregada.
         document.addEventListener("DOMContentLoaded", () => {
+            // Chama a função uma vez no início para definir o estado inicial correto.
             atualizarVisibilidadeDataEnvio();
 
             const dataInput = document.getElementById("DataEnvio");
+            // Impede que o utilizador digite manualmente no campo de data.
             dataInput.addEventListener("keydown", e => e.preventDefault());
 
+            // Adiciona um 'ouvinte' a cada checkbox de categoria para que a visibilidade da data
+            // seja atualizada sempre que uma categoria for selecionada ou desmarcada.
             document.querySelectorAll('.categoria-checkbox').forEach(cb => {
                 cb.addEventListener("change", atualizarVisibilidadeDataEnvio);
             });
 
+            // Adiciona validação do lado do cliente ao formulário antes de ser submetido.
             document.getElementById('formCarta').addEventListener('submit', function (e) {
                 const checkboxes = document.querySelectorAll('.categoria-checkbox:checked');
                 const erroCategorias = document.getElementById('categoriasErro');
                 const dataErro = document.getElementById("dataEnvioErro");
 
+                // Validação 1: Verifica se pelo menos uma categoria foi selecionada.
                 if (checkboxes.length === 0) {
                     erroCategorias.style.display = "block";
-                    e.preventDefault();
+                    e.preventDefault(); // Impede a submissão do formulário.
                     return;
                 } else {
                     erroCategorias.style.display = "none";
                 }
 
+                // Validação 2: Verifica a data de envio, se for obrigatória.
                 if (dataInput.required) {
+                    // Se o campo de data estiver vazio.
                     if (!dataInput.value) {
                         dataErro.textContent = "Por favor selecione uma data.";
                         dataErro.style.display = "block";
@@ -118,8 +138,9 @@
                         return;
                     }
 
+                    // Se a data selecionada for anterior à data de hoje.
                     const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0);
+                    hoje.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas as datas.
                     const dataSelecionada = new Date(dataInput.value);
 
                     if (dataSelecionada < hoje) {
@@ -129,6 +150,7 @@
                         return;
                     }
 
+                    // Se a data for válida, esconde a mensagem de erro.
                     dataErro.style.display = "none";
                 }
             });

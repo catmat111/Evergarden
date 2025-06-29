@@ -29,27 +29,45 @@
 
 @section Scripts {
     <script>
+        // Adiciona um 'ouvinte' ao formulário com o ID 'addForm'.
+        // Este evento é acionado quando o formulário é submetido.
+        // A função 'async' permite o uso da sintaxe 'await' para chamadas assíncronas.
         document.getElementById('addForm').addEventListener('submit', async function (e) {
+            // Impede o comportamento padrão de submissão do formulário,
+            // que seria recarregar a página.
             e.preventDefault();
 
+            // Obtém o valor do campo de input onde o nome da tarefa é digitado.
             const nome = document.getElementById('nomeInput').value;
+            // Se o nome estiver vazio, não faz nada.
             if (!nome) return;
 
+            // Cria um objeto FormData, que é uma forma fácil de construir
+            // os dados do formulário para serem enviados numa requisição.
             const formData = new FormData();
             formData.append('nome', nome);
 
+            // Envia uma requisição assíncrona (AJAX) para o servidor usando a API Fetch.
+            // Url.Action(...)é uma sintaxe Razor que gera o URL correto para a action do controlador.
+            // Neste caso, ele vai chamar a action 'CreateAjax' no 'TarefaController'.
             const response = await fetch('@Url.Action("CreateAjax", "Tarefa")', {
-                method: 'POST',
-                body: formData
+                method: 'POST', // O método da requisição é POST.
+                body: formData  // O corpo da requisição contém os dados do formulário.
             });
 
+            // Verifica se a requisição foi bem-sucedida (ex: status HTTP 200 OK).
             if (response.ok) {
+                // Se a resposta for OK, lê o corpo da resposta como texto.
+                // Este texto deve ser o HTML da lista de tarefas atualizada (uma Partial View).
                 const html = await response.text();
+                // Substitui o conteúdo do container de tarefas pelo novo HTML recebido do servidor.
                 document.getElementById('tarefasContainer').innerHTML = html;
+                // Limpa o campo de input para que uma nova tarefa possa ser adicionada.
                 document.getElementById('nomeInput').value = '';
             } else {
+                // Se a requisição falhar, exibe um alerta de erro.
                 alert("Erro ao adicionar tarefa.");
             }
-        });
+});
     </script>
 }

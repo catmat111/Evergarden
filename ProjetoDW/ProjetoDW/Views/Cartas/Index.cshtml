@@ -142,41 +142,65 @@
 
 <!-- SCRIPT DO CALENDÁRIO -->
 <script>
+    // Esta linha é executada no lado do servidor (Razor) antes da página ser enviada para o browser.
+    // Ela pega a lista de strings de data (ex: "2024-05-20") do ViewBag,
+    // serializa-a para um formato JSON e cria uma variável JavaScript 'datasComCartas'.
+    // Se ViewBag.DatasComCartas for nulo, cria uma lista vazia para evitar erros.
     const datasComCartas = @Html.Raw(Json.Serialize(ViewBag.DatasComCartas ?? new List<string>()));
 
+    // Adiciona um 'ouvinte' que espera que todo o conteúdo HTML da página (DOM) seja carregado
+    // antes de executar o código do calendário.
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
-        let currentMonth = new Date().getMonth();
+        // Define o mês e o ano atuais como ponto de partida para o calendário.
+        let currentMonth = new Date().getMonth(); // 0 = Janeiro, 11 = Dezembro
         let currentYear = new Date().getFullYear();
 
+        /**
+         * Função principal que gera e desenha o HTML do calendário para um determinado mês e ano.
+         * param {number} month - O mês a ser renderizado (0-11).
+         * param {number} year - O ano a ser renderizado.
+         */
         function renderCalendar(month, year) {
+            // Nomes dos meses para exibição no cabeçalho.
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho",
                 "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
-            const firstDay = new Date(year, month, 1).getDay();
+            // Calcula o primeiro dia da semana do mês e o total de dias no mês.
+            const firstDay = new Date(year, month, 1).getDay(); // 0 = Domingo, 1 = Segunda, ...
             const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Constrói o HTML do calendário usando template strings.
             let calendarHTML = `<div class="month">
-                <ul>
-                    <li class="prev" onclick="changeMonth(-1)">&#10094;</li>
-                    <li class="next" onclick="changeMonth(1)">&#10095;</li>
-                    <li>${monthNames[month]}<br><span style="font-size:18px">${year}</span></li>
-                </ul>
-            </div>
-            <ul class="weekdays">
-                <li>Seg</li><li>Ter</li><li>Qua</li><li>Qui</li><li>Sex</li><li>Sáb</li><li>Dom</li>
+            <ul>
+                <li class="prev" onclick="changeMonth(-1)">&#10094;</li>
+                <li class="next" onclick="changeMonth(1)">&#10095;</li>
+                <li>${monthNames[month]}<br><span style="font-size:18px">${year}</span></li>
             </ul>
-            <ul class="days">`;
+        </div>
+        <ul class="weekdays">
+            <li>Seg</li><li>Ter</li><li>Qua</li><li>Qui</li><li>Sex</li><li>Sáb</li><li>Dom</li>
+        </ul>
+        <ul class="days">`;
 
             let day = 1;
+            // Ajusta o 'primeiro dia' para que a semana comece na Segunda (0) em vez de Domingo.
             const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
 
+            // Itera para criar as 6 linhas de semanas do calendário.
             for (let i = 0; i < 6; i++) {
+                // Itera para criar os 7 dias da semana.
                 for (let j = 0; j < 7; j++) {
+                    // Se for um espaço vazio antes do dia 1 ou depois do último dia do mês.
                     if ((i === 0 && j < adjustedFirstDay) || day > daysInMonth) {
                         calendarHTML += `<li></li>`;
                     } else {
+                        // Formata a data atual no formato YYYY-MM-DD para comparação.
                         const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                        // Verifica se a data atual existe na lista 'datasComCartas'.
+                        // Se existir, adiciona a classe CSS 'tem-carta' para realçar o dia.
                         const temCarta = datasComCartas.includes(dateString) ? 'tem-carta' : '';
+                        // Adiciona o dia ao calendário, com a classe e a função de clique.
                         calendarHTML += `<li class="${temCarta}" onclick="filtrarPorData('${dateString}')">${day}</li>`;
                         day++;
                     }
@@ -184,11 +208,18 @@
             }
 
             calendarHTML += `</ul>`;
+            // Insere o HTML gerado dentro do elemento do calendário na página.
             calendarEl.innerHTML = calendarHTML;
         }
 
+        /**
+         * Altera o mês exibido no calendário.
+         * Esta função é exposta globalmente (window.changeMonth) para ser chamada pelo 'onclick' das setas.
+         * param {number} delta - A quantidade de meses a avançar (1) ou retroceder (-1).
+         */
         window.changeMonth = function (delta) {
             currentMonth += delta;
+            // Lógica para mudar o ano se o mês for menor que Janeiro ou maior que Dezembro.
             if (currentMonth < 0) {
                 currentMonth = 11;
                 currentYear--;
@@ -196,24 +227,34 @@
                 currentMonth = 0;
                 currentYear++;
             }
+            // Redesenha o calendário para o novo mês/ano.
             renderCalendar(currentMonth, currentYear);
         };
 
+        /**
+         * Submete um formulário para filtrar as cartas pela data selecionada.
+         * param {string} data - A data selecionada no formato "YYYY-MM-DD".
+         */
         window.filtrarPorData = function (data) {
+            // Cria um elemento de formulário dinamicamente na memória.
             const form = document.createElement("form");
             form.method = "get";
-            form.action = "/Cartas/Index";
+            form.action = "/Cartas/Index"; // A action para onde os dados serão enviados.
 
+            // Cria um campo de input escondido para enviar a data selecionada.
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = "dataSelecionada";
             input.value = data;
 
+            // Adiciona o input ao formulário e o formulário à página.
             form.appendChild(input);
             document.body.appendChild(form);
+            // Submete o formulário, o que recarrega a página com o parâmetro de filtro.
             form.submit();
         };
 
+        // Chama a função renderCalendar pela primeira vez para exibir o mês atual quando a página carrega.
         renderCalendar(currentMonth, currentYear);
     });
 </script>

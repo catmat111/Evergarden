@@ -17,6 +17,10 @@ using ProjetoDW.Models;
 
 namespace ProjetoDW.Controllers
 {
+    /// <summary>
+    /// Controlador para gerir todas as operações relacionadas com os utilizadores,
+    /// incluindo registo de destinatários, gestão de perfis e eliminação de contas.
+    /// </summary>
     public class UtilizadoresController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,6 +28,13 @@ namespace ProjetoDW.Controllers
         private readonly IEmailSender _emailSender;
         private readonly SignInManager<IdentityUser> _signInManager;
 
+        /// <summary>
+        /// Inicializa uma nova instância do <see cref="UtilizadoresController"/>.
+        /// </summary>
+        /// <param name="context">O contexto da base de dados.</param>
+        /// <param name="userManager">Serviço de gestão de utilizadores do Identity.</param>
+        /// <param name="emailSender">Serviço para envio de emails.</param>
+        /// <param name="signInManager">Serviço para gestão de login/logout.</param>
         public UtilizadoresController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IEmailSender emailSender, SignInManager<IdentityUser> signInManager)
         {
             _context = context;
@@ -32,33 +43,39 @@ namespace ProjetoDW.Controllers
             _signInManager = signInManager;
         }
 
-        // GET: UtilizadoresR
+        // GET: Utilizadores
+        /// <summary>
+        /// Lista os destinatários criados pelo remetente autenticado.
+        /// Apenas acessível por utilizadores com o papel "Remetente".
+        /// </summary>
+        /// <param name="searchString">Termo para filtrar destinatários por nome.</param>
+        /// <returns>Uma View com a lista de destinatários filtrada.</returns>
         [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> Index(string searchString)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            
-            // Obtem o ID da role "Destinatario"
+            // Encontra o ID do papel "Destinatario".
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Destinatario");
             if (role == null)
             {
                 return Problem("A role 'Destinatario' não foi encontrada.");
             }
 
-            // Obtem os UserIds de todos os utilizadores com essa role
+            // Obtém os IDs de todos os utilizadores que têm o papel "Destinatario".
             var userIdsComRoleDestinatario = await _context.UserRoles
                 .Where(ur => ur.RoleId == role.Id)
                 .Select(ur => ur.UserId)
                 .ToListAsync();
 
-            // Obtem os utilizadores da tabela Utilizadores cujos IdentityUserId está na lista
+            // Constrói a query para obter os utilizadores (da nossa tabela Utilizadores) que são destinatários
+            // e que foram criados pelo remetente atualmente autenticado.
             var utilizadoresQuery = _context.Utilizadores
                 .Include(u => u.Remetente)
                 .Where(u => userIdsComRoleDestinatario.Contains(u.IdentityUserID))
                 .Where(u => u.Remetente.IdentityUserID == user.Id);
 
-            // Se houver filtro de pesquisa
+            // Aplica o filtro de pesquisa, se existir.
             if (!string.IsNullOrEmpty(searchString))
             {
                 utilizadoresQuery = utilizadoresQuery
@@ -69,11 +86,12 @@ namespace ProjetoDW.Controllers
             return View(listaFinal);
         }
 
-
-
-
-
-        // GET: UtilizadoresR/Details/5
+        // GET: Utilizadores/Details/5
+        /// <summary>
+        /// Apresenta os detalhes de um utilizador específico.
+        /// </summary>
+        /// <param name="id">O ID do utilizador.</param>
+        /// <returns>Uma View com os detalhes do utilizador.</returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -81,52 +99,56 @@ namespace ProjetoDW.Controllers
                 return NotFound();
             }
 
-            var utilizadoresR = await _context.Utilizadores
+            var utilizadores = await _context.Utilizadores
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (utilizadoresR == null)
+            if (utilizadores == null)
             {
                 return NotFound();
             }
 
-            return View(utilizadoresR);
+            return View(utilizadores);
         }
 
-        // GET: UtilizadoresR/Create
-        // GET: UtilizadoresR/Create
-        // GET: UtilizadoresR/Create
+        // GET: Utilizadores/Create
+        /// <summary>
+        /// Apresenta o formulário para um remetente criar um novo destinatário.
+        /// </summary>
+        /// <returns>A View de criação.</returns>
         [Authorize(Roles = "Remetente")]
         public IActionResult Create()
         {
             return View();
         }
-        
 
-
-        // POST: UtilizadoresR/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-// POST: UtilizadoresR/Create
+        // POST: Utilizadores/Create
+        /// <summary>
+        /// Processa a criação de um novo utilizador destinatário.
+        /// Cria a conta no ASP.NET Identity, associa-a ao remetente, guarda a imagem e envia um email de confirmação.
+        /// </summary>
+        /// <param name="model">Os dados do novo utilizador.</param>
+        /// <param name="password">A password para a nova conta.</param>
+        /// <returns>Uma View de sucesso ou a View de criação com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> Create(Utilizadores model, string password)
         {
-            
             if (!ModelState.IsValid)
                 return View(model);
-
+            
+            // Encontra o perfil do remetente autenticado na nossa tabela Utilizadores.
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
 
             if (remetente == null)
                 return View("ErroRemetente");
 
+            // Cria o novo utilizador no sistema de Identity do ASP.NET.
             var newUser = new IdentityUser
             {
                 UserName = model.Email,
                 Email = model.Email
             };
-
             var result = await _userManager.CreateAsync(newUser, password);
 
             if (!result.Succeeded)
@@ -135,16 +157,19 @@ namespace ProjetoDW.Controllers
                     ModelState.AddModelError(string.Empty, error.Description);
                 return View(model);
             }
-
+            
+            // Atribui o papel "DESTINATARIO" ao novo utilizador.
             await _userManager.AddToRoleAsync(newUser, "DESTINATARIO");
+
+            // Define um caminho de imagem por defeito.
             model.ImagemPath = "default.png";
-            // === GUARDAR IMAGEM ===
+
+            // Processa e guarda a imagem de perfil, se uma for enviada.
             if (model.Imagem != null && model.Imagem.Length > 0)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Imagem.FileName);
                 var filePath = Path.Combine("wwwroot/recursos/imagens_user", fileName);
 
-                // Criar pasta se não existir
                 var folder = Path.GetDirectoryName(filePath);
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
@@ -153,22 +178,19 @@ namespace ProjetoDW.Controllers
                 {
                     await model.Imagem.CopyToAsync(stream);
                 }
-
-                model.ImagemPath = "imagens_user/" + fileName; // Caminho para guardar na BD
+                model.ImagemPath = "imagens_user/" + fileName;
             }
-
+            
+            // Associa o ID do IdentityUser e o ID do remetente ao novo perfil de utilizador.
             model.IdentityUserID = newUser.Id;
             model.RemetenteId = remetente.Id;
-            model.Telemovel = model.Telemovel;
-
 
             _context.Utilizadores.Add(model);
             await _context.SaveChangesAsync();
-            
-            // Geração do token de confirmação de email
+
+            // Envia o email de confirmação da conta.
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
             var callbackUrl = Url.Page(
                 "/Account/ConfirmEmail",
                 pageHandler: null,
@@ -180,17 +202,16 @@ namespace ProjetoDW.Controllers
                 "Confirmação de conta",
                 $"Por favor confirma a tua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
 
-
             return View("DestinatarioCriado");
         }
 
-
-
-
-
-
-
-        // GET: UtilizadoresR/Edit/5
+        // GET: Utilizadores/Edit/5
+        /// <summary>
+        /// Apresenta o formulário para editar os dados de um utilizador.
+        /// Um remetente pode editar os seus próprios dados ou os dos destinatários que criou.
+        /// </summary>
+        /// <param name="id">O ID do utilizador a editar.</param>
+        /// <returns>A View de edição ou uma página de erro.</returns>
         [Authorize(Roles = "Remetente")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -203,9 +224,10 @@ namespace ProjetoDW.Controllers
             if (remetente == null)
                 return Unauthorized();
 
+            // Verifica se o utilizador a editar é o próprio remetente ou um dos seus destinatários.
             var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u =>
                 u.Id == id &&
-                (u.Id == remetente.Id || u.RemetenteId == remetente.Id)); // Pode editar-se a si ou aos destinatários criados
+                (u.Id == remetente.Id || u.RemetenteId == remetente.Id));
 
             if (utilizador == null)
                 return NotFound();
@@ -213,77 +235,81 @@ namespace ProjetoDW.Controllers
             return View(utilizador);
         }
 
-
-        // POST: UtilizadoresR/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Utilizadores/Edit/5
+        /// <summary>
+        /// Processa a atualização dos dados de um utilizador.
+        /// </summary>
+        /// <param name="id">O ID do utilizador a ser atualizado.</param>
+        /// <param name="model">Os dados atualizados do utilizador.</param>
+        /// <returns>Uma View de sucesso ou a View de edição com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-[Authorize(Roles = "Remetente")]
-public async Task<IActionResult> Edit(int id, Utilizadores model)
-{
-    if (id != model.Id)
-        return NotFound();
-
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
-
-    if (remetente == null)
-        return Unauthorized();
-
-    var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u =>
-        u.Id == id &&
-        (u.Id == remetente.Id || u.RemetenteId == remetente.Id));
-
-    if (utilizador == null)
-        return NotFound();
-
-    model.Email = utilizador.Email;
-    ModelState.Remove(nameof(model.Email)); // limpa o erro causado pelo campo vazio
-
-    if (ModelState.IsValid)
-    {
-        try
+        [Authorize(Roles = "Remetente")]
+        public async Task<IActionResult> Edit(int id, Utilizadores model)
         {
-            // Atualiza dados
-            utilizador.Nome = model.Nome;
-            utilizador.Telemovel = model.Telemovel;
-            utilizador.DataNascimento = model.DataNascimento;
-
-            // Atualizar imagem se fornecida
-            if (model.Imagem != null && model.Imagem.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Imagem.FileName);
-                var filePath = Path.Combine("wwwroot/recursos/imagens_user", fileName);
-
-                // Criar pasta se não existir
-                var folder = Path.GetDirectoryName(filePath);
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.Imagem.CopyToAsync(stream);
-                }
-
-                utilizador.ImagemPath = "imagens_user/" + fileName;
-            }
-
-
-            await _context.SaveChangesAsync();
-            return View("ContaEditada",utilizador);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!UtilizadoresRExists(model.Id))
+            if (id != model.Id)
                 return NotFound();
-            throw;
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var remetente = await _context.Utilizadores.FirstOrDefaultAsync(u => u.IdentityUserID == userId);
+
+            if (remetente == null)
+                return Unauthorized();
+
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u =>
+                u.Id == id &&
+                (u.Id == remetente.Id || u.RemetenteId == remetente.Id));
+
+            if (utilizador == null)
+                return NotFound();
+            
+            // O email não pode ser alterado, por isso é preservado e removido da validação do modelo.
+            model.Email = utilizador.Email;
+            ModelState.Remove(nameof(model.Email));
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Atualiza os dados do utilizador existente.
+                    utilizador.Nome = model.Nome;
+                    utilizador.Telemovel = model.Telemovel;
+                    utilizador.DataNascimento = model.DataNascimento;
+
+                    // Atualiza a imagem se uma nova for fornecida.
+                    if (model.Imagem != null && model.Imagem.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.Imagem.FileName);
+                        var filePath = Path.Combine("wwwroot/recursos/imagens_user", fileName);
+
+                        var folder = Path.GetDirectoryName(filePath);
+                        if (!Directory.Exists(folder))
+                            Directory.CreateDirectory(folder);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await model.Imagem.CopyToAsync(stream);
+                        }
+                        utilizador.ImagemPath = "imagens_user/" + fileName;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return View("ContaEditada", utilizador);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UtilizadoresRExists(model.Id))
+                        return NotFound();
+                    throw;
+                }
+            }
+            return View(model);
         }
-    }
-
-    return View(model);
-}
-
+        
+        /// <summary>
+        /// Apresenta a página de perfil do utilizador autenticado.
+        /// </summary>
+        /// <returns>A View de perfil com os dados do utilizador.</returns>
         public async Task<IActionResult> Perfil()
         {
             var identityUser = await _userManager.GetUserAsync(User);
@@ -303,8 +329,12 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
             return View(utilizador);
         }
 
-
-        // GET: UtilizadoresR/Delete/5
+        // GET: Utilizadores/Delete/5
+        /// <summary>
+        /// Apresenta a página de confirmação para eliminar uma conta.
+        /// </summary>
+        /// <param name="id">O ID do utilizador a eliminar.</param>
+        /// <returns>A View de confirmação.</returns>
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -312,98 +342,88 @@ public async Task<IActionResult> Edit(int id, Utilizadores model)
                 return NotFound();
             }
 
-            var utilizadoresR = await _context.Utilizadores
+            var utilizadores = await _context.Utilizadores
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (utilizadoresR == null)
+            if (utilizadores == null)
             {
                 return NotFound();
             }
 
-            return View(utilizadoresR);
+            return View(utilizadores);
         }
-        
-        
+
+        /// <summary>
+        /// Apresenta uma página de confirmação genérica.
+        /// </summary>
+        /// <returns>A View "ContaCriada".</returns>
         public IActionResult ContaCriada()
         {
             return View();
         }
 
-        // POST: UtilizadoresR/Delete/5
-       [HttpPost, ActionName("Delete")]
-[ValidateAntiForgeryToken]
-[Authorize(Roles = "Remetente")]
-public async Task<IActionResult> DeleteConfirmed(int id)
-{
-    var utilizador = await _context.Utilizadores
-        .Include(u => u.UtilizadoresDestinatarios)
-        .Include(u => u.Remetente)
-        .FirstOrDefaultAsync(u => u.Id == id);
-
-    if (utilizador == null)
-        return NotFound();
-
-    var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
-
-    // Verificar se é utilizador autenticado a eliminar a própria conta
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    if (utilizador.IdentityUserID != userId)
-        return Unauthorized();
-
-    if (utilizador.RemetenteId == null)
-    {
-        // REMETENTE
-
-        // Eliminar cartas do remetente
-        var cartasRemetente = _context.Cartas.Where(c => c.UtilizadorRemetenteFk == utilizador.Id);
-        _context.Cartas.RemoveRange(cartasRemetente);
-
-        // Eliminar categorias do remetente
-        var categorias = _context.Categorias.Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID);
-        _context.Categorias.RemoveRange(categorias);
-
-        // Eliminar destinatários e suas cartas + contas
-        foreach (var dest in utilizador.UtilizadoresDestinatarios)
+        // POST: Utilizadores/Delete/5
+        /// <summary>
+        /// Confirma e executa a eliminação de uma conta de utilizador e todos os seus dados associados.
+        /// </summary>
+        /// <param name="id">O ID do utilizador a ser eliminado.</param>
+        /// <returns>Redireciona para a página inicial após a eliminação.</returns>
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Remetente")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cartasDest = _context.Cartas.Where(c => c.UtilizadorDestinatarioFk == dest.Id);
-            _context.Cartas.RemoveRange(cartasDest);
+            var utilizador = await _context.Utilizadores
+                .Include(u => u.UtilizadoresDestinatarios) // Inclui os destinatários para eliminação em cascata
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-            var destIdentity = await _userManager.FindByIdAsync(dest.IdentityUserID);
-            if (destIdentity != null)
-                await _userManager.DeleteAsync(destIdentity);
+            if (utilizador == null)
+                return NotFound();
 
-            _context.Utilizadores.Remove(dest);
+            var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
+
+            // Medida de segurança: Apenas o próprio utilizador pode iniciar a eliminação da sua conta.
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (utilizador.IdentityUserID != currentUserId)
+                return Unauthorized();
+
+            // Lógica de eliminação em cascata.
+            if (utilizador.RemetenteId == null) // Se for um REMETENTE
+            {
+                // Elimina cartas, categorias e todos os destinatários associados.
+                _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorRemetenteFk == utilizador.Id));
+                _context.Categorias.RemoveRange(_context.Categorias.Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID));
+
+                foreach (var dest in utilizador.UtilizadoresDestinatarios)
+                {
+                    _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorDestinatarioFk == dest.Id));
+                    var destIdentity = await _userManager.FindByIdAsync(dest.IdentityUserID);
+                    if (destIdentity != null) await _userManager.DeleteAsync(destIdentity);
+                    _context.Utilizadores.Remove(dest);
+                }
+            }
+            else // Se for um DESTINATÁRIO
+            {
+                // Apenas elimina as cartas onde ele é o destinatário.
+                _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorDestinatarioFk == utilizador.Id));
+            }
+
+            // Remove o registo da tabela Utilizadores.
+            _context.Utilizadores.Remove(utilizador);
+            await _context.SaveChangesAsync();
+            
+            // Termina a sessão do utilizador antes de eliminar a conta do Identity.
+            await _signInManager.SignOutAsync();
+            if (identityUser != null)
+                await _userManager.DeleteAsync(identityUser);
+
+            return RedirectToAction("Index", "Home");
         }
-    }
-    else
-    {
-        // DESTINATÁRIO
-
-        var cartasDest = _context.Cartas.Where(c => c.UtilizadorDestinatarioFk == utilizador.Id);
-        _context.Cartas.RemoveRange(cartasDest);
-    }
-
-    // Remover utilizador principal
-    _context.Utilizadores.Remove(utilizador);
-
-    // Guardar alterações na base de dados antes de terminar sessão
-    await _context.SaveChangesAsync();
-
-    // Terminar sessão antes de remover o AspNetUser
-    await _signInManager.SignOutAsync();
-
-    if (identityUser != null)
-        await _userManager.DeleteAsync(identityUser);
-
-    // Redirecionar para página pública
-    return RedirectToAction("Index", "Home");
-}
-
-
-
-
-
-
-
+        
+        /// <summary>
+        /// Verifica se um utilizador existe na base de dados.
+        /// </summary>
+        /// <param name="id">O ID do utilizador.</param>
+        /// <returns>Verdadeiro se o utilizador existir, falso caso contrário.</returns>
         private bool UtilizadoresRExists(int id)
         {
             return _context.Utilizadores.Any(e => e.Id == id);

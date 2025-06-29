@@ -88,36 +88,120 @@
 
 @section Scripts {
     <script>
-        const checkboxes = document.querySelectorAll('.categoria-checkbox');
-        const dataEnvioContainer = document.getElementById('dataEnvioContainer');
+        /**
+         * Ajusta a altura de um elemento textarea para se adaptar ao seu conteúdo.
+         * param {HTMLTextAreaElement} textarea - O elemento textarea a ser ajustado.
+         */
+        function ajustarAltura(textarea) {
+            if (textarea) {
+                textarea.style.height = 'auto'; // Reseta a altura para recalcular corretamente.
+                textarea.style.height = textarea.scrollHeight + 'px'; // Ajusta a altura à altura do conteúdo.
+            }
+}
 
-        function verificarCategoriasComData() {
-            const mostrarData = Array.from(checkboxes).some(cb => cb.checked && cb.dataset.temdata === "true");
+        /**
+         * Atualiza a visibilidade e o requisito do campo de data de envio
+         * com base nas categorias selecionadas.
+         */
+        function atualizarVisibilidadeDataEnvio() {
+            const checkboxes = document.querySelectorAll('.categoria-checkbox');
+            let mostrarData = false;
 
-            dataEnvioContainer.style.display = mostrarData ? 'block' : 'none';
+            // Itera sobre cada checkbox para verificar se alguma marcada exige data.
+            checkboxes.forEach(cb => {
+                // Usa `dataset.tipo` que corresponde à propriedade `Tipo` no modelo C#.
+                if (cb.checked && cb.dataset.tipo === "True") { // "True" em C# torna-se "True" no HTML.
+                    mostrarData = true;
+                }
+            });
+
+            const dataContainer = document.getElementById("dataEnvioContainer");
+            const dataInput = document.getElementById("DataEnvio");
+            const dataErro = document.getElementById("dataEnvioErro");
+
+            if (mostrarData) {
+                dataContainer.style.display = "block";
+                dataInput.required = true;
+            } else {
+                dataContainer.style.display = "none";
+                dataInput.required = false;
+                dataInput.value = ""; // Limpa o valor se o campo for escondido.
+            }
+            // Sempre esconde a mensagem de erro ao verificar
+            if (dataErro) dataErro.style.display = "none";
         }
 
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', verificarCategoriasComData);
-        });
+        // Adiciona um 'ouvinte' que espera que toda a página seja carregada.
+        document.addEventListener("DOMContentLoaded", () => {
+            const dataInput = document.getElementById("DataEnvio");
+            const descricaoTextarea = document.getElementById('Descricao'); // ID da textarea do model
+            const form = document.getElementById('formCarta');
 
-        // Executa na inicialização caso esteja voltando do POST com dados preenchidos
-        verificarCategoriasComData();
-    </script>
+            // --- CONFIGURAÇÃO INICIAL ---
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const dateInput = document.querySelector('input[type="date"]');
-            if (dateInput) {
-                dateInput.addEventListener('keydown', function (e) {
-                    e.preventDefault();
+            // 1. Define o estado inicial do campo de data.
+            atualizarVisibilidadeDataEnvio();
+
+            // 2. Ajusta a altura inicial da textarea caso a página seja recarregada com conteúdo.
+            ajustarAltura(descricaoTextarea);
+
+            // 3. Impede que o utilizador digite manualmente no campo de data.
+            if (dataInput) {
+                dataInput.addEventListener("keydown", e => e.preventDefault());
+            }
+
+            // --- OUVINTES DE EVENTOS (EVENT LISTENERS) ---
+
+            // 1. Ouve mudanças nas checkboxes de categoria.
+            document.querySelectorAll('.categoria-checkbox').forEach(cb => {
+                cb.addEventListener("change", atualizarVisibilidadeDataEnvio);
+            });
+
+            // 2. Ouve a digitação na textarea para ajustar a altura dinamicamente.
+            if (descricaoTextarea) {
+                descricaoTextarea.addEventListener('input', () => ajustarAltura(descricaoTextarea));
+            }
+
+            // 3. Adiciona validação do lado do cliente ao formulário antes de ser submetido.
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    const checkboxes = document.querySelectorAll('.categoria-checkbox:checked');
+                    const erroCategorias = document.getElementById('categoriasErro');
+                    const dataErro = document.getElementById("dataEnvioErro");
+
+                    // Validação 1: Pelo menos uma categoria deve ser selecionada.
+                    if (checkboxes.length === 0) {
+                        if (erroCategorias) erroCategorias.style.display = "block";
+                        e.preventDefault(); // Impede a submissão do formulário.
+                        return;
+                    } else {
+                        if (erroCategorias) erroCategorias.style.display = "none";
+                    }
+
+                    // Validação 2: Se a data for obrigatória, verificar se foi preenchida e se é válida.
+                    if (dataInput && dataInput.required) {
+                        if (!dataInput.value) {
+                            dataErro.textContent = "Por favor selecione uma data.";
+                            if (dataErro) dataErro.style.display = "block";
+                            e.preventDefault();
+                            return;
+                        }
+
+                        const hoje = new Date();
+                        hoje.setHours(0, 0, 0, 0);
+                        const dataSelecionada = new Date(dataInput.value);
+
+                        if (dataSelecionada < hoje) {
+                            dataErro.textContent = "A data deve ser hoje ou uma data futura.";
+                            if (dataErro) dataErro.style.display = "block";
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                    if (dataErro) dataErro.style.display = "none";
                 });
             }
-        });
-        function ajustarAltura(textarea) {
-            textarea.style.height = 'auto'; // reset altura
-            textarea.style.height = textarea.scrollHeight + 'px'; // ajusta à altura do conteúdo
-        }
+});
 
     </script>
 }

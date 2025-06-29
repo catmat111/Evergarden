@@ -63,28 +63,53 @@
 
 @section Scripts {
     <script>
+        /**
+         * Exibe uma pré-visualização da imagem selecionada num campo de input de ficheiro.
+         * Esta função deve ser chamada no evento 'onchange' do input.
+         * Exemplo de uso no HTML: <input type="file" onchange="previewImagem(this)" />
+         * param {HTMLInputElement} input - O elemento input do tipo 'file' que acionou o evento.
+         */
         function previewImagem(input) {
+            // Obtém o elemento <img> onde a pré-visualização será exibida.
             const preview = document.getElementById('preview');
+
+            // Verifica se um ficheiro foi selecionado.
             if (input.files && input.files[0]) {
+                // Cria um objeto FileReader para ler o conteúdo do ficheiro.
                 const reader = new FileReader();
+
+                // Define o que acontece quando a leitura do ficheiro estiver concluída.
                 reader.onload = function (e) {
+                    // Atribui o resultado da leitura (um URL de dados) ao 'src' da imagem.
                     preview.src = e.target.result;
+                    // Torna a imagem de pré-visualização visível.
                     preview.style.display = "block";
                 };
+
+                // Inicia a leitura do ficheiro como um Data URL.
                 reader.readAsDataURL(input.files[0]);
             } else {
+                // Se nenhum ficheiro for selecionado, esconde a pré-visualização.
                 preview.src = "#";
                 preview.style.display = "none";
             }
-        }
+}
 
+        /**
+         * Ouve o evento de carregamento do conteúdo da página.
+         */
         document.addEventListener('DOMContentLoaded', function () {
+            // Procura por qualquer campo de input do tipo 'date'.
             const dateInput = document.querySelector('input[type="date"]');
+
+            // Se um campo de data for encontrado, adiciona um 'ouvinte' de evento.
             if (dateInput) {
+                // Impede que o utilizador digite manualmente no campo de data,
+                // forçando o uso do seletor de data do browser.
                 dateInput.addEventListener('keydown', function (e) {
                     e.preventDefault();
                 });
             }
-        });
+});
     </script>
 }
