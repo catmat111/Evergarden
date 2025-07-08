@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
         <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-ProjetoDW-2aeb946c-47f9-4557-b62e-1fecd56dd05f</UserSecretsId>
@@ -14,6 +16,7 @@
 
     <ItemGroup>
         <PackageReference Include="MailKit" Version="4.12.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.5" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.13" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.13" />
@@ -22,6 +25,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.14" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.13" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>

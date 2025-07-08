@@ -1,0 +1,14 @@
+﻿namespace ProjetoDW.Models.ViewModels;
+
+public class LoginDTO
+{
+    /// <summary>
+    /// 'username' da pessoa que se quer autenticar
+    /// </summary>
+    public string Username { get; set; } = "";
+
+    /// <summary>
+    /// Password da pessoa que se quer autenticar
+    /// </summary>
+    public string Password { get; set; } = "";
+}
