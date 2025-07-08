@@ -148,10 +148,10 @@ namespace ProjetoDW.Controllers
         /// </summary>
         /// <param name="id">O ID da tarefa a ser eliminada.</param>
         /// <returns>Redireciona para a ação Index do CartasController.</returns>
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         // Idealmente, este método deveria chamar-se "DeleteConfirmed" e ter [ActionName("Delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var tarefa = await _context.Tarefa.FindAsync(id);
             if (tarefa != null)

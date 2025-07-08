@@ -368,56 +368,72 @@ namespace ProjetoDW.Controllers
         /// <param name="id">O ID do utilizador a ser eliminado.</param>
         /// <returns>Redireciona para a página inicial após a eliminação.</returns>
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Remetente")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+[ValidateAntiForgeryToken]
+[Authorize(Roles = "Remetente")]
+public async Task<IActionResult> DeleteConfirmed(int id)
+{
+    var utilizador = await _context.Utilizadores
+        .Include(u => u.UtilizadoresDestinatarios) // Inclui os destinatários para eliminação em cascata
+        .FirstOrDefaultAsync(u => u.Id == id);
+
+    if (utilizador == null)
+        return NotFound();
+
+    var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
+
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    // Obter o remetente autenticado
+    var remetente = await _context.Utilizadores
+        .FirstOrDefaultAsync(u => u.IdentityUserID == currentUserId);
+
+    // Permitir eliminação apenas se for o próprio ou se for um remetente a eliminar um destinatário que criou
+    if (utilizador.IdentityUserID != currentUserId &&
+        utilizador.RemetenteId != remetente?.Id)
+    {
+        return Unauthorized();
+    }
+
+    // Lógica de eliminação
+    if (utilizador.RemetenteId == null)
+    {
+        // REMETENTE: Elimina cartas, categorias e destinatários associados
+        _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorRemetenteFk == utilizador.Id));
+        _context.Categorias.RemoveRange(_context.Categorias.Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID));
+
+        foreach (var dest in utilizador.UtilizadoresDestinatarios)
         {
-            var utilizador = await _context.Utilizadores
-                .Include(u => u.UtilizadoresDestinatarios) // Inclui os destinatários para eliminação em cascata
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (utilizador == null)
-                return NotFound();
-
-            var identityUser = await _userManager.FindByIdAsync(utilizador.IdentityUserID);
-
-            // Medida de segurança: Apenas o próprio utilizador pode iniciar a eliminação da sua conta.
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (utilizador.IdentityUserID != currentUserId)
-                return Unauthorized();
-
-            // Lógica de eliminação em cascata.
-            if (utilizador.RemetenteId == null) // Se for um REMETENTE
-            {
-                // Elimina cartas, categorias e todos os destinatários associados.
-                _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorRemetenteFk == utilizador.Id));
-                _context.Categorias.RemoveRange(_context.Categorias.Where(c => c.UtilizadorCriadorId == utilizador.IdentityUserID));
-
-                foreach (var dest in utilizador.UtilizadoresDestinatarios)
-                {
-                    _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorDestinatarioFk == dest.Id));
-                    var destIdentity = await _userManager.FindByIdAsync(dest.IdentityUserID);
-                    if (destIdentity != null) await _userManager.DeleteAsync(destIdentity);
-                    _context.Utilizadores.Remove(dest);
-                }
-            }
-            else // Se for um DESTINATÁRIO
-            {
-                // Apenas elimina as cartas onde ele é o destinatário.
-                _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorDestinatarioFk == utilizador.Id));
-            }
-
-            // Remove o registo da tabela Utilizadores.
-            _context.Utilizadores.Remove(utilizador);
-            await _context.SaveChangesAsync();
-            
-            // Termina a sessão do utilizador antes de eliminar a conta do Identity.
-            await _signInManager.SignOutAsync();
-            if (identityUser != null)
-                await _userManager.DeleteAsync(identityUser);
-
-            return RedirectToAction("Index", "Home");
+            _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorDestinatarioFk == dest.Id));
+            var destIdentity = await _userManager.FindByIdAsync(dest.IdentityUserID);
+            if (destIdentity != null) await _userManager.DeleteAsync(destIdentity);
+            _context.Utilizadores.Remove(dest);
         }
+    }
+    else
+    {
+        // DESTINATÁRIO: Elimina apenas as cartas onde é destinatário
+        _context.Cartas.RemoveRange(_context.Cartas.Where(c => c.UtilizadorDestinatarioFk == utilizador.Id));
+    }
+
+    // Remove da tabela de Utilizadores
+    _context.Utilizadores.Remove(utilizador);
+    await _context.SaveChangesAsync();
+
+    // Apenas termina sessão se for o próprio
+    if (utilizador.IdentityUserID == currentUserId)
+    {
+        await _signInManager.SignOutAsync();
+    }
+
+    // Elimina o utilizador do Identity
+    if (identityUser != null)
+    {
+        await _userManager.DeleteAsync(identityUser);
+    }
+
+    return View("DestinatarioDeletado");
+}
+
         
         /// <summary>
         /// Verifica se um utilizador existe na base de dados.

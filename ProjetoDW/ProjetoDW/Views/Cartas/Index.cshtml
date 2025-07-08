@@ -57,10 +57,13 @@
                                         <input type="checkbox" onchange="this.form.submit()" @(tarefa.Terminado ? "checked" : "")/>
                                         @tarefa.Nome
                                     </form>
-                                    <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
-                                        <input type="hidden" name="id" value="@tarefa.Id"/>
-                                        <button type="submit" class="btn btn-sm btn-danger">X</button>
-                                    </form>
+                                    <div id="@tarefa.Nome" style="display: none">
+                                        <form asp-controller="Tarefa" asp-action="Delete" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" value="@tarefa.Id"/>
+                                            <button type="submit" class="btn btn-sm btn-danger">X</button>
+                                        </form>
+                                    </div>
+                                    
                                 </li>
                             }
                         }
@@ -272,5 +275,8 @@
     });
 
     connection.start().catch(err => console.error(err.toString()));
+</script>
+<script>
+    const eliminarTarefa = document.getElementById("")
 </script>
 
